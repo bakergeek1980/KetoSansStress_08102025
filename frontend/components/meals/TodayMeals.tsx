@@ -89,9 +89,9 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
   };
 
   const getKetoScoreColor = (score: number) => {
-    if (score >= 8) return COLORS.primary;
-    if (score >= 6) return '#F39C12';
-    return '#E74C3C';
+    if (score >= 8) return COLORS.success;
+    if (score >= 6) return COLORS.warning;
+    return COLORS.error;
   };
 
   const renderMeal = ({ item }: { item: Meal }) => (
