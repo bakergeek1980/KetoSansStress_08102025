@@ -503,4 +503,80 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
     marginHorizontal: 12,
   },
+  
+  // Header styles
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  settingsButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  
+  // Setting item styles
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.background,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border + '50',
+  },
+  settingInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+  },
 });
