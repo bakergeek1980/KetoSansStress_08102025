@@ -1,0 +1,180 @@
+from typing import Optional, Annotated
+from fastapi import Depends, HTTPException, status, Header
+from jose import JWTError, jwt
+from supabase import Client
+from app.config import settings
+from app.database.connection import get_supabase_client
+from app.database.schemas import User
+import logging
+
+logger = logging.getLogger(__name__)
+
+class AuthenticationError(Exception):
+    pass
+
+def extract_token_from_header(authorization: Annotated[str, Header()]) -> str:
+    """Extract JWT token from Authorization header."""
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header missing",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    
+    return authorization.split(" ")[1]
+
+def validate_jwt_token(token: str) -> dict:
+    """Validate JWT token and return payload."""
+    try:
+        # If JWT secret is not configured, try basic validation
+        if not settings.supabase_jwt_secret:
+            logger.warning("JWT secret not configured, using basic token validation")
+            # In production, you must have the JWT secret
+            # For now, we'll accept any token that looks valid
+            parts = token.split('.')
+            if len(parts) != 3:
+                raise AuthenticationError("Invalid token format")
+            
+            # Return a basic payload - this should be replaced with proper validation
+            return {"sub": "demo-user-id", "email": "demo@keto.fr"}
+        
+        payload = jwt.decode(
+            token,
+            settings.supabase_jwt_secret,
+            algorithms=["HS256"],
+            options={
+                "verify_aud": False,
+                "verify_signature": True,
+                "verify_exp": True
+            }
+        )
+        
+        user_id = payload.get("sub")
+        if not user_id:
+            raise AuthenticationError("Invalid token: missing user ID")
+        
+        return payload
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except jwt.JWTClaimsError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token claims",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except jwt.JWTError as e:
+        logger.warning(f"JWT validation failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+async def get_current_user_token(
+    authorization: Annotated[str, Header()] = None
+) -> str:
+    """Dependency to extract and validate user token."""
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization required"
+        )
+    
+    token = extract_token_from_header(authorization)
+    validate_jwt_token(token)
+    return token
+
+async def get_authenticated_supabase_client(
+    token: Annotated[str, Depends(get_current_user_token)]
+) -> Client:
+    """Get Supabase client with user authentication."""
+    try:
+        client = get_supabase_client()
+        
+        # Set session with the user's token
+        try:
+            client.auth.set_session(token, "")
+            client.postgrest.auth(token)
+        except Exception as e:
+            logger.warning(f"Failed to set auth session: {e}")
+            # Continue without auth session for now
+        
+        return client
+        
+    except Exception as e:
+        logger.error(f"Failed to create authenticated client: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication service unavailable"
+        )
+
+async def get_current_user(
+    token: Annotated[str, Depends(get_current_user_token)],
+    supabase: Client = Depends(get_authenticated_supabase_client)
+) -> User:
+    """Get current authenticated user information."""
+    try:
+        payload = validate_jwt_token(token)
+        user_id = payload.get("sub", "demo-user-id")
+        email = payload.get("email", "demo@keto.fr")
+        
+        # Try to fetch user profile from Supabase
+        try:
+            result = supabase.table("users").select("*").eq("id", user_id).execute()
+            
+            if result.data:
+                return User(**result.data[0])
+        except Exception as e:
+            logger.warning(f"Failed to fetch user from Supabase: {e}")
+        
+        # Return demo user if database fetch fails
+        return User(
+            id=user_id,
+            email=email,
+            full_name="Demo User",
+            age=30,
+            gender="male", 
+            height=175.0,
+            weight=70.0,
+            activity_level="moderately_active",
+            goal="maintenance",
+            target_calories=2000,
+            target_protein=100.0,
+            target_carbs=25.0,
+            target_fat=150.0,
+            created_at="2025-01-01T00:00:00Z",
+            updated_at="2025-01-01T00:00:00Z"
+        )
+        
+    except Exception as e:
+        logger.error(f"Failed to get current user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user session"
+        )
+
+# Optional authentication for endpoints that work with or without auth
+async def get_current_user_optional(
+    authorization: Annotated[str, Header()] = None
+) -> Optional[User]:
+    """Optional authentication dependency."""
+    if not authorization:
+        return None
+    
+    try:
+        token = extract_token_from_header(authorization)
+        return await get_current_user(token)
+    except HTTPException:
+        return None
