@@ -191,39 +191,60 @@ backend:
 
   - task: "Supabase Backend Migration"
     implemented: true
-    working: "NA"
+    working: false
     file: "backend/main.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Successfully migrated backend architecture from MongoDB to Supabase. Created new main.py with modern FastAPI structure, integrated Supabase client, auth system, and API routes. All legacy endpoints preserved for compatibility. Server restarted and running successfully. Supabase connection established. Ready for comprehensive testing of all endpoints with new architecture."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE: Supabase database schema is incomplete. Missing 'users' table causing health check to fail with error: 'Could not find the table public.users in the schema cache'. Health endpoint shows Supabase status as 'unhealthy'. Backend server is running but Supabase integration is not functional. Database tables need to be created in Supabase before the migration can be considered successful."
 
   - task: "New Supabase Authentication System"
     implemented: true
-    working: "NA"
+    working: false
     file: "backend/app/api/v1/auth.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented new Supabase-based authentication system with registration, login, logout, password reset, and user profile endpoints. JWT token validation and session management configured. Modern auth architecture ready for testing."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUES: 1) User registration works but creates users that require email confirmation before login. Login fails with 'Email not confirmed' error. 2) User profile creation fails due to missing 'users' table in Supabase. 3) Authentication system needs email confirmation workflow or auto-confirmation for testing. Database schema must be created first."
 
   - task: "New Supabase Meals API"
     implemented: true
-    working: "NA"
+    working: false
     file: "backend/app/api/v1/meals.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented new Supabase-based meals API with meal creation, retrieval, daily summaries with advanced filtering and pagination. Modern database schema with proper data types and validation. Ready for testing."
+      - working: false
+        agent: "testing"
+        comment: "BLOCKED: Cannot test meals API functionality due to authentication dependency. Authentication system is not working due to missing database tables and email confirmation requirements. Meals API endpoints exist but require valid authentication tokens to test properly."
+
+  - task: "Legacy Profile Retrieval Fix"
+    implemented: true
+    working: false
+    file: "backend/main.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "ISSUE FOUND: Legacy profile retrieval endpoint GET /api/users/profile/{email} returns 404 for any email except 'demo@keto.fr'. Profile creation works correctly but retrieval fails for created profiles. The endpoint only has hardcoded demo user data and doesn't store/retrieve actual user profiles."
 
 frontend:
   # No frontend testing performed as per instructions
