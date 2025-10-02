@@ -92,6 +92,7 @@ export default function HomeScreen() {
   const [waterTarget] = useState(2500); // ml
   const [isFasting, setIsFasting] = useState(false);
   const [fastingStartTime, setFastingStartTime] = useState<Date | null>(null);
+  const [fastingDuration, setFastingDuration] = useState(16);
   const [isNutritionCollapsed, setIsNutritionCollapsed] = useState(false);
   const [isWaterCollapsed, setIsWaterCollapsed] = useState(false);
   const [scrollY, setScrollY] = useState(0);
