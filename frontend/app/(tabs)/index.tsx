@@ -212,34 +212,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Bottom spacing for fixed widget */}
-        <View style={styles.bottomSpacing} />
       </ScrollView>
-
-      {/* Fixed Bottom Widget */}
-      <View style={styles.fixedBottomWidget}>
-        <LinearGradient
-          colors={[COLORS.surface, COLORS.background]}
-          style={styles.bottomWidgetGradient}
-        >
-          <TouchableOpacity style={styles.bottomButton}>
-            <FileText color={COLORS.textSecondary} size={20} />
-            <Text style={styles.bottomButtonText}>Rapport</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.bottomButton, styles.centerButton]}>
-            <View style={styles.centerButtonIcon}>
-              <Edit3 color={COLORS.surface} size={20} />
-            </View>
-            <Text style={[styles.bottomButtonText, { color: COLORS.primary }]}>Éditer</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.bottomButton}>
-            <Settings color={COLORS.textSecondary} size={20} />
-            <Text style={styles.bottomButtonText}>Paramètres</Text>
-          </TouchableOpacity>
-        </LinearGradient>
-      </View>
     </SafeAreaView>
   );
 }
