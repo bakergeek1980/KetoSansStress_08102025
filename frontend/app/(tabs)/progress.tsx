@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrendingUp, Target, Calendar, Award } from 'lucide-react-native';
-import { LineChart } from 'react-native-svg-charts';
+// import { LineChart } from 'react-native-svg-charts';
 import { useAuth } from '../../contexts/AuthContext';
 import { getWeightHistory, getDailySummary } from '../../lib/api';
 
