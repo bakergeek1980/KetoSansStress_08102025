@@ -21,7 +21,9 @@ import {
   Clock, 
   ChevronRight,
   Timer,
-  Target
+  Target,
+  BarChart3,
+  Settings
 } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import NutritionRingsWidget from '../../components/widgets/NutritionRingsWidget';
