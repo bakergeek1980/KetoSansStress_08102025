@@ -195,13 +195,19 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Nutrition Rings Widget */}
-        <View style={styles.widgetContainer}>
-          <NutritionRingsWidget 
-            dailySummary={dailySummary}
-            user={user}
-          />
-        </View>
+        {/* Nutrition Rings Widget - Normal Position */}
+        {!isNutritionCollapsed && (
+          <View style={styles.widgetContainer}>
+            <NutritionRingsWidget 
+              dailySummary={dailySummary}
+              user={user}
+              isCollapsed={false}
+            />
+          </View>
+        )}
+
+        {/* Add spacing when nutrition widget is collapsed */}
+        {isNutritionCollapsed && <View style={styles.collapsedNutritionSpacing} />}
 
         {/* Water Progress Widget */}
         <View style={styles.widgetContainer}>
