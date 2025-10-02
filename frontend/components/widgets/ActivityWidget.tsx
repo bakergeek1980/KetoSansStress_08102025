@@ -181,9 +181,17 @@ export default function ActivityWidget() {
             <Activity color={COLORS.accent} size={20} />
             <Text style={styles.widgetTitle}>Activité</Text>
           </View>
-          <View style={styles.heartRateContainer}>
-            <Heart color={COLORS.error} size={14} />
-            <Text style={styles.heartRateText}>{activityData.heartRate} bpm</Text>
+          <View style={styles.headerRight}>
+            <View style={styles.heartRateContainer}>
+              <Heart color={COLORS.error} size={14} />
+              <Text style={styles.heartRateText}>{activityData.heartRate} bpm</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={() => setShowSettings(true)}
+            >
+              <Settings color={COLORS.textSecondary} size={18} />
+            </TouchableOpacity>
           </View>
         </View>
 
