@@ -21,7 +21,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Camera } from 'expo-camera';
+import * as ExpoCamera from 'expo-camera';
 
 const COLORS = {
   primary: '#4CAF50',
