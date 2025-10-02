@@ -1,44 +1,46 @@
 #!/usr/bin/env python3
 """
-KetoScan Backend API Testing Suite
-Tests all backend endpoints with French user data
+Backend API Testing for KetoSansStress
+Tests the daily summary endpoint and resolves 404 error for demo user
 """
 
 import requests
 import json
 import base64
-import sys
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-# Get backend URL from environment
+# Load environment variables
+load_dotenv()
+
+# Get backend URL from frontend .env
 def get_backend_url():
     try:
         with open('/app/frontend/.env', 'r') as f:
             for line in f:
                 if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
                     return line.split('=', 1)[1].strip()
-    except Exception as e:
-        print(f"Error reading frontend .env: {e}")
-        return "http://localhost:8001"
+    except:
+        pass
     return "http://localhost:8001"
 
 BASE_URL = get_backend_url()
 API_URL = f"{BASE_URL}/api"
 
-print(f"Testing KetoScan API at: {API_URL}")
-print("=" * 60)
+print(f"Testing backend at: {API_URL}")
 
 # Sample base64 image (small 1x1 pixel PNG)
 SAMPLE_IMAGE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77zgAAAABJRU5ErkJggg=="
 
-# French user profile data
-FRENCH_USER_PROFILE = {
-    "name": "Marie Dubois",
-    "email": "marie.dubois@email.fr",
-    "age": 30,
+# Demo user profile data
+DEMO_USER_PROFILE = {
+    "name": "Marie Démonstration",
+    "email": "demo@keto.fr",
+    "age": 32,
     "gender": "femme",
-    "weight": 70.0,
-    "height": 170.0,
+    "weight": 68.0,
+    "height": 165.0,
     "activity_level": "modere",
     "goal": "perte_poids"
 }
