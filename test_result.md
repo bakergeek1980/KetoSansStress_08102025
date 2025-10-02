@@ -239,6 +239,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "BLOCKED: Cannot test meals API functionality due to authentication dependency. Authentication system is not working due to missing database tables and email confirmation requirements. Meals API endpoints exist but require valid authentication tokens to test properly."
+      - working: false
+        agent: "testing"
+        comment: "BLOCKED: New Supabase meals API endpoints (POST /api/meals/, GET /api/meals/, GET /api/meals/today) all return 401 Unauthorized due to JWT token validation failures. While the endpoints are implemented correctly, they cannot be tested because the authentication system has JWT signature verification issues. The API structure is sound but depends on fixing the authentication token validation."
 
   - task: "Legacy Profile Retrieval Fix"
     implemented: true
