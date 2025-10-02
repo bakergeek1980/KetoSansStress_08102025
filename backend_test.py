@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
 KetoSansStress Backend API Testing Suite
-Focus: JWT Authentication System Testing
+Comprehensive testing for Supabase migration and all endpoints
 """
 
 import requests
 import json
 import base64
 import os
-from datetime import datetime
+from datetime import datetime, date
 from typing import Dict, Any, Optional
 
 # Configuration
 BACKEND_URL = "https://ketodash.preview.emergentagent.com/api"
+TEST_EMAIL = "contact@ketosansstress.com"
+TEST_PASSWORD = "TestKeto2025!"
 DEMO_EMAIL = "demo@keto.fr"
 DEMO_PASSWORD = "demo123456"
 
