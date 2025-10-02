@@ -257,9 +257,10 @@ export default function HomeScreen() {
           <FastingWidget 
             isFasting={isFasting}
             startTime={fastingStartTime}
-            onStart={(time) => {
+            onStart={(time, duration) => {
               setIsFasting(true);
               setFastingStartTime(time);
+              setFastingDuration(duration);
             }}
             onStop={() => {
               setIsFasting(false);
