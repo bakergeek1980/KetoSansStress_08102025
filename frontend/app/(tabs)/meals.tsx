@@ -15,13 +15,19 @@ import { Search, Filter, Calendar, Star, Clock } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserMeals } from '../../lib/api';
 
+// KetoDiet inspired colors
 const COLORS = {
-  primary: '#27AE60',
-  purple: '#8E44AD',
-  white: '#FFFFFF',
-  gray: '#F8F9FA',
-  dark: '#2C3E50',
-  lightGray: '#BDC3C7'
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  accent: '#FF7043',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
+  error: '#F44336',
+  warning: '#FF9800',
+  success: '#4CAF50',
 };
 
 interface Meal {
@@ -51,9 +57,9 @@ export default function MealsScreen() {
 
   const FILTER_OPTIONS = [
     { key: 'tous', label: 'Tous' },
-    { key: 'petit_dejeuner', label: 'Petit-déj' },
-    { key: 'dejeuner', label: 'Déjeuner' },
-    { key: 'diner', label: 'Dîner' },
+    { key: 'petit_dejeuner', label: 'Matin' },
+    { key: 'dejeuner', label: 'Midi' },
+    { key: 'diner', label: 'Soir' },
     { key: 'collation', label: 'Collation' },
   ];
 
@@ -82,8 +88,8 @@ export default function MealsScreen() {
 
   const getMealTypeIcon = (mealType: string) => {
     switch (mealType) {
-      case 'petit_dejeuner': return '🌅';
-      case 'dejeuner': return '🌞';
+      case 'petit_dejeuner': return '☀️';
+      case 'dejeuner': return '🌤️';
       case 'diner': return '🌙';
       case 'collation': return '🍎';
       default: return '🍽️';
@@ -101,9 +107,9 @@ export default function MealsScreen() {
   };
 
   const getKetoScoreColor = (score: number) => {
-    if (score >= 8) return COLORS.primary;
-    if (score >= 6) return '#F39C12';
-    return '#E74C3C';
+    if (score >= 8) return COLORS.success;
+    if (score >= 6) return COLORS.warning;
+    return COLORS.error;
   };
 
   const formatDate = (dateString: string) => {
@@ -138,15 +144,10 @@ export default function MealsScreen() {
           source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
           style={styles.mealImage}
         />
-        <View style={styles.ketoScoreBadge}>
-          <Star 
-            color={getKetoScoreColor(item.nutritional_info.keto_score)} 
-            size={14} 
-            fill={getKetoScoreColor(item.nutritional_info.keto_score)}
-          />
-          <Text style={[styles.ketoScoreText, { color: getKetoScoreColor(item.nutritional_info.keto_score) }]}>
-            {item.nutritional_info.keto_score}
-          </Text>
+        <View style={styles.scoreContainer}>
+          <View style={[styles.scoreBadge, { backgroundColor: getKetoScoreColor(item.nutritional_info.keto_score) }]}>
+            <Text style={styles.scoreText}>{item.nutritional_info.keto_score}</Text>
+          </View>
         </View>
       </View>
       
@@ -156,27 +157,21 @@ export default function MealsScreen() {
             <Text style={styles.mealTypeEmoji}>{getMealTypeIcon(item.meal_type)}</Text>
             <Text style={styles.mealType}>{getMealTypeName(item.meal_type)}</Text>
           </View>
-          <View style={styles.dateTimeContainer}>
-            <Text style={styles.mealDate}>{formatDate(item.created_at)}</Text>
-            <View style={styles.timeContainer}>
-              <Clock color={COLORS.lightGray} size={12} />
-              <Text style={styles.mealTime}>{formatTime(item.created_at)}</Text>
-            </View>
-          </View>
+          <Text style={styles.mealTime}>{formatTime(item.created_at)}</Text>
         </View>
         
         <Text style={styles.foodsDetected} numberOfLines={2}>
           {item.nutritional_info.foods_detected.join(', ')}
         </Text>
         
-        <View style={styles.nutritionSummary}>
+        <View style={styles.nutritionRow}>
           <View style={styles.nutritionItem}>
             <Text style={styles.nutritionValue}>{Math.round(item.nutritional_info.calories)}</Text>
             <Text style={styles.nutritionLabel}>cal</Text>
           </View>
           <View style={styles.nutritionItem}>
             <Text style={styles.nutritionValue}>{Math.round(item.nutritional_info.net_carbs)}</Text>
-            <Text style={styles.nutritionLabel}>glucides nets</Text>
+            <Text style={styles.nutritionLabel}>glucides</Text>
           </View>
           <View style={styles.nutritionItem}>
             <Text style={styles.nutritionValue}>{Math.round(item.nutritional_info.proteins)}</Text>
@@ -195,7 +190,7 @@ export default function MealsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Chargement de vos repas...</Text>
+          <Text style={styles.loadingText}>Chargement...</Text>
         </View>
       </SafeAreaView>
     );
@@ -209,21 +204,21 @@ export default function MealsScreen() {
         <Text style={styles.headerSubtitle}>{meals.length} repas enregistrés</Text>
       </View>
 
-      {/* Barre de recherche */}
+      {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <Search color={COLORS.lightGray} size={20} />
+        <View style={styles.searchBar}>
+          <Search color={COLORS.textLight} size={20} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Rechercher un aliment..."
-            placeholderTextColor={COLORS.lightGray}
+            placeholder="Rechercher..."
+            placeholderTextColor={COLORS.textLight}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
       </View>
 
-      {/* Filtres */}
+      {/* Filters */}
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
@@ -234,14 +229,14 @@ export default function MealsScreen() {
           <TouchableOpacity
             key={filter.key}
             style={[
-              styles.filterButton,
-              selectedFilter === filter.key && styles.selectedFilterButton,
+              styles.filterChip,
+              selectedFilter === filter.key && styles.selectedFilterChip,
             ]}
             onPress={() => setSelectedFilter(filter.key)}
           >
             <Text style={[
-              styles.filterButtonText,
-              selectedFilter === filter.key && styles.selectedFilterButtonText,
+              styles.filterText,
+              selectedFilter === filter.key && styles.selectedFilterText,
             ]}>
               {filter.label}
             </Text>
@@ -249,19 +244,19 @@ export default function MealsScreen() {
         ))}
       </ScrollView>
 
-      {/* Liste des repas */}
+      {/* Meals List */}
       {filteredMeals.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>
             {searchQuery || selectedFilter !== 'tous' 
-              ? 'Aucun repas ne correspond à votre recherche' 
-              : 'Vous n\'avez pas encore enregistré de repas'
+              ? 'Aucun résultat trouvé' 
+              : 'Aucun repas enregistré'
             }
           </Text>
-          <Text style={styles.emptySubtext}>
+          <Text style={styles.emptySubtitle}>
             {searchQuery || selectedFilter !== 'tous'
               ? 'Essayez de modifier vos critères de recherche'
-              : 'Scannez votre premier repas pour commencer !'
+              : 'Commencez par ajouter votre premier repas'
             }
           </Text>
         </View>
@@ -284,7 +279,7 @@ export default function MealsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.background,
   },
   loadingContainer: {
     flex: 1,
@@ -293,36 +288,32 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: COLORS.dark,
+    color: COLORS.text,
   },
   header: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.dark,
+    fontSize: 28,
+    fontWeight: '700',
+    color: COLORS.text,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
   searchContainer: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    backgroundColor: COLORS.surface,
   },
-  searchInputContainer: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -330,61 +321,61 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.dark,
+    color: COLORS.text,
     marginLeft: 12,
   },
   filtersContainer: {
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    backgroundColor: COLORS.surface,
+    paddingBottom: 16,
   },
   filtersContent: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
   },
-  filterButton: {
-    backgroundColor: COLORS.gray,
+  filterChip: {
+    backgroundColor: COLORS.background,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 12,
+    borderWidth: 1,
+    borderColor: COLORS.background,
   },
-  selectedFilterButton: {
+  selectedFilterChip: {
     backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
-  filterButtonText: {
+  filterText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.dark,
+    fontWeight: '500',
+    color: COLORS.text,
   },
-  selectedFilterButtonText: {
-    color: COLORS.white,
+  selectedFilterText: {
+    color: COLORS.surface,
   },
-  emptyContainer: {
+  emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
   },
-  emptyText: {
+  emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.dark,
-    textAlign: 'center',
+    color: COLORS.text,
     marginBottom: 8,
   },
-  emptySubtext: {
+  emptySubtitle: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
   mealsList: {
     padding: 20,
+    gap: 16,
   },
   mealCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.surface,
     borderRadius: 16,
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -400,23 +391,24 @@ const styles = StyleSheet.create({
   },
   mealImage: {
     width: '100%',
-    height: 150,
+    height: 160,
   },
-  ketoScoreBadge: {
+  scoreContainer: {
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: COLORS.white,
+  },
+  scoreBadge: {
+    width: 32,
+    height: 32,
     borderRadius: 16,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  ketoScoreText: {
-    fontSize: 12,
+  scoreText: {
+    color: COLORS.surface,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginLeft: 4,
   },
   mealContent: {
     padding: 16,
@@ -432,38 +424,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mealTypeEmoji: {
-    fontSize: 18,
+    fontSize: 16,
     marginRight: 8,
   },
   mealType: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
-  },
-  dateTimeContainer: {
-    alignItems: 'flex-end',
-  },
-  mealDate: {
-    fontSize: 12,
-    color: COLORS.lightGray,
-    marginBottom: 2,
-  },
-  timeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    color: COLORS.text,
   },
   mealTime: {
     fontSize: 12,
-    color: COLORS.lightGray,
-    marginLeft: 4,
+    color: COLORS.textSecondary,
   },
   foodsDetected: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     lineHeight: 20,
     marginBottom: 16,
   },
-  nutritionSummary: {
+  nutritionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -474,11 +453,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.primary,
-    marginBottom: 2,
   },
   nutritionLabel: {
-    fontSize: 10,
-    color: COLORS.lightGray,
-    textAlign: 'center',
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 2,
   },
 });
