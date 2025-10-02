@@ -331,6 +331,10 @@ export default function FastingWidget({ isFasting, startTime, onStart, onStop, i
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    setSelectedDuration(currentDuration);
+  }, [currentDuration]);
+
   const getFastingStats = () => {
     if (!isFasting || !startTime) {
       return {
