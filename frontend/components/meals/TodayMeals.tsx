@@ -120,7 +120,7 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
           </Text>
         </View>
         
-        <Text style={styles.foodsDetected} numberOfLines={1}>
+        <Text style={styles.foodsDetected} numberOfLines={2}>
           {item.nutritional_info.foods_detected.join(', ')}
         </Text>
         
