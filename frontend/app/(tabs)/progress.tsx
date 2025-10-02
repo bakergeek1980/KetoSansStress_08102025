@@ -440,6 +440,35 @@ const styles = StyleSheet.create({
   chart: {
     height: 200,
   },
+  simpleChart: {
+    height: 200,
+    paddingVertical: 20,
+  },
+  chartTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.dark,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  chartBars: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    height: 120,
+  },
+  chartBarContainer: {
+    alignItems: 'center',
+  },
+  chartBar: {
+    width: 20,
+    borderRadius: 10,
+    marginBottom: 8,
+  },
+  chartBarLabel: {
+    fontSize: 10,
+    color: COLORS.lightGray,
+  },
   emptyChart: {
     height: 200,
     justifyContent: 'center',
