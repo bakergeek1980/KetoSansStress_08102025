@@ -80,9 +80,9 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
 
   const getMealTypeName = (mealType: string) => {
     switch (mealType) {
-      case 'petit_dejeuner': return 'Petit-déjeuner';
-      case 'dejeuner': return 'Déjeuner';
-      case 'diner': return 'Dîner';
+      case 'petit_dejeuner': return 'Matin';
+      case 'dejeuner': return 'Midi';
+      case 'diner': return 'Soir';
       case 'collation': return 'Collation';
       default: return 'Repas';
     }
