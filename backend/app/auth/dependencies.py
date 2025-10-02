@@ -69,44 +69,64 @@ def get_jwks_key(token: str) -> dict:
 def validate_jwt_token(token: str) -> dict:
     """Validate JWT token and return payload."""
     try:
-        # First, try to get the header to determine the algorithm
-        header = jwt.get_unverified_header(token)
-        algorithm = header.get("alg", "HS256")
+        # For now, let's use Supabase client to verify the token
+        # This is more reliable than manual JWT verification
+        client = get_supabase_client()
         
-        # If it's HS256, use the JWT secret
-        if algorithm == "HS256":
-            if not settings.supabase_jwt_secret or settings.supabase_jwt_secret == "JWT_SECRET_PLACEHOLDER":
-                logger.warning("JWT secret not configured properly")
-                raise AuthenticationError("JWT secret not configured")
+        try:
+            # Set the session with the token to verify it
+            client.auth.set_session(token, "")
+            user = client.auth.get_user(token)
             
-            payload = jwt.decode(
-                token,
-                settings.supabase_jwt_secret,
-                algorithms=["HS256"],
-                options={
-                    "verify_signature": True,
-                    "verify_exp": True,
-                    "verify_aud": False,
-                    "verify_iss": False
-                }
-            )
-        else:
-            # For other algorithms (like ES256), get the public key from JWKS
-            key = get_jwks_key(token)
-            if not key:
-                raise AuthenticationError("Unable to get verification key")
+            if user and user.user:
+                # Token is valid, extract payload manually for compatibility
+                payload = jwt.get_unverified_claims(token)
+                logger.debug(f"JWT validation successful via Supabase for user: {user.user.id}")
+                return payload
+            else:
+                raise AuthenticationError("Invalid token: user not found")
+                
+        except Exception as supabase_error:
+            logger.warning(f"Supabase token verification failed: {supabase_error}")
             
-            payload = jwt.decode(
-                token,
-                key,
-                algorithms=[algorithm],
-                options={
-                    "verify_signature": True,
-                    "verify_exp": True,
-                    "verify_aud": False,
-                    "verify_iss": False
-                }
-            )
+            # Fallback to manual verification
+            header = jwt.get_unverified_header(token)
+            algorithm = header.get("alg", "HS256")
+            
+            # If it's HS256, use the JWT secret
+            if algorithm == "HS256":
+                if not settings.supabase_jwt_secret or settings.supabase_jwt_secret == "JWT_SECRET_PLACEHOLDER":
+                    logger.warning("JWT secret not configured properly")
+                    raise AuthenticationError("JWT secret not configured")
+                
+                payload = jwt.decode(
+                    token,
+                    settings.supabase_jwt_secret,
+                    algorithms=["HS256"],
+                    options={
+                        "verify_signature": True,
+                        "verify_exp": True,
+                        "verify_aud": False,
+                        "verify_iss": False
+                    }
+                )
+            else:
+                # For other algorithms (like ES256), get the public key from JWKS
+                key = get_jwks_key(token)
+                if not key:
+                    raise AuthenticationError("Unable to get verification key")
+                
+                payload = jwt.decode(
+                    token,
+                    key,
+                    algorithms=[algorithm],
+                    options={
+                        "verify_signature": True,
+                        "verify_exp": True,
+                        "verify_aud": False,
+                        "verify_iss": False
+                    }
+                )
         
         user_id = payload.get("sub")
         if not user_id:
