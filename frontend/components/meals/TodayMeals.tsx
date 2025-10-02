@@ -101,15 +101,10 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
           source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
           style={styles.mealImage}
         />
-        <View style={styles.ketoScoreBadge}>
-          <Star 
-            color={getKetoScoreColor(item.nutritional_info.keto_score)} 
-            size={12} 
-            fill={getKetoScoreColor(item.nutritional_info.keto_score)}
-          />
-          <Text style={[styles.ketoScoreText, { color: getKetoScoreColor(item.nutritional_info.keto_score) }]}>
-            {item.nutritional_info.keto_score}
-          </Text>
+        <View style={styles.scoreContainer}>
+          <View style={[styles.scoreBadge, { backgroundColor: getKetoScoreColor(item.nutritional_info.keto_score) }]}>
+            <Text style={styles.scoreText}>{item.nutritional_info.keto_score}</Text>
+          </View>
         </View>
       </View>
       
