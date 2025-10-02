@@ -281,7 +281,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded, 
         onPress={takePicture}
         activeOpacity={0.7}
       >
-        <Camera color={COLORS.primary} size={24} />
+        <ImageIcon color={COLORS.primary} size={24} />
         <View style={styles.methodTextContainer}>
           <Text style={styles.methodTitle}>Prendre une photo</Text>
           <Text style={styles.methodDescription}>Analyse automatique avec IA</Text>
