@@ -45,11 +45,9 @@ DEMO_USER_PROFILE = {
     "goal": "perte_poids"
 }
 
-def test_health_endpoint():
-    """Test GET /api/health"""
-    print("1. Testing Health Check Endpoint")
-    print("-" * 40)
-    
+def test_health_check():
+    """Test the health check endpoint"""
+    print("\n=== Testing Health Check Endpoint ===")
     try:
         response = requests.get(f"{API_URL}/health", timeout=10)
         print(f"Status Code: {response.status_code}")
@@ -57,21 +55,17 @@ def test_health_endpoint():
         
         if response.status_code == 200:
             data = response.json()
-            if "status" in data and data["status"] == "healthy":
-                print("✅ Health check PASSED")
+            if data.get("status") == "healthy" and data.get("service") == "KetoScan API":
+                print("✅ Health check endpoint working correctly")
                 return True
             else:
-                print("❌ Health check FAILED - Invalid response format")
+                print("❌ Health check response format incorrect")
                 return False
         else:
-            print(f"❌ Health check FAILED - Status code: {response.status_code}")
+            print(f"❌ Health check failed with status {response.status_code}")
             return False
-            
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Health check FAILED - Connection error: {e}")
-        return False
     except Exception as e:
-        print(f"❌ Health check FAILED - Error: {e}")
+        print(f"❌ Health check failed with error: {str(e)}")
         return False
 
 def test_user_profile_endpoint():
