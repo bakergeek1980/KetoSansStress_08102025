@@ -337,6 +337,15 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal pour ajouter un repas */}
+      <AddMealModal
+        visible={addMealModalVisible}
+        mealType={selectedMealType}
+        onClose={() => setAddMealModalVisible(false)}
+        onMealAdded={handleMealAdded}
+        userId={user?.email || ''}
+      />
     </SafeAreaView>
   );
 }
