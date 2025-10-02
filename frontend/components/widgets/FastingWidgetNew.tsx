@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
   },
   fastingTypeDuration: {
     fontSize: 12,
-    color: COLORS.purple,
+    color: COLORS.primary,
     fontWeight: '600',
   },
 
