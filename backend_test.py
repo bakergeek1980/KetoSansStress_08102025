@@ -161,6 +161,7 @@ class KetoJWTTester:
                 "total_fat": 32.0,
                 "fiber": 6.0,
                 "quantity": 1.0,
+                "unit": "portion",
                 "consumed_at": datetime.now().isoformat()
             }
             
