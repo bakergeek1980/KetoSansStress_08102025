@@ -125,11 +125,8 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
         </Text>
         
         <View style={styles.nutritionSummary}>
-          <Text style={styles.nutritionItem}>
-            {Math.round(item.nutritional_info.calories)} cal
-          </Text>
-          <Text style={styles.nutritionItem}>
-            {Math.round(item.nutritional_info.net_carbs)}g glucides
+          <Text style={styles.nutritionText}>
+            {Math.round(item.nutritional_info.calories)} cal • {Math.round(item.nutritional_info.net_carbs)}g glucides
           </Text>
         </View>
       </View>
