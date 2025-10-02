@@ -316,9 +316,9 @@ const FastingDetailModal = ({
   );
 };
 
-export default function FastingWidget({ isFasting, startTime, onStart, onStop, isCollapsed = false }: FastingWidgetProps) {
+export default function FastingWidget({ isFasting, startTime, onStart, onStop, isCollapsed = false, currentDuration = 16 }: FastingWidgetProps & { currentDuration?: number }) {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedDuration] = useState(16);
+  const selectedDuration = currentDuration;
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedFastingType, setSelectedFastingType] = useState<FastingType | null>(null);
