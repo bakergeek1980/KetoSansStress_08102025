@@ -70,8 +70,8 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
 
   const getMealTypeIcon = (mealType: string) => {
     switch (mealType) {
-      case 'petit_dejeuner': return '🌅';
-      case 'dejeuner': return '🌞';
+      case 'petit_dejeuner': return '☀️';
+      case 'dejeuner': return '🌤️';
       case 'diner': return '🌙';
       case 'collation': return '🍎';
       default: return '🍽️';
