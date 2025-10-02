@@ -535,7 +535,7 @@ async def get_keto_friendly_foods(limit: int = 50):
                 break
         
         # Trier par score keto et limiter
-        sorted_results = sorted(all_results, key=lambda x: x.get('keto_score', 0), reverse=True)
+        sorted_results = sorted(all_results, key=lambda x: (x.get('keto_score') or 0), reverse=True)
         
         return {
             "keto_foods": sorted_results[:limit],
