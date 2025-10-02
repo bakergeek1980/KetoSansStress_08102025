@@ -267,6 +267,30 @@ backend:
         agent: "testing"
         comment: "WORKING AS DESIGNED: Legacy profile retrieval endpoint GET /api/users/profile/{email} works correctly for demo user (demo@keto.fr) returning complete profile with calculated macros. For non-demo users, it returns 404 'Profil non trouvé' which is the expected behavior since the legacy system only supports the demo user profile. This is not a bug but the intended design during the migration period."
 
+  - task: "OpenFoodFacts Keto-Friendly Foods API"
+    implemented: true
+    working: false
+    file: "backend/main.py"
+    stuck_count: 1
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUG: GET /api/foods/keto-friendly endpoint returns 500 error due to NoneType comparison in keto score filtering. Error: '>=' not supported between instances of 'NoneType' and 'int'. The OpenFoodFacts integration is working but the keto score filtering logic needs null value handling. Other OpenFoodFacts endpoints (search, enhanced analysis) work correctly."
+
+  - task: "Supabase Database Schema Completion"
+    implemented: false
+    working: false
+    file: "backend/complete_supabase_schema.sql"
+    stuck_count: 2
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BLOCKER: Supabase database schema is incomplete. Missing 'public.meals' table entirely and 'activity_level' column in 'users' table. This is preventing the new Supabase meals API from functioning. Database tables must be created in Supabase before the migration can be considered complete. All authentication works but data persistence is blocked."
+
 frontend:
   # No frontend testing performed as per instructions
 
