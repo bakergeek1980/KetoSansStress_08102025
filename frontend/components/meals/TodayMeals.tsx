@@ -217,14 +217,13 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
-    textAlign: 'center',
+    color: COLORS.text,
+    marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     textAlign: 'center',
-    marginTop: 8,
   },
   mealsList: {
     paddingLeft: 5,
