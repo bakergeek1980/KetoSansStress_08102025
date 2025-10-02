@@ -116,6 +116,28 @@ export default function HomeScreen() {
     loadDailySummary();
   }, [user]);
 
+  const handleCopyPreviousDay = (mealType: string) => {
+    console.log('Copying previous day meal:', mealType);
+    // Copy meal from previous day
+  };
+
+  const handleReportsPress = () => {
+    console.log('Opening reports');
+    // Navigate to reports screen with tabs for day/week/month/year
+    // and categories for meals and nutritional breakdown
+  };
+
+  const handleAddFoodPress = () => {
+    console.log('Opening add food modal');
+    // Show modal with meal type selection (breakfast, lunch, dinner, snack)
+    // then navigate to food scanner or search
+  };
+
+  const handleSettingsPress = () => {
+    console.log('Opening settings');
+    // Navigate to settings screen
+  };
+
   const getCurrentDate = () => {
     const today = new Date();
     const options: Intl.DateTimeFormatOptions = {
