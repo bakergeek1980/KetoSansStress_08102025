@@ -119,6 +119,12 @@ export default function ActivityWidget() {
   });
 
   const [selectedTab, setSelectedTab] = useState<'calories' | 'workouts' | 'steps'>('calories');
+  const [showSettings, setShowSettings] = useState(false);
+  
+  // Settings states
+  const [addCaloriesObjective, setAddCaloriesObjective] = useState(false);
+  const [syncHealthApp, setSyncHealthApp] = useState(false);
+  const [importFitbit, setImportFitbit] = useState(false);
 
   const getTabData = () => {
     switch (selectedTab) {
