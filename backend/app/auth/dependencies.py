@@ -32,6 +32,40 @@ def extract_token_from_header(authorization: Annotated[str, Header()]) -> str:
     
     return authorization.split(" ")[1]
 
+def get_jwks_key(token: str) -> dict:
+    """Get the public key from JWKS endpoint based on token's kid."""
+    try:
+        # Get the header to extract kid
+        header = jwt.get_unverified_header(token)
+        kid = header.get("kid")
+        
+        if not kid:
+            logger.warning("JWT token missing kid in header")
+            return None
+        
+        # Construct JWKS URL from Supabase URL
+        jwks_url = f"{settings.supabase_url}/auth/v1/.well-known/jwks.json"
+        
+        # Fetch JWKS
+        response = requests.get(jwks_url, timeout=10)
+        if response.status_code != 200:
+            logger.error(f"Failed to fetch JWKS: {response.status_code}")
+            return None
+        
+        jwks = response.json()
+        
+        # Find the key with matching kid
+        for key in jwks.get("keys", []):
+            if key.get("kid") == kid:
+                return key
+        
+        logger.warning(f"No key found for kid: {kid}")
+        return None
+        
+    except Exception as e:
+        logger.error(f"Error fetching JWKS key: {e}")
+        return None
+
 def validate_jwt_token(token: str) -> dict:
     """Validate JWT token and return payload."""
     try:
