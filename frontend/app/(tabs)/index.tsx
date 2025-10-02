@@ -209,7 +209,34 @@ export default function HomeScreen() {
           />
         </View>
 
+        {/* Bottom spacing for fixed bar */}
+        <View style={styles.bottomSpacing} />
       </ScrollView>
+
+      {/* Fixed Bottom Action Bar */}
+      <View style={styles.fixedBottomBar}>
+        <View style={styles.bottomBarContainer}>
+          {/* Reports Button */}
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleReportsPress()}>
+            <BarChart3 color={COLORS.textSecondary} size={22} />
+            <Text style={styles.actionButtonText}>Rapports</Text>
+          </TouchableOpacity>
+          
+          {/* Add Food Button (Center) */}
+          <TouchableOpacity style={styles.centerActionButton} onPress={() => handleAddFoodPress()}>
+            <View style={styles.centerButtonCircle}>
+              <Plus color={COLORS.surface} size={24} />
+            </View>
+            <Text style={[styles.actionButtonText, styles.centerButtonText]}>Ajouter</Text>
+          </TouchableOpacity>
+          
+          {/* Settings Button */}
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleSettingsPress()}>
+            <Settings color={COLORS.textSecondary} size={22} />
+            <Text style={styles.actionButtonText}>Paramètres</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
