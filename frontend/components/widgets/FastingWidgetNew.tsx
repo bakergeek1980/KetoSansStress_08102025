@@ -419,7 +419,7 @@ export default function FastingWidget({ isFasting, startTime, onStart, onStop, i
       >
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Timer color={COLORS.purple} size={20} />
+            <Timer color={COLORS.primary} size={20} />
             <Text style={styles.widgetTitle}>Jeûne Intermittent</Text>
           </View>
           <View style={styles.durationBadge}>
