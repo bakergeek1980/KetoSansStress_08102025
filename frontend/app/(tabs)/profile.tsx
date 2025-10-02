@@ -24,7 +24,7 @@ import {
   Edit,
   Save
 } from 'lucide-react-native';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { createOrUpdateProfile, saveWeight } from '../../lib/api';
 
 const COLORS = {
