@@ -33,26 +33,22 @@ def extract_token_from_header(authorization: Annotated[str, Header()]) -> str:
 def validate_jwt_token(token: str) -> dict:
     """Validate JWT token and return payload."""
     try:
-        # If JWT secret is not configured, try basic validation
-        if not settings.supabase_jwt_secret:
-            logger.warning("JWT secret not configured, using basic token validation")
-            # In production, you must have the JWT secret
-            # For now, we'll accept any token that looks valid
-            parts = token.split('.')
-            if len(parts) != 3:
-                raise AuthenticationError("Invalid token format")
-            
-            # Return a basic payload - this should be replaced with proper validation
-            return {"sub": "demo-user-id", "email": "demo@keto.fr"}
+        # Check if JWT secret is configured
+        if not settings.supabase_jwt_secret or settings.supabase_jwt_secret == "JWT_SECRET_PLACEHOLDER":
+            logger.warning("JWT secret not configured properly")
+            raise AuthenticationError("JWT secret not configured")
         
+        # Decode and validate the JWT token with Supabase settings
         payload = jwt.decode(
             token,
             settings.supabase_jwt_secret,
             algorithms=["HS256"],
+            audience="authenticated",  # Supabase uses "authenticated" as audience
             options={
-                "verify_aud": False,
                 "verify_signature": True,
-                "verify_exp": True
+                "verify_exp": True,
+                "verify_aud": True,
+                "verify_iss": False  # Don't verify issuer for now
             }
         )
         
@@ -60,15 +56,32 @@ def validate_jwt_token(token: str) -> dict:
         if not user_id:
             raise AuthenticationError("Invalid token: missing user ID")
         
+        logger.debug(f"JWT validation successful for user: {user_id}")
         return payload
         
     except jwt.ExpiredSignatureError:
+        logger.warning("JWT token has expired")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    except jwt.JWTClaimsError:
+    except jwt.InvalidAudienceError:
+        logger.warning("JWT token has invalid audience")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token audience",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except jwt.InvalidSignatureError:
+        logger.warning("JWT signature verification failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token signature",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except jwt.JWTClaimsError as e:
+        logger.warning(f"JWT claims validation failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token claims",
@@ -79,6 +92,13 @@ def validate_jwt_token(token: str) -> dict:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error during JWT validation: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
