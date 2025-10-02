@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
   },
   collapsedPercentage: {
     fontSize: 12,
-    color: COLORS.purple,
+    color: COLORS.primary,
     fontWeight: '700',
     minWidth: 35,
     textAlign: 'right',
