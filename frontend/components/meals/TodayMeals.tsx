@@ -112,15 +112,12 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
         <View style={styles.mealHeader}>
           <Text style={styles.mealTypeEmoji}>{getMealTypeIcon(item.meal_type)}</Text>
           <Text style={styles.mealType}>{getMealTypeName(item.meal_type)}</Text>
-          <View style={styles.timeContainer}>
-            <Clock color={COLORS.lightGray} size={12} />
-            <Text style={styles.mealTime}>
-              {new Date(item.created_at).toLocaleTimeString('fr-FR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </Text>
-          </View>
+          <Text style={styles.mealTime}>
+            {new Date(item.created_at).toLocaleTimeString('fr-FR', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}
+          </Text>
         </View>
         
         <Text style={styles.foodsDetected} numberOfLines={1}>
