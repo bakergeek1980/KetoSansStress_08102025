@@ -124,9 +124,15 @@ export default function HomeScreen() {
     setScrollY(currentScrollY);
     
     // Collapse nutrition widget when scrolling down past 100px
-    const shouldCollapse = currentScrollY > 100;
-    if (shouldCollapse !== isNutritionCollapsed) {
-      setIsNutritionCollapsed(shouldCollapse);
+    const shouldCollapseNutrition = currentScrollY > 100;
+    if (shouldCollapseNutrition !== isNutritionCollapsed) {
+      setIsNutritionCollapsed(shouldCollapseNutrition);
+    }
+    
+    // Collapse water widget when scrolling down past 200px (after nutrition widget)
+    const shouldCollapseWater = currentScrollY > 200;
+    if (shouldCollapseWater !== isWaterCollapsed) {
+      setIsWaterCollapsed(shouldCollapseWater);
     }
   };
 
