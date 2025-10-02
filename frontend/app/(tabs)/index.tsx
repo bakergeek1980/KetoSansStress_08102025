@@ -122,6 +122,17 @@ export default function HomeScreen() {
     setRefreshing(false);
   };
 
+  // Gestion des repas
+  const handleAddMeal = (mealType: string) => {
+    setSelectedMealType(mealType);
+    setAddMealModalVisible(true);
+  };
+
+  const handleMealAdded = () => {
+    // Recharger les données après ajout d'un repas
+    loadDailySummary();
+  };
+
   useEffect(() => {
     loadDailySummary();
   }, [user]);
