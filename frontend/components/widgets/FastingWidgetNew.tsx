@@ -560,16 +560,16 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   durationBadge: {
-    backgroundColor: COLORS.purple + '15',
+    backgroundColor: COLORS.primary + '15',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.purple + '30',
+    borderColor: COLORS.primary + '30',
   },
   durationText: {
     fontSize: 12,
-    color: COLORS.purple,
+    color: COLORS.primary,
     fontWeight: '600',
   },
   timerContainer: {
