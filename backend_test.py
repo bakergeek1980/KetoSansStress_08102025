@@ -352,6 +352,275 @@ class KetoJWTTester:
             self.log_test("Food Search", False, f"Request failed: {str(e)}")
             return False
     
+    def test_supabase_user_registration(self) -> bool:
+        """Test POST /api/auth/register with test email"""
+        try:
+            user_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD,
+                "full_name": "Contact KetoSansStress",
+                "age": 35,
+                "gender": "female",
+                "height": 165.0,
+                "weight": 65.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss",
+                "timezone": "Europe/Paris"
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/auth/register",
+                json=user_data,
+                headers={"Content-Type": "application/json"},
+                timeout=15
+            )
+            
+            if response.status_code in [201, 409]:  # 201 = created, 409 = already exists
+                data = response.json()
+                if response.status_code == 201:
+                    self.log_test(
+                        "Supabase User Registration", 
+                        True, 
+                        f"User registered successfully: {data.get('user_id', 'Unknown')}",
+                        {"user_id": data.get("user_id"), "email": data.get("email")}
+                    )
+                else:
+                    self.log_test(
+                        "Supabase User Registration", 
+                        True, 
+                        f"User already exists (expected): {data.get('detail', 'User exists')}",
+                        {"status": "already_exists"}
+                    )
+                return True
+            else:
+                self.log_test("Supabase User Registration", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Supabase User Registration", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_supabase_user_login_test_email(self) -> bool:
+        """Test POST /api/auth/login with test email credentials"""
+        try:
+            login_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/auth/login",
+                json=login_data,
+                headers={"Content-Type": "application/json"},
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "access_token" in data and "user" in data:
+                    # Store test user token for protected endpoint tests
+                    self.test_access_token = data["access_token"]
+                    self.test_user_id = data["user"]["id"]
+                    self.log_test(
+                        "Supabase Test User Login", 
+                        True, 
+                        f"Test user login successful: {data['user'].get('email')}",
+                        {"has_token": bool(self.test_access_token), "user_email": data["user"].get("email")}
+                    )
+                    return True
+                else:
+                    self.log_test("Supabase Test User Login", False, f"Missing required fields: {data}")
+                    return False
+            else:
+                self.log_test("Supabase Test User Login", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Supabase Test User Login", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_supabase_meals_save_new(self) -> bool:
+        """Test POST /api/meals/save (legacy endpoint)"""
+        try:
+            meal_data = {
+                "user_id": TEST_EMAIL,
+                "date": date.today().isoformat(),
+                "meal_type": "breakfast",
+                "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A==",
+                "nutritional_info": {
+                    "calories": 420.0,
+                    "proteins": 18.0,
+                    "carbs": 8.0,
+                    "net_carbs": 5.0,
+                    "fats": 35.0,
+                    "fiber": 3.0,
+                    "keto_score": 9,
+                    "foods_detected": ["œufs brouillés", "avocat", "beurre"],
+                    "portions": ["2 œufs", "1/2 avocat", "10g beurre"],
+                    "confidence": 0.85
+                },
+                "notes": "Petit-déjeuner keto test pour contact@ketosansstress.com"
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/meals/save",
+                json=meal_data,
+                headers={"Content-Type": "application/json"},
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test(
+                    "Supabase Meals Save", 
+                    True, 
+                    f"Meal saved successfully: {data.get('meal_id', 'Unknown')}",
+                    {"meal_id": data.get("meal_id"), "message": data.get("message")}
+                )
+                return True
+            else:
+                self.log_test("Supabase Meals Save", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Supabase Meals Save", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_supabase_meals_get_user_test_email(self) -> bool:
+        """Test GET /api/meals/user/{test_email}"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/meals/user/{TEST_EMAIL}",
+                params={"date": date.today().isoformat()},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                meals_count = len(data.get("meals", []))
+                self.log_test(
+                    "Supabase User Meals (Test Email)", 
+                    True, 
+                    f"Retrieved {meals_count} meals for {TEST_EMAIL}",
+                    {"meals_count": meals_count, "user_email": TEST_EMAIL}
+                )
+                return True
+            else:
+                self.log_test("Supabase User Meals (Test Email)", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Supabase User Meals (Test Email)", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_supabase_daily_summary_test_email(self) -> bool:
+        """Test GET /api/meals/daily-summary/{test_email}"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/meals/daily-summary/{TEST_EMAIL}",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test(
+                    "Supabase Daily Summary (Test Email)", 
+                    True, 
+                    f"Daily summary retrieved for {TEST_EMAIL} on {data.get('date', 'Unknown')}",
+                    {
+                        "date": data.get("date"),
+                        "total_calories": data.get("totals", {}).get("calories"),
+                        "meals_count": data.get("meals_count"),
+                        "keto_status": data.get("keto_status")
+                    }
+                )
+                return True
+            else:
+                self.log_test("Supabase Daily Summary (Test Email)", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Supabase Daily Summary (Test Email)", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_openfoodfacts_keto_friendly(self) -> bool:
+        """Test GET /api/foods/keto-friendly"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/foods/keto-friendly",
+                params={"limit": 20},
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                foods_count = len(data.get("keto_foods", []))
+                self.log_test(
+                    "OpenFoodFacts Keto Foods", 
+                    True, 
+                    f"Retrieved {foods_count} keto-friendly foods",
+                    {
+                        "foods_count": foods_count,
+                        "total_count": data.get("count", 0)
+                    }
+                )
+                
+                if foods_count > 0:
+                    top_food = data["keto_foods"][0]
+                    print(f"   Top keto food: {top_food.get('product_name', 'Unknown')} (score: {top_food.get('keto_score', 'N/A')})")
+                
+                return True
+            else:
+                self.log_test("OpenFoodFacts Keto Foods", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("OpenFoodFacts Keto Foods", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_enhanced_meal_analysis(self) -> bool:
+        """Test POST /api/meals/analyze-enhanced"""
+        try:
+            # Create a minimal test image
+            test_image = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A=="
+            
+            analysis_data = {
+                "image_base64": test_image,
+                "meal_type": "dinner"
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/meals/analyze-enhanced",
+                json=analysis_data,
+                headers={"Content-Type": "application/json"},
+                timeout=20
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                ai_analysis = data.get("ai_analysis", {})
+                off_suggestions = data.get("openfoodfacts_suggestions", [])
+                
+                self.log_test(
+                    "Enhanced Meal Analysis", 
+                    True, 
+                    f"Analysis successful with {len(off_suggestions)} OpenFoodFacts suggestions",
+                    {
+                        "ai_calories": ai_analysis.get("calories"),
+                        "ai_keto_score": ai_analysis.get("keto_score"),
+                        "ai_foods": ai_analysis.get("foods_detected", []),
+                        "off_suggestions_count": len(off_suggestions)
+                    }
+                )
+                return True
+            else:
+                self.log_test("Enhanced Meal Analysis", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Enhanced Meal Analysis", False, f"Request failed: {str(e)}")
+            return False
+    
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"\n🧪 Starting KetoSansStress JWT Authentication Tests")
