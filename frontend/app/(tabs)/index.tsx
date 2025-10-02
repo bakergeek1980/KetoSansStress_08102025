@@ -32,7 +32,7 @@ import TipsCarouselWidget from '../../components/widgets/TipsCarouselWidget';
 import MealsWidget from '../../components/widgets/MealsWidget';
 import ActivityWidget from '../../components/widgets/ActivityWidget';
 import WeightWidget from '../../components/widgets/WeightWidget';
-import FastingWidget from '../../components/widgets/FastingWidget';
+import FastingWidget from '../../components/widgets/FastingWidgetNew';
 import { getDailySummary } from '../../lib/api';
 
 const { width, height } = Dimensions.get('window');
