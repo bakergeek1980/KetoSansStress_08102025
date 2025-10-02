@@ -223,15 +223,25 @@ export default function ProgressScreen() {
           
           <View style={styles.chartContainer}>
             {chartData.length > 0 && chartData.some(value => value > 0) ? (
-              <LineChart
-                style={styles.chart}
-                data={chartData}
-                svg={{ stroke: COLORS.primary, strokeWidth: 3 }}
-                contentInset={{ top: 20, bottom: 20, left: 20, right: 20 }}
-                animate={true}
-                animationDuration={1000}
-              >
-              </LineChart>
+              <View style={styles.simpleChart}>
+                <Text style={styles.chartTitle}>Glucides nets par jour</Text>
+                <View style={styles.chartBars}>
+                  {chartData.map((value, index) => (
+                    <View key={index} style={styles.chartBarContainer}>
+                      <View 
+                        style={[
+                          styles.chartBar, 
+                          { 
+                            height: Math.max((value / 50) * 100, 5),
+                            backgroundColor: value > 25 ? '#E74C3C' : value > 15 ? '#F39C12' : COLORS.primary
+                          }
+                        ]} 
+                      />
+                      <Text style={styles.chartBarLabel}>{Math.round(value)}g</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
             ) : (
               <View style={styles.emptyChart}>
                 <Text style={styles.emptyChartText}>Pas assez de données</Text>
