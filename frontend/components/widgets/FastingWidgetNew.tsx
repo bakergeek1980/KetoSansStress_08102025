@@ -377,6 +377,7 @@ export default function FastingWidget({ isFasting, startTime, onStart, onStop, i
   };
 
   const handleStartFasting = (duration: number, startDateTime: Date) => {
+    setSelectedDuration(duration);
     onStart(startDateTime, duration);
   };
 
