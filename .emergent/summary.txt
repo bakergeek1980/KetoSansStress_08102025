@@ -1,59 +1,151 @@
 <analysis>
-The trajectory details the development of a French-language Keto diet tracking application, initially named KetoScan. The project began with a comprehensive product requirements document outlining a sophisticated AI-powered mobile app using React Native and Expo.
+The trajectory chronicles the iterative development and significant pivoting of a French-language Keto diet tracker mobile application, KetoSansStress. The initial phase focused on building a complex, widget-based home screen in a React Native/Expo environment. This involved creating numerous custom components for nutrition, water intake, fasting, and activity, each with detailed UI/UX requirements specified by the user.
 
-The initial development phase involved setting up the project, installing dependencies, and using a bulk-writing approach to scaffold the application. This led to significant debugging, primarily revolving around incorrect relative import paths for a central  within the Expo Router file-based routing system. After several attempts, including restarting the Metro server and simplifying components, a stable version of KetoScan was achieved.
+A significant portion of the work involved debugging a persistent rendering issue where only the top two widgets would display. This was traced through multiple root causes, including a missing backend API endpoint, an invalid CSS-in-JS property, and potential routing issues, before being resolved.
 
-Following this, the user initiated two major pivots. First, a request to rebrand the app to KetoSansStress and redesign the UI to clone an app named KetoDiet. The AI successfully implemented this visual overhaul. Immediately after, the user provided a new, highly detailed request to transform the home screen into a complex, widget-based interface with 3D elements, carousels, and progress bars for various metrics like nutrition, water intake, and fasting. The AI acknowledged this new requirement right before this summary was requested, marking the beginning of the next major development cycle.
+Development was highly user-driven, with frequent requests for UI changes, such as removing and then redesigning a bottom navigation bar, implementing complex collapsing animations for the Nutrition and Water widgets, and adding deeply nested settings modals for the Activity and Weight widgets.
+
+The most recent and critical pivot is a complete backend migration. After building out the sophisticated frontend, the user requested to replace the existing FastAPI and MongoDB backend with Supabase for authentication and data management. The previous AI engineer had just begun this migration by setting up the initial Supabase configuration in the backend codebase right before this summary was requested.
 </analysis>
 
 <product_requirements>
-The application, now named KetoSansStress, is a mobile keto diet tracker for the French-speaking market. Initially conceived as KetoScan, its core purpose is to simplify nutritional tracking through AI-powered meal analysis via the phone's camera.
+The application, KetoSansStress, is an advanced mobile keto diet tracker for the French market. The primary user interface is a dynamic, scrollable dashboard composed of several specialized widgets.
 
-The current and most pressing requirement is a complete redesign of the home screen into a modern, widget-based dashboard. This includes:
--   **Nutrition Widget:** Fixed at the top, featuring 3D-effect rings with gradient colors for calories, carbs, proteins, and lipids, each displaying a percentage in the center.
--   **Water Widget:** A 3D slide bar with a wave effect to show consumption progress, displaying consumed and remaining amounts.
--   **Tips Widget:** A carousel for articles like Keto Vegetables Guide, Benefits of Organ Meats, etc.
--   **Meals Widget:** A list for breakfast, lunch, dinner, and snacks, with buttons to copy a previous day's meal or add a new one.
--   **Activity & Weight Widgets:** Progress sliders for calories burned and workouts, designed to sync with connected watches or health apps.
--   **Fasting Widget:** A timer with a start button, progress bar showing remaining time, and end time.
--   **Fixed Bottom Bar:** A central, static element with three buttons: Report, Edit Widgets, and Settings.
+Key feature requirements implemented or in progress include:
+-   **Nutrition Widget:** A 2x2 grid for Calories, Carbs, Proteins, and Lipids, with 3D-style progress rings. It features a collapsing header that shrinks to a minimal, fixed-top view upon scrolling. Unit for calories must be cal.
+-   **Water Widget:** A progress bar with a wave animation, also featuring a collapsing header behavior.
+-   **Fasting Widget:** A timer that, when initiated, opens a modal to select from various fasting types (12h, 16:8, 18:6, 20:4, Custom). The selected duration dynamically updates the main widget's display.
+-   **Activity & Weight Widgets:** These include settings modals accessible via a gear icon. The settings provide toggles for HealthApp/Fitbit synchronization and other user preferences.
+-   **Fixed Bottom Bar:** A minimalist, centered navigation bar with three icons: Reports, Add (+), and Settings.
+-   **Backend & Authentication:** All application data, including user profiles, authentication, and daily tracking, must be managed through Supabase.
 </product_requirements>
 
 <key_technical_concepts>
-- **Framework:** React Native with Expo SDK.
-- **Navigation:** File-based routing using Expo Router.
-- **Language:** TypeScript.
-- **State Management:** React Context API ().
-- **UI & Visualization:** Core React Native components, , and  for charts.
-- **Backend:** A functional FastAPI backend () for API endpoints, tested and confirmed working.
-- **AI Integration:** Placeholder integration using the Emergent Universal LLM Key for future AI features.
+-   **Framework:** React Native with Expo SDK
+-   **Language:** TypeScript
+-   **Navigation:** File-based routing with Expo Router
+-   **UI Libraries:** , , 
+-   **State Management:** React Hooks (, ) and props drilling.
+-   **Backend:** Migrating from FastAPI/MongoDB to **Supabase** for database and authentication.
+-   **Styling:** StyleSheet API (CSS-in-JS).
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard Expo Router structure, with a FastAPI backend. The frontend code is located in .
+The application uses a standard Expo Router file-based structure for the frontend and a Python-based backend.
 
 
--   ****: The root layout of the application. It wraps the entire app in the , making user context available globally. It was a key file during debugging of import paths.
--   ****: Defines the five-tab bottom navigation bar for Accueil (Home), Scanner, Mes Repas (My Meals), Progrès (Progress), and Profil (Profile).
--   ****: The main dashboard screen. This file has undergone the most changes, from the initial KetoScan layout to the KetoSansStress redesign. It is the primary target for the new widget-based UI implementation.
--   ****: Provides a basic authentication context. Its incorrect import path was the source of major debugging efforts. The current version is a simplified placeholder.
--   ****: A simple FastAPI server with a  endpoint. It was successfully tested and is ready for further development of API routes for user data and meal analysis.
+
+-   ****: The main screen of the application. It is the most critical file, responsible for laying out all the widgets and containing the complex  logic that manages the collapsing states of the Nutrition and Water widgets. It holds the state for many of the interactive components.
+-   ****: This directory contains the reusable UI components for the dashboard.
+    -   ****: Displays the 2x2 macro grid. It was heavily modified to support two states (), a detailed view, and a compact view. It also contains logic to conditionally display cal for calories and g for other macros.
+    -   ****: A complex component that manages the fasting timer. It includes the main display and a full-screen modal with sub-pages for selecting and configuring different fasting types. Logic was added to ensure the selected fasting duration correctly updates the UI.
+    -   ** / **: These widgets were modified to include a settings gear icon that opens a modal with various configuration options, including nested modals for permissions (like HealthApp sync).
+-   ****: This file was updated to remove MongoDB credentials and add  and  for the new backend infrastructure.
+-   ****: A new directory created to house the Supabase integration logic.
+    -   ****: Reads Supabase credentials from the  file.
+    -   ****: Defines Pydantic models for data structures (e.g., User, Meal).
+    -   ****: Initializes and provides the Supabase client instance.
+-   ****: The original FastAPI server. It currently contains the old MongoDB-based routes and will need to be refactored to use the new Supabase client.
 </code_architecture>
 
 <pending_tasks>
-- Full implementation of the user authentication system beyond the current demo user.
-- Integration with a database (e.g., MongoDB/Supabase) to persist user data, meals, and progress.
-- Development of the actual AI image recognition and nutrient calculation logic for the scanner.
-- Creation of the features from the original PRD: recipe library, meal planning, and community engagement.
-- Integration with device health services (Apple Health/Google Fit) to fetch weight and activity data for the new widgets.
+-   Complete the Supabase backend migration by refactoring all API endpoints in  to use Supabase for data storage and user authentication instead of MongoDB.
+-   Connect the frontend UI toggles (e.g., Synch. with HealthApp) to the new Supabase backend endpoints.
+-   Implement the Reports page functionality, accessible from the fixed bottom bar.
+-   Implement the Add meal flow, accessible from the + button on the fixed bottom bar.
+-   Resolve the persistent scrolling issue where only a portion of the widgets are visible on the initial render.
 </pending_tasks>
 
 <current_work>
-The project has just concluded a major rebranding and redesign from KetoScan to KetoSansStress, which is now functional with a basic UI. The most recent user request triggered another major pivot. The immediate task is to discard the current home screen design and re-implement it as a highly detailed, widget-based dashboard.
+The most recent task is a complete migration of the application's backend from a custom FastAPI/MongoDB stack to Supabase. The user provided the Supabase project URL and anon key to facilitate this.
 
-The AI engineer had just acknowledged this new requirement. The work was about to begin on transforming  to build the new UI, which includes complex elements like 3D-effect nutrition rings, a water tracker with a wave animation, a content carousel, and several other data-driven widgets. The current codebase does not contain any of this new widget structure; it reflects the simpler KetoSansStress design. No code has been written for this new requirement yet.
+The previous engineer had just initiated this process. The last actions taken were:
+1.  **Updating Environment Variables:** The  file was modified to include  and .
+2.  **Installing Dependencies:** The  Python library was installed in the backend environment using 
+Usage:   
+  pip <command> [options]
+
+Commands:
+  install                     Install packages.
+  lock                        Generate a lock file.
+  download                    Download packages.
+  uninstall                   Uninstall packages.
+  freeze                      Output installed packages in requirements format.
+  inspect                     Inspect the python environment.
+  list                        List installed packages.
+  show                        Show information about installed packages.
+  check                       Verify installed packages have compatible dependencies.
+  config                      Manage local and global configuration.
+  search                      Search PyPI for packages.
+  cache                       Inspect and manage pip's wheel cache.
+  index                       Inspect information available from package indexes.
+  wheel                       Build wheels from your requirements.
+  hash                        Compute hashes of package archives.
+  completion                  A helper command used for command completion.
+  debug                       Show information useful for debugging.
+  help                        Show help for commands.
+
+General Options:
+  -h, --help                  Show help.
+  --debug                     Let unhandled exceptions propagate outside the
+                              main subroutine, instead of logging them to
+                              stderr.
+  --isolated                  Run pip in an isolated mode, ignoring
+                              environment variables and user configuration.
+  --require-virtualenv        Allow pip to only run in a virtual environment;
+                              exit with an error otherwise.
+  --python <python>           Run pip with the specified Python interpreter.
+  -v, --verbose               Give more output. Option is additive, and can be
+                              used up to 3 times.
+  -V, --version               Show version and exit.
+  -q, --quiet                 Give less output. Option is additive, and can be
+                              used up to 3 times (corresponding to WARNING,
+                              ERROR, and CRITICAL logging levels).
+  --log <path>                Path to a verbose appending log.
+  --no-input                  Disable prompting for input.
+  --keyring-provider <keyring_provider>
+                              Enable the credential lookup via the keyring
+                              library if user input is allowed. Specify which
+                              mechanism to use [auto, disabled, import,
+                              subprocess]. (default: auto)
+  --proxy <proxy>             Specify a proxy in the form
+                              scheme://[user:passwd@]proxy.server:port.
+  --retries <retries>         Maximum attempts to establish a new HTTP
+                              connection. (default: 5)
+  --timeout <sec>             Set the socket timeout (default 15 seconds).
+  --exists-action <action>    Default action when a path already exists:
+                              (s)witch, (i)gnore, (w)ipe, (b)ackup, (a)bort.
+  --trusted-host <hostname>   Mark this host or host:port pair as trusted,
+                              even though it does not have valid or any HTTPS.
+  --cert <path>               Path to PEM-encoded CA certificate bundle. If
+                              provided, overrides the default. See 'SSL
+                              Certificate Verification' in pip documentation
+                              for more information.
+  --client-cert <path>        Path to SSL client certificate, a single file
+                              containing the private key and the certificate
+                              in PEM format.
+  --cache-dir <dir>           Store the cache data in <dir>.
+  --no-cache-dir              Disable the cache.
+  --disable-pip-version-check
+                              Don't periodically check PyPI to determine
+                              whether a new version of pip is available for
+                              download. Implied with --no-index.
+  --no-color                  Suppress colored output.
+  --use-feature <feature>     Enable new functionality, that may be backward
+                              incompatible.
+  --use-deprecated <feature>  Enable deprecated functionality, that will be
+                              removed in the future.
+  --resume-retries <resume_retries>
+                              Maximum attempts to resume or restart an
+                              incomplete download. (default: 5).
+3.  **Scaffolding Supabase Configuration:** Three new files were created in the backend to structure the Supabase integration:
+    -   : To load environment variables.
+    -   : To define data models.
+    -   : To initialize the Supabase client.
+
+The work has paused immediately after creating these foundational files. The next logical step involves refactoring the existing API routes in  to utilize this new Supabase client for all database and authentication operations, effectively decommissioning the old MongoDB logic. No frontend changes have been made yet to accommodate this new backend.
 </current_work>
 
 <optional_next_step>
-Begin implementing the new widget-based home screen as per the user's latest, detailed request. The first step will be to overhaul the  file to create the new layout structure and widgets.
+Continue the Supabase backend integration by creating the authentication dependencies and starting to refactor the API routes in  to use the new Supabase client for user management and data operations.
 </optional_next_step>
