@@ -216,14 +216,20 @@ export default function HomeScreen() {
         {/* Add spacing when nutrition widget is collapsed */}
         {isNutritionCollapsed && <View style={styles.collapsedNutritionSpacing} />}
 
-        {/* Water Progress Widget */}
-        <View style={styles.widgetContainer}>
-          <WaterProgressWidget 
-            current={waterIntake}
-            target={waterTarget}
-            onAddWater={(amount) => setWaterIntake(prev => Math.min(prev + amount, waterTarget))}
-          />
-        </View>
+        {/* Water Progress Widget - Normal Position */}
+        {!isWaterCollapsed && (
+          <View style={styles.widgetContainer}>
+            <WaterProgressWidget
+              current={waterIntake}
+              target={waterTarget}
+              onAddWater={(amount) => setWaterIntake(prev => prev + amount)}
+              isCollapsed={false}
+            />
+          </View>
+        )}
+
+        {/* Add spacing when water widget is collapsed */}
+        {isWaterCollapsed && <View style={styles.collapsedWaterSpacing} />}
 
         {/* Tips Carousel Widget */}
         <View style={styles.widgetContainer}>
