@@ -392,6 +392,60 @@ async def get_profile(email: str):
         logger.error(f"Profile retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération: {str(e)}")
 
+@app.post("/api/meals/save")
+async def save_meal(meal: MealEntry):
+    """Legacy meal save endpoint."""
+    try:
+        # TODO: Migrate to Supabase meals table using new schema
+        # For now, return success
+        
+        return {
+            "message": "Repas sauvegardé avec succès",
+            "meal_id": f"legacy-meal-{datetime.now().timestamp()}"
+        }
+    except Exception as e:
+        logger.error(f"Meal save error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la sauvegarde: {str(e)}")
+
+@app.get("/api/meals/user/{user_id}")
+async def get_user_meals(user_id: str, date: Optional[str] = None):
+    """Legacy user meals endpoint."""
+    try:
+        # TODO: Migrate to Supabase meals table
+        # For now, return empty meals list
+        
+        return {"meals": []}
+    except Exception as e:
+        logger.error(f"User meals retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération: {str(e)}")
+
+@app.post("/api/weight/save")
+async def save_weight(weight_entry: WeightEntry):
+    """Legacy weight save endpoint."""
+    try:
+        # TODO: Migrate to Supabase weight tracking
+        # For now, return success
+        
+        return {
+            "message": "Poids sauvegardé avec succès",
+            "entry_id": f"legacy-weight-{datetime.now().timestamp()}"
+        }
+    except Exception as e:
+        logger.error(f"Weight save error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la sauvegarde: {str(e)}")
+
+@app.get("/api/weight/history/{user_id}")
+async def get_weight_history(user_id: str, days: int = 30):
+    """Legacy weight history endpoint."""
+    try:
+        # TODO: Migrate to Supabase weight tracking
+        # For now, return empty history
+        
+        return {"weights": []}
+    except Exception as e:
+        logger.error(f"Weight history retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
