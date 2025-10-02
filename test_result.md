@@ -257,13 +257,15 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Supabase Database Schema Creation"
+    - "Email Confirmation Workflow"
+    - "Legacy Profile Retrieval Fix"
+  stuck_tasks:
     - "Supabase Backend Migration"
     - "New Supabase Authentication System" 
     - "New Supabase Meals API"
-    - "All legacy endpoints with new architecture"
-  stuck_tasks: []
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "testing"
@@ -272,3 +274,5 @@ agent_communication:
     message: "RESOLVED 404 ERROR: Successfully created demo user profile with email 'demo@keto.fr' and tested daily summary endpoint. The frontend was getting 404 error on GET /api/meals/daily-summary/demo@keto.fr because the demo user didn't exist in the database. Now resolved: ✅ Demo user created with proper macros ✅ Daily summary endpoint working (tested empty and with sample meal data) ✅ Added 3 realistic sample meals for better dashboard display ✅ All meal save operations working correctly. The 404 error should now be resolved and frontend widgets should load properly."
   - agent: "main"
     message: "MAJOR BACKEND MIGRATION COMPLETED: Successfully migrated from MongoDB to Supabase architecture. ✅ Created new main.py with Supabase integration ✅ Preserved all legacy endpoints for compatibility ✅ Added new Supabase-based auth and meals routers ✅ Backend server restarted and running with new architecture. All existing endpoints should work while new Supabase features are available. Ready for comprehensive testing."
+  - agent: "testing"
+    message: "SUPABASE MIGRATION TESTING COMPLETED: Found critical issues blocking migration success. ❌ Supabase database schema incomplete - missing 'users' table ❌ Authentication system requires email confirmation preventing login ❌ Legacy profile retrieval broken for non-demo users ✅ Legacy endpoints (health, meal analysis, food search, daily summary) working ✅ Server architecture successfully migrated. PRIORITY: Create Supabase database tables and configure email confirmation workflow before migration can be considered successful."
