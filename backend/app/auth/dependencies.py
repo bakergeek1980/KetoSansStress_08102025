@@ -69,23 +69,44 @@ def get_jwks_key(token: str) -> dict:
 def validate_jwt_token(token: str) -> dict:
     """Validate JWT token and return payload."""
     try:
-        # Check if JWT secret is configured
-        if not settings.supabase_jwt_secret or settings.supabase_jwt_secret == "JWT_SECRET_PLACEHOLDER":
-            logger.warning("JWT secret not configured properly")
-            raise AuthenticationError("JWT secret not configured")
+        # First, try to get the header to determine the algorithm
+        header = jwt.get_unverified_header(token)
+        algorithm = header.get("alg", "HS256")
         
-        # Decode and validate the JWT token with Supabase settings
-        payload = jwt.decode(
-            token,
-            settings.supabase_jwt_secret,
-            algorithms=["HS256"],
-            options={
-                "verify_signature": True,
-                "verify_exp": True,
-                "verify_aud": False,  # Disable audience verification for now
-                "verify_iss": False   # Don't verify issuer
-            }
-        )
+        # If it's HS256, use the JWT secret
+        if algorithm == "HS256":
+            if not settings.supabase_jwt_secret or settings.supabase_jwt_secret == "JWT_SECRET_PLACEHOLDER":
+                logger.warning("JWT secret not configured properly")
+                raise AuthenticationError("JWT secret not configured")
+            
+            payload = jwt.decode(
+                token,
+                settings.supabase_jwt_secret,
+                algorithms=["HS256"],
+                options={
+                    "verify_signature": True,
+                    "verify_exp": True,
+                    "verify_aud": False,
+                    "verify_iss": False
+                }
+            )
+        else:
+            # For other algorithms (like ES256), get the public key from JWKS
+            key = get_jwks_key(token)
+            if not key:
+                raise AuthenticationError("Unable to get verification key")
+            
+            payload = jwt.decode(
+                token,
+                key,
+                algorithms=[algorithm],
+                options={
+                    "verify_signature": True,
+                    "verify_exp": True,
+                    "verify_aud": False,
+                    "verify_iss": False
+                }
+            )
         
         user_id = payload.get("sub")
         if not user_id:
