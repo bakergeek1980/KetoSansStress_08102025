@@ -224,6 +224,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "PARTIALLY WORKING: User registration (POST /api/auth/register) works and creates users successfully. Demo user login (POST /api/auth/login) works and returns valid access tokens. However, JWT token validation for protected endpoints fails with 'Signature verification failed' errors. The /api/auth/me endpoint returns 401 Unauthorized even with valid tokens. Email confirmation has been disabled for development. Core authentication flow works but token validation needs fixing."
+      - working: true
+        agent: "testing"
+        comment: "RESOLVED: JWT authentication system is now working correctly! Fixed JWT signature verification by using Supabase's built-in token verification instead of manual JWT decoding. The issue was a mismatch between the JWT signing key (kid: 'XMucGMBaCBHfCPal') and available JWKS keys. ✅ Login successful (POST /api/auth/login) ✅ JWT token validation working (GET /api/auth/me) ✅ Protected endpoints now accept valid JWT tokens. Authentication flow is fully functional."
 
   - task: "New Supabase Meals API"
     implemented: true
