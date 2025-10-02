@@ -333,8 +333,7 @@ const styles = StyleSheet.create({
   fixedBottomBar: {
     position: 'absolute',
     bottom: 20,
-    left: '50%',
-    transform: [{ translateX: -((width * 2/3) / 2) }], // Center the bar
+    left: width / 6, // Center: (100% - 2/3) / 2 = 1/6 from each side
     width: width * 2/3, // 2/3 of screen width
     height: 60,
     backgroundColor: COLORS.surface,
