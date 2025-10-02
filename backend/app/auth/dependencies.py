@@ -43,12 +43,11 @@ def validate_jwt_token(token: str) -> dict:
             token,
             settings.supabase_jwt_secret,
             algorithms=["HS256"],
-            audience="authenticated",  # Supabase uses "authenticated" as audience
             options={
                 "verify_signature": True,
                 "verify_exp": True,
-                "verify_aud": True,
-                "verify_iss": False  # Don't verify issuer for now
+                "verify_aud": False,  # Disable audience verification for now
+                "verify_iss": False   # Don't verify issuer
             }
         )
         
