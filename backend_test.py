@@ -623,24 +623,39 @@ class KetoJWTTester:
     
     def run_all_tests(self):
         """Run all tests in sequence"""
-        print(f"\n🧪 Starting KetoSansStress JWT Authentication Tests")
+        print(f"\n🧪 Starting KetoSansStress Comprehensive Backend Tests")
         print(f"🔗 Backend URL: {self.base_url}")
         print(f"👤 Demo User: {DEMO_EMAIL}")
+        print(f"📧 Test Email: {TEST_EMAIL}")
         print(f"🔑 JWT Secret: 63f08a4d-5168-4ea6-95c2-3e468a03b98c")
-        print("=" * 60)
+        print("=" * 80)
+        
+        # Initialize test access token storage
+        self.test_access_token = None
+        self.test_user_id = None
         
         # Priority 1: Health Check
-        print("\n📋 PRIORITY 1: Health Check")
+        print("\n📋 PRIORITY 1: System Health")
         health_ok = self.test_health_check()
         
-        # Priority 2: Authentication Flow
-        print("\n🔐 PRIORITY 2: Authentication Flow")
-        login_ok = self.test_user_login()
-        auth_me_ok = self.test_auth_me_endpoint() if login_ok else False
+        # Priority 2: Supabase Authentication System
+        print("\n🔐 PRIORITY 2: Supabase Authentication System")
+        register_ok = self.test_supabase_user_registration()
+        test_login_ok = self.test_supabase_user_login_test_email()
         
-        # Priority 3: Protected Endpoints (only if auth works)
-        print("\n🛡️ PRIORITY 3: Protected Endpoints")
-        if login_ok and auth_me_ok:
+        # Demo user authentication (existing)
+        demo_login_ok = self.test_user_login()
+        auth_me_ok = self.test_auth_me_endpoint() if demo_login_ok else False
+        
+        # Priority 3: New Supabase Meals API
+        print("\n🍽️ PRIORITY 3: New Supabase Meals API")
+        meals_save_ok = self.test_supabase_meals_save_new()
+        user_meals_ok = self.test_supabase_meals_get_user_test_email()
+        daily_summary_ok = self.test_supabase_daily_summary_test_email()
+        
+        # Priority 4: Protected Endpoints (only if auth works)
+        print("\n🛡️ PRIORITY 4: Protected Endpoints (New API)")
+        if demo_login_ok and auth_me_ok:
             create_meal_ok = self.test_create_meal()
             get_meals_ok = self.test_get_user_meals()
             get_today_ok = self.test_get_todays_meals()
@@ -648,15 +663,20 @@ class KetoJWTTester:
             print("⚠️ Skipping protected endpoints due to authentication failures")
             create_meal_ok = get_meals_ok = get_today_ok = False
         
-        # Priority 4: Legacy Endpoints
-        print("\n🔄 PRIORITY 4: Legacy Endpoints")
-        meal_analysis_ok = self.test_meal_analysis()
+        # Priority 5: OpenFoodFacts Integration
+        print("\n🥑 PRIORITY 5: OpenFoodFacts Integration")
         food_search_ok = self.test_food_search()
+        keto_foods_ok = self.test_openfoodfacts_keto_friendly()
+        enhanced_analysis_ok = self.test_enhanced_meal_analysis()
+        
+        # Priority 6: Legacy Endpoints
+        print("\n🔄 PRIORITY 6: Legacy Endpoints")
+        meal_analysis_ok = self.test_meal_analysis()
         
         # Summary
-        print("\n" + "=" * 60)
-        print("📊 TEST SUMMARY")
-        print("=" * 60)
+        print("\n" + "=" * 80)
+        print("📊 COMPREHENSIVE TEST SUMMARY")
+        print("=" * 80)
         
         total_tests = len(self.test_results)
         passed_tests = sum(1 for result in self.test_results if result["success"])
@@ -667,22 +687,47 @@ class KetoJWTTester:
         print(f"❌ Failed: {failed_tests}")
         print(f"Success Rate: {(passed_tests/total_tests*100):.1f}%")
         
-        # Critical Issues
+        # Critical Issues Analysis
         critical_failures = []
         if not health_ok:
-            critical_failures.append("Health Check Failed")
-        if not login_ok:
-            critical_failures.append("User Login Failed")
-        if not auth_me_ok and login_ok:
+            critical_failures.append("System Health Check Failed")
+        if not register_ok and not test_login_ok:
+            critical_failures.append("Supabase Authentication System Failed")
+        if not demo_login_ok:
+            critical_failures.append("Demo User Login Failed")
+        if not auth_me_ok and demo_login_ok:
             critical_failures.append("JWT Token Validation Failed")
+        if not meals_save_ok:
+            critical_failures.append("Supabase Meals Save Failed")
+        if not daily_summary_ok:
+            critical_failures.append("Supabase Daily Summary Failed")
+        if not food_search_ok:
+            critical_failures.append("OpenFoodFacts Integration Failed")
+        
+        # Test Categories Summary
+        print(f"\n📋 TEST CATEGORIES SUMMARY:")
+        categories = {
+            "System Health": [health_ok],
+            "Supabase Auth": [register_ok, test_login_ok, demo_login_ok, auth_me_ok],
+            "Supabase Meals": [meals_save_ok, user_meals_ok, daily_summary_ok],
+            "Protected Endpoints": [create_meal_ok, get_meals_ok, get_today_ok],
+            "OpenFoodFacts": [food_search_ok, keto_foods_ok, enhanced_analysis_ok],
+            "Legacy Endpoints": [meal_analysis_ok]
+        }
+        
+        for category, results in categories.items():
+            passed = sum(1 for r in results if r)
+            total = len(results)
+            status = "✅" if passed == total else "⚠️" if passed > 0 else "❌"
+            print(f"   {status} {category}: {passed}/{total} passed")
         
         if critical_failures:
-            print(f"\n🚨 CRITICAL ISSUES:")
+            print(f"\n🚨 CRITICAL ISSUES REQUIRING ATTENTION:")
             for issue in critical_failures:
                 print(f"   • {issue}")
         
         # Detailed Results
-        print(f"\n📋 DETAILED RESULTS:")
+        print(f"\n📋 DETAILED TEST RESULTS:")
         for result in self.test_results:
             status = "✅" if result["success"] else "❌"
             print(f"   {status} {result['test']}: {result['details']}")
@@ -693,6 +738,7 @@ class KetoJWTTester:
             "failed": failed_tests,
             "success_rate": passed_tests/total_tests*100,
             "critical_failures": critical_failures,
+            "categories": categories,
             "results": self.test_results
         }
 
