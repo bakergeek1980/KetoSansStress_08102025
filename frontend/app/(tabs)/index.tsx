@@ -271,16 +271,24 @@ export default function HomeScreen() {
         <View style={styles.bottomSpacing} />
       </ScrollView>
 
-      {/* Fixed Collapsed Nutrition Widget */}
-      {isNutritionCollapsed && (
-        <View style={styles.fixedNutritionWidget}>
+      {/* Fixed Collapsed Widgets */}
+      <View style={styles.fixedWidgetsContainer}>
+        {isNutritionCollapsed && (
           <NutritionRingsWidget 
             dailySummary={dailySummary}
             user={user}
             isCollapsed={true}
           />
-        </View>
-      )}
+        )}
+        {isWaterCollapsed && (
+          <WaterProgressWidget
+            current={waterIntake}
+            target={waterTarget}
+            onAddWater={(amount) => setWaterIntake(prev => prev + amount)}
+            isCollapsed={true}
+          />
+        )}
+      </View>
 
       {/* Fixed Bottom Action Bar */}
       <View style={styles.fixedBottomBar}>
