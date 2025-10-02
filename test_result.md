@@ -245,6 +245,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "BLOCKED: New Supabase meals API endpoints (POST /api/meals/, GET /api/meals/, GET /api/meals/today) all return 401 Unauthorized due to JWT token validation failures. While the endpoints are implemented correctly, they cannot be tested because the authentication system has JWT signature verification issues. The API structure is sound but depends on fixing the authentication token validation."
+      - working: false
+        agent: "testing"
+        comment: "PARTIALLY WORKING: JWT authentication is now resolved, but meals API endpoints fail due to missing Supabase database schema. ❌ POST /api/meals/ returns 500 error: 'Could not find table public.meals' ❌ GET /api/meals/ returns 500 error: 'Could not find table public.meals' ✅ GET /api/meals/today works (returns empty array) ✅ Authentication working correctly. The API code is functional but requires Supabase database tables to be created."
 
   - task: "Legacy Profile Retrieval Fix"
     implemented: true
