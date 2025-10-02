@@ -12,9 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Camera, Image as ImageIcon, ArrowLeft, Zap } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '../contexts/AuthContext';
-import { analyzeMeal, saveMeal, MealAnalysis, NutritionalInfo } from '../lib/api';
 
 const COLORS = {
   primary: '#27AE60',
