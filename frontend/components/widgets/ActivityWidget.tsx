@@ -5,9 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Modal,
+  ScrollView,
+  Switch,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Activity, Heart, Zap, Target } from 'lucide-react-native';
+import { Activity, Heart, Zap, Target, Settings, X } from 'lucide-react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
