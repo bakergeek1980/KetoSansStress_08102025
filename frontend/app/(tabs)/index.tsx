@@ -461,4 +461,7 @@ const styles = StyleSheet.create({
   collapsedNutritionSpacing: {
     height: 80, // Space for collapsed nutrition widget
   },
+  collapsedWaterSpacing: {
+    height: 60, // Space for collapsed water widget
+  },
 });
