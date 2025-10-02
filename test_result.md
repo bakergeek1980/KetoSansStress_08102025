@@ -248,6 +248,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "PARTIALLY WORKING: JWT authentication is now resolved, but meals API endpoints fail due to missing Supabase database schema. ❌ POST /api/meals/ returns 500 error: 'Could not find table public.meals' ❌ GET /api/meals/ returns 500 error: 'Could not find table public.meals' ✅ GET /api/meals/today works (returns empty array) ✅ Authentication working correctly. The API code is functional but requires Supabase database tables to be created."
+      - working: false
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING COMPLETED: New Supabase meals API still blocked by missing database schema. ❌ POST /api/meals/ returns 500: 'Could not find table public.meals' ❌ GET /api/meals/ returns 500: 'Could not find table public.meals' ✅ GET /api/meals/today returns empty array (graceful fallback) ✅ JWT authentication fully functional ✅ Legacy meal save endpoint working. CRITICAL: Supabase 'meals' table must be created before new API can function. Authentication and API code are correct."
 
   - task: "Legacy Profile Retrieval Fix"
     implemented: true
