@@ -218,16 +218,6 @@ export default function NutritionRingsWidget({ dailySummary, user, isCollapsed =
       >
         <Text style={styles.widgetTitle}>Nutrition Aujourd'hui</Text>
         
-        {/* Caloric objective explanation */}
-        <View style={styles.infoContainer}>
-          <View style={styles.infoIcon}>
-            <Text style={styles.infoIconText}>ℹ️</Text>
-          </View>
-          <Text style={styles.infoText}>
-            Objectif calorique quotidien : l'énergie active est brûlée en plus de votre consommation d'énergie au repos.
-          </Text>
-        </View>
-        
         {/* Row 1: Calories, Glucides */}
         <View style={styles.macroRow}>
           <MacroBox {...macros[0]} />
