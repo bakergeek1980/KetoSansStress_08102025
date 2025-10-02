@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: '700',
   },
-  fixedNutritionWidget: {
+  fixedWidgetsContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
