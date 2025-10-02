@@ -125,7 +125,373 @@ class KetoBackendTester:
                 "url": url
             }
 
-print(f"Testing backend at: {KetoBackendTester()._get_backend_url()}")
+    def test_health_check(self) -> Dict[str, Any]:
+        """Test GET /api/health endpoint"""
+        logger.info("Testing health check endpoint...")
+        
+        result = self.make_request("GET", "/health")
+        
+        if result["success"]:
+            data = result["data"]
+            expected_fields = ["status", "service", "supabase", "timestamp"]
+            missing_fields = [field for field in expected_fields if field not in data]
+            
+            if missing_fields:
+                return {
+                    "success": False,
+                    "error": f"Missing fields in response: {missing_fields}",
+                    "response": result
+                }
+            
+            if "KetoSansStress API v2.0" not in data.get("service", ""):
+                return {
+                    "success": False,
+                    "error": f"Unexpected service name: {data.get('service')}",
+                    "response": result
+                }
+            
+            return {
+                "success": True,
+                "message": "Health check passed",
+                "service": data.get("service"),
+                "supabase_status": data.get("supabase"),
+                "response": result
+            }
+        
+        return {
+            "success": False,
+            "error": "Health check failed",
+            "response": result
+        }
+    
+    def test_legacy_user_profile(self) -> Dict[str, Any]:
+        """Test legacy user profile endpoints"""
+        logger.info("Testing legacy user profile creation...")
+        
+        # Test profile creation
+        create_result = self.make_request("POST", "/users/profile", self.legacy_user)
+        
+        if not create_result["success"]:
+            return {
+                "success": False,
+                "error": "Profile creation failed",
+                "response": create_result
+            }
+        
+        # Test profile retrieval
+        logger.info("Testing legacy user profile retrieval...")
+        get_result = self.make_request("GET", f"/users/profile/{self.legacy_user['email']}")
+        
+        if not get_result["success"]:
+            return {
+                "success": False,
+                "error": "Profile retrieval failed",
+                "response": get_result
+            }
+        
+        # Test demo user profile
+        logger.info("Testing demo user profile...")
+        demo_result = self.make_request("GET", "/users/profile/demo@keto.fr")
+        
+        return {
+            "success": True,
+            "message": "Legacy user profile endpoints working",
+            "create_response": create_result,
+            "get_response": get_result,
+            "demo_response": demo_result
+        }
+    
+    def test_meal_analysis(self) -> Dict[str, Any]:
+        """Test AI meal analysis endpoint"""
+        logger.info("Testing AI meal analysis...")
+        
+        analysis_data = {
+            "image_base64": self.test_image_base64,
+            "meal_type": "breakfast"
+        }
+        
+        result = self.make_request("POST", "/meals/analyze", analysis_data)
+        
+        if result["success"]:
+            data = result["data"]
+            required_fields = ["success", "nutritional_info", "meal_type", "analyzed_at"]
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                return {
+                    "success": False,
+                    "error": f"Missing fields in response: {missing_fields}",
+                    "response": result
+                }
+            
+            # Check nutritional info structure
+            nutrition = data.get("nutritional_info", {})
+            nutrition_fields = ["calories", "proteins", "carbs", "net_carbs", "fats", "fiber", "keto_score", "foods_detected", "portions", "confidence"]
+            missing_nutrition = [field for field in nutrition_fields if field not in nutrition]
+            
+            if missing_nutrition:
+                return {
+                    "success": False,
+                    "error": f"Missing nutritional fields: {missing_nutrition}",
+                    "response": result
+                }
+            
+            return {
+                "success": True,
+                "message": "Meal analysis working correctly",
+                "nutritional_info": nutrition,
+                "response": result
+            }
+        
+        return {
+            "success": False,
+            "error": "Meal analysis failed",
+            "response": result
+        }
+    
+    def test_food_search(self) -> Dict[str, Any]:
+        """Test French food search endpoint"""
+        logger.info("Testing French food search...")
+        
+        # Test search for "avocat"
+        result = self.make_request("GET", "/foods/search/avocat")
+        
+        if result["success"]:
+            data = result["data"]
+            if "results" not in data:
+                return {
+                    "success": False,
+                    "error": "Missing 'results' field in response",
+                    "response": result
+                }
+            
+            results = data["results"]
+            if not results:
+                return {
+                    "success": False,
+                    "error": "No results found for 'avocat'",
+                    "response": result
+                }
+            
+            # Check first result structure
+            first_result = results[0]
+            if "name" not in first_result or "nutrition" not in first_result:
+                return {
+                    "success": False,
+                    "error": "Invalid result structure",
+                    "response": result
+                }
+            
+            return {
+                "success": True,
+                "message": "Food search working correctly",
+                "results_count": len(results),
+                "first_result": first_result,
+                "response": result
+            }
+        
+        return {
+            "success": False,
+            "error": "Food search failed",
+            "response": result
+        }
+    
+    def test_daily_summary(self) -> Dict[str, Any]:
+        """Test daily summary endpoint"""
+        logger.info("Testing daily summary endpoint...")
+        
+        result = self.make_request("GET", "/meals/daily-summary/demo@keto.fr")
+        
+        if result["success"]:
+            data = result["data"]
+            required_fields = ["date", "totals", "targets", "percentages", "meals_count", "keto_status"]
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                return {
+                    "success": False,
+                    "error": f"Missing fields in response: {missing_fields}",
+                    "response": result
+                }
+            
+            return {
+                "success": True,
+                "message": "Daily summary working correctly",
+                "summary": data,
+                "response": result
+            }
+        
+        return {
+            "success": False,
+            "error": "Daily summary failed",
+            "response": result
+        }
+    
+    def test_supabase_auth(self) -> Dict[str, Any]:
+        """Test new Supabase authentication system"""
+        logger.info("Testing Supabase authentication...")
+        
+        # Test user registration
+        logger.info("Testing user registration...")
+        register_result = self.make_request("POST", "/auth/register", self.test_user)
+        
+        # Registration might fail if user exists, that's okay
+        if not register_result["success"] and register_result["status_code"] != 409:
+            return {
+                "success": False,
+                "error": "Registration failed unexpectedly",
+                "response": register_result
+            }
+        
+        # Test user login
+        logger.info("Testing user login...")
+        login_data = {
+            "email": self.test_user["email"],
+            "password": self.test_user["password"]
+        }
+        
+        login_result = self.make_request("POST", "/auth/login", login_data)
+        
+        if not login_result["success"]:
+            return {
+                "success": False,
+                "error": "Login failed",
+                "response": login_result
+            }
+        
+        # Store auth token for subsequent requests
+        login_data = login_result["data"]
+        if "access_token" in login_data:
+            self.auth_token = login_data["access_token"]
+        
+        # Test get current user info
+        logger.info("Testing get current user info...")
+        me_result = self.make_request("GET", "/auth/me", auth_required=True)
+        
+        # Test logout
+        logger.info("Testing logout...")
+        logout_result = self.make_request("POST", "/auth/logout", auth_required=True)
+        
+        return {
+            "success": True,
+            "message": "Supabase authentication working",
+            "register_response": register_result,
+            "login_response": login_result,
+            "me_response": me_result,
+            "logout_response": logout_result
+        }
+    
+    def test_supabase_meals(self) -> Dict[str, Any]:
+        """Test new Supabase meals API"""
+        logger.info("Testing Supabase meals API...")
+        
+        # Ensure we have auth token
+        if not self.auth_token:
+            # Try to login first
+            login_data = {
+                "email": self.test_user["email"],
+                "password": self.test_user["password"]
+            }
+            login_result = self.make_request("POST", "/auth/login", login_data)
+            if login_result["success"] and "access_token" in login_result["data"]:
+                self.auth_token = login_result["data"]["access_token"]
+        
+        # Test meal creation
+        logger.info("Testing meal creation...")
+        create_result = self.make_request("POST", "/meals/", self.sample_meal, auth_required=True)
+        
+        # Test meal retrieval
+        logger.info("Testing meal retrieval...")
+        get_result = self.make_request("GET", "/meals/", auth_required=True)
+        
+        # Test today's meals
+        logger.info("Testing today's meals...")
+        today_result = self.make_request("GET", "/meals/today", auth_required=True)
+        
+        return {
+            "success": True,
+            "message": "Supabase meals API tested",
+            "create_response": create_result,
+            "get_response": get_result,
+            "today_response": today_result
+        }
+    
+    def run_all_tests(self) -> Dict[str, Any]:
+        """Run all backend tests"""
+        logger.info("Starting comprehensive backend testing...")
+        
+        results = {}
+        
+        # Test 1: Health Check
+        results["health_check"] = self.test_health_check()
+        
+        # Test 2: Legacy User Profile
+        results["legacy_user_profile"] = self.test_legacy_user_profile()
+        
+        # Test 3: Meal Analysis
+        results["meal_analysis"] = self.test_meal_analysis()
+        
+        # Test 4: Food Search
+        results["food_search"] = self.test_food_search()
+        
+        # Test 5: Daily Summary
+        results["daily_summary"] = self.test_daily_summary()
+        
+        # Test 6: Supabase Authentication
+        results["supabase_auth"] = self.test_supabase_auth()
+        
+        # Test 7: Supabase Meals API
+        results["supabase_meals"] = self.test_supabase_meals()
+        
+        # Summary
+        total_tests = len(results)
+        passed_tests = sum(1 for result in results.values() if result["success"])
+        
+        results["summary"] = {
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": total_tests - passed_tests,
+            "success_rate": f"{(passed_tests/total_tests)*100:.1f}%"
+        }
+        
+        return results
+
+def main():
+    """Main test execution"""
+    tester = KetoBackendTester()
+    
+    print("=" * 80)
+    print("KetoSansStress Backend API Testing Suite")
+    print("Testing Supabase Migration")
+    print("=" * 80)
+    print(f"Testing backend at: {tester.base_url}")
+    
+    results = tester.run_all_tests()
+    
+    print("\n" + "=" * 80)
+    print("TEST RESULTS SUMMARY")
+    print("=" * 80)
+    
+    for test_name, result in results.items():
+        if test_name == "summary":
+            continue
+            
+        status = "✅ PASS" if result["success"] else "❌ FAIL"
+        print(f"{test_name.upper():<25} {status}")
+        
+        if not result["success"]:
+            print(f"  Error: {result.get('error', 'Unknown error')}")
+        else:
+            print(f"  Message: {result.get('message', 'Test passed')}")
+        print()
+    
+    summary = results["summary"]
+    print(f"OVERALL: {summary['passed_tests']}/{summary['total_tests']} tests passed ({summary['success_rate']})")
+    
+    return results
+
+if __name__ == "__main__":
+    main()
 
 def test_health_check():
     """Test the health check endpoint"""
