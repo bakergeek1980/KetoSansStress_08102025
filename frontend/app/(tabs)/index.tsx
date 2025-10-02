@@ -31,7 +31,7 @@ import WaterProgressWidget from '../../components/widgets/WaterProgressWidgetNew
 import TipsCarouselWidget from '../../components/widgets/TipsCarouselWidget';
 import MealsWidget from '../../components/widgets/MealsWidget';
 import ActivityWidget from '../../components/widgets/ActivityWidget';
-import WeightWidget from '../../components/widgets/WeightWidget';
+import WeightWidget from '../../components/widgets/WeightWidgetNew';
 import FastingWidget from '../../components/widgets/FastingWidgetNew';
 import { getDailySummary } from '../../lib/api';
 
