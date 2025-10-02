@@ -135,11 +135,8 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Repas d'aujourd'hui</Text>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Chargement...</Text>
-        </View>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
   }
