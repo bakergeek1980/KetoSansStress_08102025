@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
   },
   remainingTime: {
     fontSize: 14,
-    color: COLORS.purple,
+    color: COLORS.primary,
     fontWeight: '600',
     marginBottom: 4,
   },
