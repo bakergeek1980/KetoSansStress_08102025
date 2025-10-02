@@ -258,6 +258,17 @@ export default function HomeScreen() {
         <View style={styles.bottomSpacing} />
       </ScrollView>
 
+      {/* Fixed Collapsed Nutrition Widget */}
+      {isNutritionCollapsed && (
+        <View style={styles.fixedNutritionWidget}>
+          <NutritionRingsWidget 
+            dailySummary={dailySummary}
+            user={user}
+            isCollapsed={true}
+          />
+        </View>
+      )}
+
       {/* Fixed Bottom Action Bar */}
       <View style={styles.fixedBottomBar}>
         <View style={styles.bottomBarContainer}>
