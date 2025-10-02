@@ -142,16 +142,11 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.sectionHeader}>
-        <Clock color={COLORS.dark} size={20} />
-        <Text style={styles.sectionTitle}>Repas d'aujourd'hui</Text>
-      </View>
-      
+    <>
       {meals.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Aucun repas enregistré aujourd'hui</Text>
-          <Text style={styles.emptySubtext}>Scannez votre premier repas pour commencer !</Text>
+          <Text style={styles.emptyText}>Aucun repas aujourd'hui</Text>
+          <Text style={styles.emptySubtext}>Commencez par ajouter votre premier repas</Text>
         </View>
       ) : (
         <FlatList
@@ -163,7 +158,7 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
           contentContainerStyle={styles.mealsList}
         />
       )}
-    </View>
+    </>
   );
 }
 
