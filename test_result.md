@@ -236,9 +236,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Daily summary endpoint 404 error resolved"
-    - "Demo user profile created and working"
-    - "All backend endpoints tested and working"
+    - "Supabase Backend Migration"
+    - "New Supabase Authentication System" 
+    - "New Supabase Meals API"
+    - "All legacy endpoints with new architecture"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
