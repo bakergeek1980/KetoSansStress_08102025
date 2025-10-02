@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
   quickStatValue: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.purple,
+    color: COLORS.primary,
   },
   statDivider: {
     width: 1,
