@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Filter, Calendar, Star, Clock } from 'lucide-react-native';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getUserMeals } from '../../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { getUserMeals } from '../../lib/api';
 
 const COLORS = {
   primary: '#27AE60',

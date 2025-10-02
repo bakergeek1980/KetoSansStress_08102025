@@ -12,10 +12,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Camera, Plus, Zap, Target, Utensils, TrendingUp } from 'lucide-react-native';
-import { useAuth } from '../../../contexts/AuthContext';
-import MacroRing from '../../../components/macro/MacroRing';
-import TodayMeals from '../../../components/meals/TodayMeals';
-import { getDailySummary } from '../../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
+import MacroRing from '../../components/macro/MacroRing';
+import TodayMeals from '../../components/meals/TodayMeals';
+import { getDailySummary } from '../../lib/api';
 
 const { width } = Dimensions.get('window');
 

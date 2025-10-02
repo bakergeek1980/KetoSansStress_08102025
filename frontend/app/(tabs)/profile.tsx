@@ -24,8 +24,8 @@ import {
   Edit,
   Save
 } from 'lucide-react-native';
-import { useAuth } from '../../../contexts/AuthContext';
-import { createOrUpdateProfile, saveWeight } from '../../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { createOrUpdateProfile, saveWeight } from '../../lib/api';
 
 const COLORS = {
   primary: '#27AE60',
