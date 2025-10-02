@@ -302,12 +302,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "JWT Token Validation Fix"
     - "Supabase Database Schema Completion"
+    - "OpenFoodFacts Keto-Friendly Foods API"
     - "New Supabase Meals API Testing"
   stuck_tasks:
-    - "New Supabase Authentication System"
     - "New Supabase Meals API"
+    - "Supabase Database Schema Completion"
+    - "OpenFoodFacts Keto-Friendly Foods API"
   test_all: false
   test_priority: "stuck_first"
 
