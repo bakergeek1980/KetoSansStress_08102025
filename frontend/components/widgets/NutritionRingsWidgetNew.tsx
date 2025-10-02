@@ -394,30 +394,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
-  
-  // Info container styles
-  infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: COLORS.blue + '08',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.blue,
-  },
-  infoIcon: {
-    marginRight: 8,
-    marginTop: 1,
-  },
-  infoIconText: {
-    fontSize: 14,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    lineHeight: 16,
-    fontWeight: '500',
-  },
 });
