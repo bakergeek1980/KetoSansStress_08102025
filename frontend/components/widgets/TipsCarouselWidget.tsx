@@ -309,6 +309,5 @@ const styles = StyleSheet.create({
   indicator: {
     height: 6,
     borderRadius: 3,
-    transition: 'all 0.3s ease',
   },
 });
