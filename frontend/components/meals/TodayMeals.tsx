@@ -10,13 +10,19 @@ import {
 import { Clock, Star } from 'lucide-react-native';
 import { getUserMeals } from '../../lib/api';
 
+// KetoDiet inspired colors
 const COLORS = {
-  primary: '#27AE60',
-  purple: '#8E44AD',
-  white: '#FFFFFF',
-  gray: '#F8F9FA',
-  dark: '#2C3E50',
-  lightGray: '#BDC3C7'
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  accent: '#FF7043',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
+  error: '#F44336',
+  warning: '#FF9800',
+  success: '#4CAF50',
 };
 
 interface Meal {
