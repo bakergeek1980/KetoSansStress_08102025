@@ -395,7 +395,7 @@ export default function FastingWidget({ isFasting, startTime, onStart, onStop, i
           style={styles.collapsedContainer}
         >
           <View style={styles.collapsedContent}>
-            <Timer color={COLORS.purple} size={16} />
+            <Timer color={COLORS.primary} size={16} />
             <View style={styles.collapsedProgressSection}>
               <FastingTimer percentage={stats.percentage} size={40} strokeWidth={4} isCollapsed={true} />
               <Text style={styles.collapsedText}>
