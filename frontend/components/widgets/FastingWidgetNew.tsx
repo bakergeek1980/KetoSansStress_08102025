@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   },
   timerPercentage: {
     fontWeight: '800',
-    color: COLORS.purple,
+    color: COLORS.primary,
   },
   timeDisplay: {
     flex: 1,
