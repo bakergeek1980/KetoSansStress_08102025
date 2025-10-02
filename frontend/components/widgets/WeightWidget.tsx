@@ -5,9 +5,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Modal,
+  ScrollView,
+  Switch,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Weight, TrendingUp, TrendingDown, Minus, Plus } from 'lucide-react-native';
+import { Weight, TrendingUp, TrendingDown, Minus, Plus, Settings, X, ChevronRight } from 'lucide-react-native';
 import Svg, { Path, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
