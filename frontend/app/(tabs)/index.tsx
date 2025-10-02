@@ -8,10 +8,9 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Camera, Plus, Zap, Target, Utensils, TrendingUp } from 'lucide-react-native';
+import { Camera, Plus, Target, Utensils, TrendingUp, Bell } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import MacroRing from '../../components/macro/MacroRing';
 import TodayMeals from '../../components/meals/TodayMeals';
@@ -19,13 +18,20 @@ import { getDailySummary } from '../../lib/api';
 
 const { width } = Dimensions.get('window');
 
+// KetoDiet inspired color scheme
 const COLORS = {
-  primary: '#27AE60',
-  purple: '#8E44AD',
-  white: '#FFFFFF',
-  gray: '#F8F9FA',
-  dark: '#2C3E50',
-  lightGray: '#BDC3C7'
+  primary: '#4CAF50',      // Fresh green
+  secondary: '#81C784',    // Light green
+  accent: '#FF7043',       // Orange accent
+  background: '#FAFAFA',   // Very light gray
+  surface: '#FFFFFF',      // White
+  text: '#212121',         // Dark gray
+  textSecondary: '#757575', // Medium gray
+  textLight: '#9E9E9E',    // Light gray
+  divider: '#E0E0E0',      // Very light gray
+  error: '#F44336',        // Red
+  warning: '#FF9800',      // Orange
+  success: '#4CAF50',      // Green
 };
 
 interface DailySummary {
@@ -86,20 +92,30 @@ export default function HomeScreen() {
 
   const getKetoStatusColor = (status: string) => {
     switch (status) {
-      case 'excellent': return COLORS.primary;
-      case 'attention': return '#F39C12';
-      case 'dépassé': return '#E74C3C';
-      default: return COLORS.lightGray;
+      case 'excellent': return COLORS.success;
+      case 'attention': return COLORS.warning;
+      case 'dépassé': return COLORS.error;
+      default: return COLORS.textLight;
     }
   };
 
   const getKetoStatusText = (status: string) => {
     switch (status) {
-      case 'excellent': return 'Excellent ! Vous êtes en cétose';
+      case 'excellent': return 'Parfait ! Vous êtes en cétose';
       case 'attention': return 'Attention aux glucides';
-      case 'dépassé': return 'Limite de glucides dépassée';
-      default: return 'Commencez votre journée keto';
+      case 'dépassé': return 'Limite dépassée';
+      default: return 'Commencez votre suivi';
     }
+  };
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    };
+    return today.toLocaleDateString('fr-FR', options);
   };
 
   if (loading) {
@@ -122,118 +138,131 @@ export default function HomeScreen() {
         }
       >
         {/* Header */}
-        <LinearGradient
-          colors={[COLORS.primary, COLORS.purple]}
-          style={styles.header}
-        >
-          <View style={styles.headerContent}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
             <View>
-              <Text style={styles.greeting}>Bonjour,</Text>
-              <Text style={styles.userName}>{user?.name || 'Utilisateur'} !</Text>
+              <Text style={styles.appName}>KetoSansStress</Text>
+              <Text style={styles.dateText}>{getCurrentDate()}</Text>
             </View>
-            <TouchableOpacity style={styles.profileButton}>
-              <Text style={styles.profileInitial}>
-                {user?.name?.charAt(0).toUpperCase() || 'U'}
-              </Text>
+            <TouchableOpacity style={styles.notificationButton}>
+              <Bell color={COLORS.textSecondary} size={24} />
             </TouchableOpacity>
           </View>
+        </View>
 
-          {/* Status Keto */}
-          <View style={styles.ketoStatusContainer}>
-            <View style={styles.ketoStatusBadge}>
-              <Zap color={getKetoStatusColor(dailySummary?.keto_status || '')} size={16} />
-              <Text style={[styles.ketoStatusText, { color: getKetoStatusColor(dailySummary?.keto_status || '') }]}>
+        {/* Greeting Card */}
+        <View style={styles.greetingCard}>
+          <Text style={styles.greeting}>Bonjour {user?.name || 'Utilisateur'} !</Text>
+          <Text style={styles.subtitle}>Comment vous sentez-vous aujourd'hui ?</Text>
+          
+          {/* Status Badge */}
+          <View style={styles.statusContainer}>
+            <View style={[styles.statusBadge, { backgroundColor: getKetoStatusColor(dailySummary?.keto_status || '') + '20' }]}>
+              <View style={[styles.statusDot, { backgroundColor: getKetoStatusColor(dailySummary?.keto_status || '') }]} />
+              <Text style={[styles.statusText, { color: getKetoStatusColor(dailySummary?.keto_status || '') }]}>
                 {getKetoStatusText(dailySummary?.keto_status || '')}
               </Text>
             </View>
           </View>
-        </LinearGradient>
+        </View>
 
-        {/* Bouton Scanner Principal */}
+        {/* Quick Add Button */}
         <TouchableOpacity
-          style={styles.scanButton}
+          style={styles.quickAddButton}
           onPress={() => router.push('/scanner')}
-          activeOpacity={0.9}
+          activeOpacity={0.7}
         >
-          <LinearGradient
-            colors={[COLORS.primary, COLORS.purple]}
-            style={styles.scanButtonGradient}
-          >
-            <Camera color={COLORS.white} size={32} />
-            <Text style={styles.scanButtonText}>Scanner un repas</Text>
-            <Text style={styles.scanButtonSubtext}>Analyse IA instantanée</Text>
-          </LinearGradient>
+          <View style={styles.quickAddContent}>
+            <View style={styles.quickAddIcon}>
+              <Plus color={COLORS.surface} size={24} />
+            </View>
+            <View style={styles.quickAddText}>
+              <Text style={styles.quickAddTitle}>Ajouter un repas</Text>
+              <Text style={styles.quickAddSubtitle}>Scanner ou rechercher</Text>
+            </View>
+            <Camera color={COLORS.textSecondary} size={20} />
+          </View>
         </TouchableOpacity>
 
-        {/* Macros du jour */}
+        {/* Daily Overview */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Target color={COLORS.dark} size={20} />
-            <Text style={styles.sectionTitle}>Macros d'aujourd'hui</Text>
+            <Target color={COLORS.text} size={20} />
+            <Text style={styles.sectionTitle}>Aujourd'hui</Text>
           </View>
 
           {dailySummary ? (
-            <View style={styles.macroContainer}>
-              <MacroRing
-                label="Calories"
-                current={dailySummary.totals.calories}
-                target={dailySummary.targets.calories}
-                color={COLORS.purple}
-                unit="kcal"
-              />
-              <MacroRing
-                label="Glucides nets"
-                current={dailySummary.totals.net_carbs}
-                target={dailySummary.targets.carbs}
-                color={dailySummary.progress.carbs > 100 ? '#E74C3C' : COLORS.primary}
-                unit="g"
-              />
-              <MacroRing
-                label="Protéines"
-                current={dailySummary.totals.proteins}
-                target={dailySummary.targets.proteins}
-                color={COLORS.primary}
-                unit="g"
-              />
-              <MacroRing
-                label="Lipides"
-                current={dailySummary.totals.fats}
-                target={dailySummary.targets.fats}
-                color={COLORS.purple}
-                unit="g"
-              />
+            <View style={styles.overviewCard}>
+              <View style={styles.macroRow}>
+                <MacroRing
+                  label="Calories"
+                  current={dailySummary.totals.calories}
+                  target={dailySummary.targets.calories}
+                  color={COLORS.accent}
+                  unit="kcal"
+                />
+                <View style={styles.macroDetails}>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>Glucides nets</Text>
+                    <Text style={[styles.macroValue, { color: dailySummary.progress.carbs > 100 ? COLORS.error : COLORS.success }]}>
+                      {Math.round(dailySummary.totals.net_carbs)}g / {dailySummary.targets.carbs}g
+                    </Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>Protéines</Text>
+                    <Text style={styles.macroValue}>
+                      {Math.round(dailySummary.totals.proteins)}g / {dailySummary.targets.proteins}g
+                    </Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>Lipides</Text>
+                    <Text style={styles.macroValue}>
+                      {Math.round(dailySummary.totals.fats)}g / {dailySummary.targets.fats}g
+                    </Text>
+                  </View>
+                </View>
+              </View>
             </View>
           ) : (
-            <View style={styles.emptyMacroContainer}>
-              <Text style={styles.emptyMacroText}>Aucun repas enregistré aujourd'hui</Text>
-              <Text style={styles.emptyMacroSubtext}>Commencez par scanner votre premier repas !</Text>
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>Aucun repas aujourd'hui</Text>
+              <Text style={styles.emptySubtitle}>Ajoutez votre premier repas pour commencer</Text>
             </View>
           )}
         </View>
 
-        {/* Repas du jour */}
-        <TodayMeals userEmail={user?.email || ''} />
-
-        {/* Actions rapides */}
+        {/* Recent Meals */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Actions rapides</Text>
-          <View style={styles.quickActionsContainer}>
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={() => router.push('/(tabs)/meals')}
-            >
-              <Utensils color={COLORS.primary} size={24} />
-              <Text style={styles.quickActionText}>Mes repas</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={() => router.push('/(tabs)/progress')}
-            >
-              <TrendingUp color={COLORS.purple} size={24} />
-              <Text style={styles.quickActionText}>Progrès</Text>
-            </TouchableOpacity>
+          <View style={styles.sectionHeader}>
+            <Utensils color={COLORS.text} size={20} />
+            <Text style={styles.sectionTitle}>Repas récents</Text>
           </View>
+          <TodayMeals userEmail={user?.email || ''} />
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.quickActionsGrid}>
+          <TouchableOpacity 
+            style={styles.actionCard}
+            onPress={() => router.push('/(tabs)/meals')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: COLORS.primary + '20' }]}>
+              <Utensils color={COLORS.primary} size={24} />
+            </View>
+            <Text style={styles.actionTitle}>Historique</Text>
+            <Text style={styles.actionSubtitle}>Voir tous les repas</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.actionCard}
+            onPress={() => router.push('/(tabs)/progress')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: COLORS.accent + '20' }]}>
+              <TrendingUp color={COLORS.accent} size={24} />
+            </View>
+            <Text style={styles.actionTitle}>Progrès</Text>
+            <Text style={styles.actionSubtitle}>Statistiques</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.bottomSpacing} />
@@ -245,7 +274,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.background,
   },
   scrollContainer: {
     flex: 1,
@@ -257,96 +286,134 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: COLORS.dark,
+    color: COLORS.text,
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingTop: 10,
+    paddingBottom: 20,
   },
-  headerContent: {
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  greeting: {
-    fontSize: 16,
-    color: COLORS.white,
-    opacity: 0.9,
+  appName: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: COLORS.text,
   },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.white,
+  dateText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
-  profileButton: {
-    width: 45,
-    height: 45,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 22.5,
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  profileInitial: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  ketoStatusContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  ketoStatusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  ketoStatusText: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  scanButton: {
-    marginHorizontal: 20,
-    marginTop: -25,
-    marginBottom: 30,
-    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  scanButtonGradient: {
-    paddingVertical: 24,
-    paddingHorizontal: 30,
-    borderRadius: 20,
+  greetingCard: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    marginBottom: 16,
+  },
+  statusContainer: {
+    alignItems: 'flex-start',
+  },
+  statusBadge: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  scanButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginTop: 8,
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
   },
-  scanButtonSubtext: {
+  statusText: {
     fontSize: 14,
-    color: COLORS.white,
-    opacity: 0.9,
-    marginTop: 4,
+    fontWeight: '500',
+  },
+  quickAddButton: {
+    marginHorizontal: 20,
+    marginBottom: 24,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  quickAddContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  quickAddIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  quickAddText: {
+    flex: 1,
+  },
+  quickAddTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  quickAddSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
   },
   section: {
     marginHorizontal: 20,
-    marginBottom: 30,
+    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -355,63 +422,48 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.dark,
+    fontWeight: '600',
+    color: COLORS.text,
     marginLeft: 8,
   },
-  macroContainer: {
+  overviewCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  macroRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    paddingVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  emptyMacroContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    paddingVertical: 40,
-    paddingHorizontal: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
-  emptyMacroText: {
+  macroDetails: {
+    flex: 1,
+    marginLeft: 24,
+  },
+  macroItem: {
+    marginBottom: 12,
+  },
+  macroLabel: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 2,
+  },
+  macroValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
-    textAlign: 'center',
+    color: COLORS.text,
   },
-  emptyMacroSubtext: {
-    fontSize: 14,
-    color: COLORS.lightGray,
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  quickAction: {
-    backgroundColor: COLORS.white,
-    flex: 1,
-    marginHorizontal: 8,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+  emptyCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 32,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -422,14 +474,58 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  quickActionText: {
-    fontSize: 14,
+  emptyTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
-    marginTop: 8,
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    gap: 16,
+  },
+  actionCard: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  actionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  actionSubtitle: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
   bottomSpacing: {
-    height: 30,
+    height: 24,
   },
 });

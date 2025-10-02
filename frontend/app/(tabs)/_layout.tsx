@@ -1,13 +1,16 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Camera, Utensils, TrendingUp, User } from 'lucide-react-native';
+import { Home, Camera, Utensils, BarChart3, User } from 'lucide-react-native';
 
+// KetoDiet inspired colors
 const COLORS = {
-  primary: '#27AE60',
-  purple: '#8E44AD',
-  white: '#FFFFFF',
-  gray: '#F8F9FA',
-  dark: '#2C3E50'
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
 };
 
 export default function TabLayout() {
@@ -16,17 +19,25 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#95A5A6',
+        tabBarInactiveTintColor: COLORS.textLight,
         tabBarStyle: {
-          backgroundColor: COLORS.white,
+          backgroundColor: COLORS.surface,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: '#E0E0E0',
           height: 85,
           paddingBottom: 25,
           paddingTop: 10,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: -2,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 3.84,
+          elevation: 5,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
           marginTop: 4,
         },
@@ -56,7 +67,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="meals"
         options={{
-          title: 'Mes Repas',
+          title: 'Repas',
           tabBarIcon: ({ color, size }) => (
             <Utensils color={color} size={size} />
           ),
@@ -67,7 +78,7 @@ export default function TabLayout() {
         options={{
           title: 'Progrès',
           tabBarIcon: ({ color, size }) => (
-            <TrendingUp color={color} size={size} />
+            <BarChart3 color={color} size={size} />
           ),
         }}
       />

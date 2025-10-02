@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
-import { LinearGradient } from 'expo-linear-gradient';
+
+// KetoDiet inspired colors
+const COLORS = {
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+};
 
 export default function Index() {
   const { user, loading } = useAuth();
@@ -12,33 +21,28 @@ export default function Index() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialized(true);
-    }, 2000); // Logo pendant 2 secondes
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (isInitialized && !loading) {
-      // Pour la démo, redirigeons directement vers l'app
       router.replace('/(tabs)');
     }
   }, [isInitialized, loading, router]);
 
   if (loading || !isInitialized) {
     return (
-      <LinearGradient
-        colors={['#27AE60', '#8E44AD']}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <View style={styles.logoContainer}>
-          <Text style={styles.appName}>KetoScan</Text>
-          <Text style={styles.slogan}>Votre œil intelligent pour le keto</Text>
+          <View style={styles.logoCircle}>
+            <Text style={styles.logoText}>K</Text>
+          </View>
+          <Text style={styles.appName}>KetoSansStress</Text>
+          <Text style={styles.slogan}>Votre compagnon cétogène au quotidien</Text>
         </View>
-        
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FFFFFF" />
-        </View>
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -50,27 +54,43 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: COLORS.surface,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 100,
+  },
+  logoCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  logoText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: COLORS.surface,
   },
   appName: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 8,
   },
   slogan: {
     fontSize: 16,
-    color: '#FFFFFF',
-    opacity: 0.9,
+    color: COLORS.textSecondary,
     textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  loadingContainer: {
-    position: 'absolute',
-    bottom: 100,
+    fontWeight: '400',
   },
 });

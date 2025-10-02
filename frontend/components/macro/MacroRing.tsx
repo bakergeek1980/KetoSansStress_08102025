@@ -2,6 +2,18 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
+// KetoDiet inspired colors
+const COLORS = {
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
+  divider: '#E0E0E0',
+};
+
 interface MacroRingProps {
   label: string;
   current: number;
@@ -12,7 +24,7 @@ interface MacroRingProps {
 
 export default function MacroRing({ label, current, target, color, unit }: MacroRingProps) {
   const percentage = Math.min((current / target) * 100, 100);
-  const size = 80;
+  const size = 90;
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -24,7 +36,7 @@ export default function MacroRing({ label, current, target, color, unit }: Macro
         <Svg width={size} height={size} style={styles.svg}>
           {/* Ring de fond */}
           <Circle
-            stroke="#E5E7EB"
+            stroke={COLORS.divider}
             fill="none"
             cx={size / 2}
             cy={size / 2}
@@ -51,8 +63,7 @@ export default function MacroRing({ label, current, target, color, unit }: Macro
         </View>
       </View>
       <Text style={styles.label}>{label}</Text>
-      <Text style={styles.unit}>{unit}</Text>
-      <Text style={[styles.percentage, { color }]}>{Math.round(percentage)}%</Text>
+      <Text style={styles.percentage}>{Math.round(percentage)}%</Text>
     </View>
   );
 }
@@ -60,6 +71,7 @@ export default function MacroRing({ label, current, target, color, unit }: Macro
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    minWidth: 90,
   },
   ringContainer: {
     position: 'relative',
@@ -74,30 +86,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   currentValue: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#2C3E50',
+    color: COLORS.text,
   },
   targetValue: {
-    fontSize: 10,
-    color: '#95A5A6',
+    fontSize: 11,
+    color: COLORS.textSecondary,
     marginTop: -2,
   },
   label: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#2C3E50',
+    color: COLORS.text,
     marginTop: 8,
     textAlign: 'center',
   },
-  unit: {
-    fontSize: 10,
-    color: '#95A5A6',
-    marginTop: 2,
-  },
   percentage: {
-    fontSize: 11,
-    fontWeight: '600',
-    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    marginTop: 2,
   },
 });
