@@ -136,7 +136,7 @@ const DatePicker = ({
               ))}
             </ScrollView>
           </View>
-        </div>
+        </View>
 
         <Text style={styles.datePickerDescription}>
           Nous allons calculer vos changements de poids à partir de cette date.
