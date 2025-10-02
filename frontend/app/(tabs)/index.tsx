@@ -12,10 +12,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Camera, Plus, Zap, Target, Utensils, TrendingUp } from 'lucide-react-native';
-import { useAuth } from '../../contexts/AuthContext';
-import MacroRing from '../../components/macro/MacroRing';
-import TodayMeals from '../../components/meals/TodayMeals';
-import { getDailySummary } from '../../lib/api';
+import { useAuth } from '../../../contexts/AuthContext';
+import MacroRing from '../../../components/macro/MacroRing';
+import TodayMeals from '../../../components/meals/TodayMeals';
+import { getDailySummary } from '../../../lib/api';
 
 const { width } = Dimensions.get('window');
 
@@ -220,7 +220,7 @@ export default function HomeScreen() {
           <View style={styles.quickActionsContainer}>
             <TouchableOpacity 
               style={styles.quickAction}
-              onPress={() => router.push('/meals')}
+              onPress={() => router.push('/(tabs)/meals')}
             >
               <Utensils color={COLORS.primary} size={24} />
               <Text style={styles.quickActionText}>Mes repas</Text>
@@ -228,7 +228,7 @@ export default function HomeScreen() {
             
             <TouchableOpacity 
               style={styles.quickAction}
-              onPress={() => router.push('/progress')}
+              onPress={() => router.push('/(tabs)/progress')}
             >
               <TrendingUp color={COLORS.purple} size={24} />
               <Text style={styles.quickActionText}>Progrès</Text>
