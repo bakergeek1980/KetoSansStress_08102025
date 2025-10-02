@@ -449,6 +449,102 @@ async def get_weight_history(user_id: str, days: int = 30):
         logger.error(f"Weight history retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération: {str(e)}")
 
+@app.get("/api/foods/search/{query}")
+async def search_foods_advanced(query: str, limit: int = 20):
+    """Advanced food search using OpenFoodFacts and local database."""
+    try:
+        # Utiliser le service de recherche OpenFoodFacts
+        results = food_search_service.search_foods(query, limit=limit)
+        
+        return {
+            "query": query,
+            "results": results,
+            "count": len(results),
+            "source": "openfoodfacts"
+        }
+    except Exception as e:
+        logger.error(f"Food search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la recherche: {str(e)}")
+
+@app.get("/api/foods/barcode/{barcode}")
+async def get_food_by_barcode(barcode: str):
+    """Get food information by barcode using OpenFoodFacts."""
+    try:
+        # Rechercher par code-barres
+        result = food_search_service.get_food_by_barcode(barcode)
+        
+        if result:
+            return {
+                "barcode": barcode,
+                "product": result,
+                "found": True
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Produit non trouvé")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Barcode search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la recherche: {str(e)}")
+
+@app.post("/api/meals/analyze-enhanced")
+async def analyze_meal_enhanced(analysis_request: MealAnalysis):
+    """Enhanced meal analysis with OpenFoodFacts integration."""
+    try:
+        # Analyse IA classique
+        nutritional_info = await analyze_meal_with_ai(analysis_request.image_base64)
+        
+        # Enrichir avec OpenFoodFacts si possible
+        enhanced_results = []
+        for food in nutritional_info.foods_detected:
+            # Rechercher des correspondances dans OpenFoodFacts
+            search_results = food_search_service.search_foods(food, limit=3)
+            if search_results:
+                enhanced_results.extend(search_results[:1])  # Prendre le meilleur résultat
+        
+        return {
+            "success": True,
+            "ai_analysis": nutritional_info.dict(),
+            "openfoodfacts_suggestions": enhanced_results,
+            "meal_type": analysis_request.meal_type,
+            "analyzed_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Enhanced meal analysis error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse: {str(e)}")
+
+@app.get("/api/foods/keto-friendly")
+async def get_keto_friendly_foods(limit: int = 50):
+    """Get a list of keto-friendly foods."""
+    try:
+        # Liste de recherches d'aliments keto-friendly
+        keto_searches = [
+            "avocat", "saumon", "huile olive", "fromage", "œuf", "beurre", 
+            "noix", "amandes", "brocoli", "épinards", "chou-fleur", "courgette"
+        ]
+        
+        all_results = []
+        for search_term in keto_searches:
+            results = food_search_service.search_foods(search_term, limit=5)
+            # Filtrer seulement les aliments avec un bon score keto
+            keto_results = [r for r in results if r.get('keto_score', 0) >= 7]
+            all_results.extend(keto_results)
+            
+            if len(all_results) >= limit:
+                break
+        
+        # Trier par score keto et limiter
+        sorted_results = sorted(all_results, key=lambda x: x.get('keto_score', 0), reverse=True)
+        
+        return {
+            "keto_foods": sorted_results[:limit],
+            "count": len(sorted_results[:limit])
+        }
+    except Exception as e:
+        logger.error(f"Keto foods error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
