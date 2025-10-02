@@ -163,34 +163,27 @@ export default function TodayMeals({ userEmail }: TodayMealsProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 20,
-    marginBottom: 30,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.dark,
-    marginLeft: 8,
-  },
   loadingContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
     padding: 20,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   loadingText: {
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
   },
   emptyContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 30,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 32,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -216,10 +209,10 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   mealCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
     marginRight: 16,
-    width: 200,
+    width: 220,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -228,6 +221,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+    overflow: 'hidden',
   },
   mealImageContainer: {
     position: 'relative',
@@ -235,24 +229,23 @@ const styles = StyleSheet.create({
   mealImage: {
     width: '100%',
     height: 120,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
   },
-  ketoScoreBadge: {
+  scoreContainer: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    flexDirection: 'row',
+  },
+  scoreBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  ketoScoreText: {
+  scoreText: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginLeft: 2,
+    color: COLORS.surface,
   },
   mealContent: {
     padding: 12,
@@ -263,35 +256,30 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   mealTypeEmoji: {
-    fontSize: 16,
+    fontSize: 14,
     marginRight: 6,
   },
   mealType: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.dark,
+    color: COLORS.text,
     flex: 1,
   },
-  timeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   mealTime: {
-    fontSize: 12,
-    color: COLORS.lightGray,
-    marginLeft: 4,
+    fontSize: 11,
+    color: COLORS.textSecondary,
   },
   foodsDetected: {
     fontSize: 12,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     marginBottom: 8,
+    lineHeight: 16,
   },
   nutritionSummary: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  nutritionItem: {
-    fontSize: 12,
+  nutritionText: {
+    fontSize: 11,
     fontWeight: '600',
     color: COLORS.primary,
   },
