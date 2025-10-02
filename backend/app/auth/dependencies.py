@@ -6,6 +6,8 @@ from app.config import settings
 from app.database.connection import get_supabase_client
 from app.database.schemas import User
 import logging
+import requests
+import json
 
 logger = logging.getLogger(__name__)
 
