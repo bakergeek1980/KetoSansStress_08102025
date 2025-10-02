@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface User {
   name: string;
@@ -23,53 +22,29 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadUserData();
-  }, []);
-
-  const loadUserData = async () => {
-    try {
-      const userData = await AsyncStorage.getItem('user_data');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des données utilisateur:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [user, setUser] = useState<User | null>({
+    name: 'Demo User',
+    email: 'demo@keto.fr',
+    age: 30,
+    gender: 'homme',
+    weight: 70,
+    height: 170,
+    activity_level: 'modere',
+    goal: 'perte_poids',
+  });
+  const [loading, setLoading] = useState(false);
 
   const login = async (userData: User) => {
-    try {
-      await AsyncStorage.setItem('user_data', JSON.stringify(userData));
-      setUser(userData);
-    } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
-      throw error;
-    }
+    setUser(userData);
   };
 
   const logout = async () => {
-    try {
-      await AsyncStorage.removeItem('user_data');
-      setUser(null);
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
+    setUser(null);
   };
 
   const updateUser = async (userData: Partial<User>) => {
-    try {
-      const updatedUser = { ...user, ...userData } as User;
-      await AsyncStorage.setItem('user_data', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      throw error;
+    if (user) {
+      setUser({ ...user, ...userData });
     }
   };
 
