@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the KetoScan backend API to ensure all endpoints are working properly"
+user_problem_statement: "Test the KetoSansStress app with new widget-based dashboard implementation. All backend endpoints should work and frontend should display all widgets correctly."
 
 backend:
   - task: "Health Check Endpoint"
