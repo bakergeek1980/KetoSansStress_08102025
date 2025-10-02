@@ -117,6 +117,13 @@ const MacroRing = ({ label, current, target, color, gradientColors, size, stroke
 const MacroBox = ({ label, current, target, color, gradientColors }: MacroRingProps) => {
   const remaining = Math.max(target - current, 0);
   
+  // Get the correct unit based on the macro type
+  const getUnit = (macroLabel: string) => {
+    return macroLabel === 'Calories' ? 'cal' : 'g';
+  };
+  
+  const unit = getUnit(label);
+  
   return (
     <View style={styles.macroBox}>
       <LinearGradient
@@ -136,9 +143,9 @@ const MacroBox = ({ label, current, target, color, gradientColors }: MacroRingPr
         <View style={styles.macroStats}>
           <Text style={styles.macroLabel}>{label}</Text>
           <View style={styles.macroValues}>
-            <Text style={styles.macroConsumed}>{Math.round(current)}g</Text>
+            <Text style={styles.macroConsumed}>{Math.round(current)}{unit}</Text>
             <View style={styles.separator} />
-            <Text style={styles.macroRemaining}>reste {Math.round(remaining)}g</Text>
+            <Text style={styles.macroRemaining}>reste {Math.round(remaining)}{unit}</Text>
           </View>
         </View>
       </LinearGradient>
