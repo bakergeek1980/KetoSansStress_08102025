@@ -97,7 +97,7 @@ const MacroRing = ({ label, current, target, color, gradientColors, size, stroke
   );
 };
 
-export default function NutritionRingsWidget({ dailySummary, user }: NutritionRingsWidgetProps) {
+export default function NutritionRingsWidget({ dailySummary, user, isCollapsed = false }: NutritionRingsWidgetProps) {
   const macros = [
     {
       label: 'Calories',
