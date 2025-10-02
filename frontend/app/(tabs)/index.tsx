@@ -118,6 +118,17 @@ export default function HomeScreen() {
     loadDailySummary();
   }, [user]);
 
+  const handleScroll = (event: any) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    setScrollY(currentScrollY);
+    
+    // Collapse nutrition widget when scrolling down past 100px
+    const shouldCollapse = currentScrollY > 100;
+    if (shouldCollapse !== isNutritionCollapsed) {
+      setIsNutritionCollapsed(shouldCollapse);
+    }
+  };
+
   const handleCopyPreviousDay = (mealType: string) => {
     console.log('Copying previous day meal:', mealType);
     // Copy meal from previous day
