@@ -92,6 +92,8 @@ export default function HomeScreen() {
   const [waterTarget] = useState(2500); // ml
   const [isFasting, setIsFasting] = useState(false);
   const [fastingStartTime, setFastingStartTime] = useState<Date | null>(null);
+  const [isNutritionCollapsed, setIsNutritionCollapsed] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   const loadDailySummary = async () => {
     if (!user?.email) return;
