@@ -30,6 +30,7 @@ const COLORS = {
   blue: '#3B82F6',
   purple: '#8B5CF6',
   pink: '#EC4899',
+  border: '#E2E8F0',
 };
 
 interface ActivityData {
