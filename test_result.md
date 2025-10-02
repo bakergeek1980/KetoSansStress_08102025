@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the KetoSansStress app with new widget-based dashboard implementation. All backend endpoints should work and frontend should display all widgets correctly."
+user_problem_statement: "Test the KetoSansStress app after major backend migration from MongoDB to Supabase. Verify that all legacy endpoints still work with the new architecture while new Supabase authentication and meal management features are functional. Frontend should continue to display all widgets correctly with data from the new backend."
 
 backend:
   - task: "Health Check Endpoint"
