@@ -19,13 +19,10 @@ export default function Index() {
 
   useEffect(() => {
     if (isInitialized && !loading) {
-      if (user) {
-        router.replace('/(tabs)');
-      } else {
-        router.replace('/onboarding');
-      }
+      // Pour la démo, redirigeons directement vers l'app
+      router.replace('/(tabs)');
     }
-  }, [isInitialized, loading, user, router]);
+  }, [isInitialized, loading, router]);
 
   if (loading || !isInitialized) {
     return (
