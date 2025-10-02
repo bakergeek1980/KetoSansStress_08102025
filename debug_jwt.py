@@ -158,12 +158,19 @@ if __name__ == "__main__":
     print("Decoding JWT without verification...")
     header, payload = decode_jwt_without_verification(token)
     
+    # Test JWKS verification
+    print("\n" + "=" * 50)
+    print("Testing JWKS verification...")
+    jwks_key = test_jwks_verification(token)
+    
     # Test different secrets
     print("\n" + "=" * 50)
     print("Testing different JWT secrets...")
     working_secret = test_different_secrets(token)
     
-    if working_secret:
+    if jwks_key:
+        print(f"\n🎉 Found working JWKS key!")
+    elif working_secret:
         print(f"\n🎉 Found working secret: {working_secret}")
     else:
-        print("\n❌ No working secret found")
+        print("\n❌ No working verification method found")
