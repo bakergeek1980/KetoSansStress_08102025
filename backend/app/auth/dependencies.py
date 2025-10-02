@@ -59,35 +59,36 @@ def validate_jwt_token(token: str) -> dict:
         logger.debug(f"JWT validation successful for user: {user_id}")
         return payload
         
-    except jwt.ExpiredSignatureError:
-        logger.warning("JWT token has expired")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    except jwt.InvalidAudienceError:
-        logger.warning("JWT token has invalid audience")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token audience",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    except jwt.InvalidSignatureError:
-        logger.warning("JWT signature verification failed")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token signature",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    except jwt.JWTClaimsError as e:
-        logger.warning(f"JWT claims validation failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token claims",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    except jwt.JWTError as e:
+    except JWTError as e:
+        error_msg = str(e).lower()
+        if "expired" in error_msg:
+            logger.warning("JWT token has expired")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        elif "audience" in error_msg:
+            logger.warning("JWT token has invalid audience")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token audience",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        elif "signature" in error_msg:
+            logger.warning("JWT signature verification failed")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token signature",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        else:
+            logger.warning(f"JWT validation failed: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
         logger.warning(f"JWT validation failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
