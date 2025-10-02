@@ -51,6 +51,63 @@ def decode_jwt_without_verification(token):
         print(f"Failed to decode JWT: {e}")
         return None, None
 
+def test_jwks_verification(token):
+    """Test JWT verification using JWKS"""
+    try:
+        # Get header
+        header = jwt.get_unverified_header(token)
+        kid = header.get("kid")
+        algorithm = header.get("alg", "HS256")
+        
+        print(f"Token algorithm: {algorithm}")
+        print(f"Token kid: {kid}")
+        
+        # Fetch JWKS
+        jwks_url = "https://vvpscheyjjqavfljpnxf.supabase.co/auth/v1/.well-known/jwks.json"
+        response = requests.get(jwks_url, timeout=10)
+        
+        if response.status_code != 200:
+            print(f"❌ Failed to fetch JWKS: {response.status_code}")
+            return None
+        
+        jwks = response.json()
+        print(f"JWKS keys available: {[key.get('kid') for key in jwks.get('keys', [])]}")
+        
+        # Find matching key
+        key = None
+        for jwk in jwks.get("keys", []):
+            if jwk.get("kid") == kid:
+                key = jwk
+                break
+        
+        if not key:
+            print(f"❌ No key found for kid: {kid}")
+            return None
+        
+        print(f"Found matching key: {key}")
+        
+        # Try to verify with the key
+        payload = jwt.decode(
+            token,
+            key,
+            algorithms=[algorithm],
+            options={
+                "verify_signature": True,
+                "verify_exp": False,
+                "verify_aud": False,
+                "verify_iss": False
+            }
+        )
+        
+        print("✅ SUCCESS with JWKS key!")
+        print("Decoded payload:")
+        print(json.dumps(payload, indent=2))
+        return key
+        
+    except Exception as e:
+        print(f"❌ JWKS verification failed: {e}")
+        return None
+
 def test_different_secrets(token):
     """Test different possible JWT secrets"""
     secrets_to_try = [
