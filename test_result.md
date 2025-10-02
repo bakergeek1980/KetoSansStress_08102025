@@ -153,6 +153,42 @@ backend:
         agent: "testing"
         comment: "GET /api/foods/search/avocat endpoint tested successfully. Returns correct French food data for 'avocat' with nutritional information: 160 calories, 2g proteins, 9g carbs, 15g fats, 7g fiber."
 
+  - task: "Demo User Profile Creation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Created demo user profile with email 'demo@keto.fr' to resolve 404 error. Profile created successfully with calculated daily macros: 1781 calories, 22g carbs, 89g proteins, 148g fats. User profile retrieval endpoint also working correctly."
+
+  - task: "Daily Summary Endpoint"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/meals/daily-summary/demo@keto.fr endpoint tested successfully. Previously returned 404 error due to missing demo user, now working correctly. Returns proper response with date, totals, targets, progress, meals_count, and keto_status. Tested both with empty data (0 meals) and with sample meal data (3 meals: breakfast, lunch, dinner). Total daily intake: 1520 calories, 19g net carbs, keto status 'excellent'."
+
+  - task: "Meal Save Endpoint"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/meals/save endpoint tested successfully. Added 3 sample meals for demo user (breakfast: eggs/avocado/butter 420cal, lunch: salmon/spinach/olive oil 580cal, dinner: chicken/broccoli/cheese 520cal). All meals saved correctly with proper nutritional information and keto scores."
+
 frontend:
   # No frontend testing performed as per instructions
 
