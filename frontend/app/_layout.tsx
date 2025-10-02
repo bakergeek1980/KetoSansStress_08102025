@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider } from '../contexts/AuthContext';
 import '../global.css';
 
 export default function RootLayout() {
