@@ -19,9 +19,6 @@ import {
   Activity, 
   Weight, 
   Clock, 
-  FileText, 
-  Settings, 
-  Edit3,
   ChevronRight,
   Timer,
   Target
