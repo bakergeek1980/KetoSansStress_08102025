@@ -9,19 +9,25 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TrendingUp, Target, Calendar, Award } from 'lucide-react-native';
+import { TrendingUp, Target, Calendar, Award, BarChart3 } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { getWeightHistory, getDailySummary } from '../../lib/api';
 
 const { width } = Dimensions.get('window');
 
+// KetoDiet inspired colors
 const COLORS = {
-  primary: '#27AE60',
-  purple: '#8E44AD',
-  white: '#FFFFFF',
-  gray: '#F8F9FA',
-  dark: '#2C3E50',
-  lightGray: '#BDC3C7'
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  accent: '#FF7043',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
+  error: '#F44336',
+  warning: '#FF9800',
+  success: '#4CAF50',
 };
 
 interface WeightEntry {
@@ -40,9 +46,9 @@ export default function ProgressScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<'7' | '30' | '90'>('30');
 
   const PERIOD_OPTIONS = [
-    { key: '7', label: '7 jours' },
-    { key: '30', label: '30 jours' },
-    { key: '90', label: '90 jours' },
+    { key: '7', label: '7j' },
+    { key: '30', label: '30j' },
+    { key: '90', label: '90j' },
   ];
 
   useEffect(() => {
@@ -53,11 +59,9 @@ export default function ProgressScreen() {
     if (!user?.email) return;
     
     try {
-      // Charger l'historique de poids
       const weightResponse = await getWeightHistory(user.email, parseInt(selectedPeriod));
       setWeightHistory(weightResponse.weights || []);
 
-      // Charger les stats hebdomadaires (simulation)
       const weeklyData = [];
       for (let i = 6; i >= 0; i--) {
         const date = new Date();
@@ -128,14 +132,13 @@ export default function ProgressScreen() {
   const weightTrend = getWeightTrend();
   const avgKetoScore = getAverageKetoScore();
   const avgNetCarbs = getAverageNetCarbs();
-
   const chartData = weeklyStats.map(stat => stat.net_carbs);
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Chargement de vos progrès...</Text>
+          <Text style={styles.loadingText}>Chargement...</Text>
         </View>
       </SafeAreaView>
     );
@@ -153,43 +156,45 @@ export default function ProgressScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Mes Progrès</Text>
-          <Text style={styles.headerSubtitle}>Suivez votre évolution keto</Text>
+          <Text style={styles.headerSubtitle}>Suivez votre évolution</Text>
         </View>
 
-        {/* Période de sélection */}
-        <View style={styles.periodSelector}>
-          {PERIOD_OPTIONS.map((option) => (
-            <TouchableOpacity
-              key={option.key}
-              style={[
-                styles.periodButton,
-                selectedPeriod === option.key && styles.selectedPeriodButton,
-              ]}
-              onPress={() => setSelectedPeriod(option.key as '7' | '30' | '90')}
-            >
-              <Text style={[
-                styles.periodButtonText,
-                selectedPeriod === option.key && styles.selectedPeriodButtonText,
-              ]}>
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* Period Selector */}
+        <View style={styles.periodContainer}>
+          <View style={styles.periodSelector}>
+            {PERIOD_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={[
+                  styles.periodButton,
+                  selectedPeriod === option.key && styles.selectedPeriodButton,
+                ]}
+                onPress={() => setSelectedPeriod(option.key as '7' | '30' | '90')}
+              >
+                <Text style={[
+                  styles.periodButtonText,
+                  selectedPeriod === option.key && styles.selectedPeriodButtonText,
+                ]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Stats rapides */}
-        <View style={styles.statsContainer}>
+        {/* Stats Cards */}
+        <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <Award color={COLORS.primary} size={24} />
+            <View style={[styles.statIcon, { backgroundColor: COLORS.success + '20' }]}>
+              <Award color={COLORS.success} size={24} />
             </View>
             <Text style={styles.statValue}>{avgKetoScore}/10</Text>
-            <Text style={styles.statLabel}>Score keto moyen</Text>
+            <Text style={styles.statLabel}>Score Keto moyen</Text>
           </View>
 
           <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <Target color={COLORS.purple} size={24} />
+            <View style={[styles.statIcon, { backgroundColor: COLORS.accent + '20' }]}>
+              <Target color={COLORS.accent} size={24} />
             </View>
             <Text style={styles.statValue}>{avgNetCarbs}g</Text>
             <Text style={styles.statLabel}>Glucides nets/jour</Text>
@@ -197,10 +202,13 @@ export default function ProgressScreen() {
 
           {weightTrend && (
             <View style={styles.statCard}>
-              <View style={styles.statIcon}>
+              <View style={[styles.statIcon, { backgroundColor: 
+                weightTrend.trend === 'down' ? COLORS.success + '20' : 
+                weightTrend.trend === 'up' ? COLORS.error + '20' : COLORS.textLight + '20' 
+              }]}>
                 <TrendingUp 
-                  color={weightTrend.trend === 'down' ? COLORS.primary : 
-                        weightTrend.trend === 'up' ? '#E74C3C' : COLORS.lightGray} 
+                  color={weightTrend.trend === 'down' ? COLORS.success : 
+                        weightTrend.trend === 'up' ? COLORS.error : COLORS.textLight} 
                   size={24} 
                 />
               </View>
@@ -213,17 +221,17 @@ export default function ProgressScreen() {
           )}
         </View>
 
-        {/* Graphique glucides nets */}
+        {/* Chart Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <TrendingUp color={COLORS.dark} size={20} />
+            <BarChart3 color={COLORS.text} size={20} />
             <Text style={styles.sectionTitle}>Glucides nets (7 derniers jours)</Text>
           </View>
           
-          <View style={styles.chartContainer}>
+          <View style={styles.chartCard}>
             {chartData.length > 0 && chartData.some(value => value > 0) ? (
-              <View style={styles.simpleChart}>
-                <Text style={styles.chartTitle}>Glucides nets par jour</Text>
+              <View style={styles.chart}>
+                <Text style={styles.chartTitle}>Glucides par jour</Text>
                 <View style={styles.chartBars}>
                   {chartData.map((value, index) => (
                     <View key={index} style={styles.chartBarContainer}>
@@ -231,78 +239,72 @@ export default function ProgressScreen() {
                         style={[
                           styles.chartBar, 
                           { 
-                            height: Math.max((value / 50) * 100, 5),
-                            backgroundColor: value > 25 ? '#E74C3C' : value > 15 ? '#F39C12' : COLORS.primary
+                            height: Math.max((value / 50) * 80, 4),
+                            backgroundColor: value > 25 ? COLORS.error : value > 15 ? COLORS.warning : COLORS.success
                           }
                         ]} 
                       />
-                      <Text style={styles.chartBarLabel}>{Math.round(value)}g</Text>
+                      <Text style={styles.chartBarLabel}>{Math.round(value)}</Text>
                     </View>
                   ))}
                 </View>
               </View>
             ) : (
               <View style={styles.emptyChart}>
-                <Text style={styles.emptyChartText}>Pas assez de données</Text>
-                <Text style={styles.emptyChartSubtext}>Scannez plus de repas pour voir vos tendances</Text>
+                <Text style={styles.emptyChartTitle}>Pas assez de données</Text>
+                <Text style={styles.emptyChartText}>Ajoutez plus de repas pour voir vos tendances</Text>
               </View>
             )}
           </View>
         </View>
 
-        {/* Historique de poids */}
+        {/* Weight History */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <TrendingUp color={COLORS.dark} size={20} />
+            <TrendingUp color={COLORS.text} size={20} />
             <Text style={styles.sectionTitle}>Historique de poids</Text>
           </View>
           
           {weightHistory.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>Aucune mesure de poids enregistrée</Text>
-              <Text style={styles.emptyStateSubtext}>Ajoutez vos mesures dans votre profil</Text>
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>Aucune mesure enregistrée</Text>
+              <Text style={styles.emptySubtitle}>Ajoutez vos mesures dans votre profil</Text>
             </View>
           ) : (
-            <View style={styles.weightHistoryContainer}>
-              {weightHistory.slice(0, 10).map((entry, index) => (
+            <View style={styles.weightCard}>
+              {weightHistory.slice(0, 5).map((entry, index) => (
                 <View key={entry._id} style={styles.weightEntry}>
-                  <View style={styles.weightDate}>
-                    <Calendar color={COLORS.lightGray} size={16} />
-                    <Text style={styles.weightDateText}>
+                  <View style={styles.weightInfo}>
+                    <Text style={styles.weightValue}>{entry.weight.toFixed(1)} kg</Text>
+                    <Text style={styles.weightDate}>
                       {new Date(entry.date).toLocaleDateString('fr-FR')}
                     </Text>
                   </View>
-                  <Text style={styles.weightValue}>{entry.weight.toFixed(1)} kg</Text>
+                  <View style={styles.weightDivider} />
                 </View>
               ))}
             </View>
           )}
         </View>
 
-        {/* Badges et récompenses */}
+        {/* Achievements */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Award color={COLORS.dark} size={20} />
-            <Text style={styles.sectionTitle}>Badges et récompenses</Text>
+            <Award color={COLORS.text} size={20} />
+            <Text style={styles.sectionTitle}>Réalisations</Text>
           </View>
           
-          <View style={styles.badgesContainer}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeEmoji}>🏆</Text>
-              <Text style={styles.badgeTitle}>Premier scan</Text>
-              <Text style={styles.badgeDescription}>Votre premier repas analysé</Text>
+          <View style={styles.achievementsGrid}>
+            <View style={styles.achievementCard}>
+              <Text style={styles.achievementEmoji}>🏆</Text>
+              <Text style={styles.achievementTitle}>Premier pas</Text>
+              <Text style={styles.achievementDescription}>Premier repas ajouté</Text>
             </View>
             
-            <View style={styles.badge}>
-              <Text style={styles.badgeEmoji}>🔥</Text>
-              <Text style={styles.badgeTitle}>Keto warrior</Text>
-              <Text style={styles.badgeDescription}>7 jours consécutifs en cétose</Text>
-            </View>
-            
-            <View style={styles.badge}>
-              <Text style={styles.badgeEmoji}>📈</Text>
-              <Text style={styles.badgeTitle}>Progress tracker</Text>
-              <Text style={styles.badgeDescription}>Suivi régulier pendant 30 jours</Text>
+            <View style={styles.achievementCard}>
+              <Text style={styles.achievementEmoji}>🔥</Text>
+              <Text style={styles.achievementTitle}>En forme !</Text>
+              <Text style={styles.achievementDescription}>7 jours en cétose</Text>
             </View>
           </View>
         </View>
@@ -316,7 +318,7 @@ export default function ProgressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.background,
   },
   scrollContainer: {
     flex: 1,
@@ -328,63 +330,73 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: COLORS.dark,
+    color: COLORS.text,
   },
   header: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.dark,
+    fontSize: 28,
+    fontWeight: '700',
+    color: COLORS.text,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     marginTop: 4,
+  },
+  periodContainer: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   periodSelector: {
     flexDirection: 'row',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    backgroundColor: COLORS.background,
+    borderRadius: 12,
+    padding: 4,
   },
   periodButton: {
-    backgroundColor: COLORS.gray,
-    paddingHorizontal: 16,
+    flex: 1,
     paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 12,
+    borderRadius: 8,
+    alignItems: 'center',
   },
   selectedPeriodButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.surface,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   periodButtonText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.dark,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
   },
   selectedPeriodButtonText: {
-    color: COLORS.white,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
-  statsContainer: {
+  statsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 12,
+    gap: 16,
+    marginBottom: 24,
   },
   statCard: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
+    width: (width - 56) / 2,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -395,17 +407,22 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   statIcon: {
-    marginBottom: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.dark,
+    color: COLORS.text,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
   section: {
@@ -419,14 +436,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.dark,
+    fontWeight: '600',
+    color: COLORS.text,
     marginLeft: 8,
   },
-  chartContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
+  chartCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -437,57 +454,52 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   chart: {
-    height: 200,
-  },
-  simpleChart: {
-    height: 200,
-    paddingVertical: 20,
+    alignItems: 'center',
   },
   chartTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.dark,
+    color: COLORS.text,
     marginBottom: 20,
-    textAlign: 'center',
   },
   chartBars: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    height: 120,
+    width: '100%',
+    height: 100,
   },
   chartBarContainer: {
     alignItems: 'center',
   },
   chartBar: {
-    width: 20,
-    borderRadius: 10,
+    width: 16,
+    borderRadius: 8,
     marginBottom: 8,
   },
   chartBarLabel: {
     fontSize: 10,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
   },
   emptyChart: {
-    height: 200,
-    justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 30,
   },
-  emptyChartText: {
+  emptyChartTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
+    color: COLORS.text,
     marginBottom: 8,
   },
-  emptyChartSubtext: {
+  emptyChartText: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
-  emptyState: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 30,
+  emptyCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 32,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -498,21 +510,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  emptyStateText: {
+  emptyTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
-    textAlign: 'center',
+    color: COLORS.text,
     marginBottom: 8,
   },
-  emptyStateSubtext: {
+  emptySubtitle: {
     fontSize: 14,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
-  weightHistoryContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+  weightCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -523,39 +535,37 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   weightEntry: {
+    marginBottom: 16,
+  },
+  weightInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  weightDate: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  weightDateText: {
-    fontSize: 14,
-    color: COLORS.lightGray,
-    marginLeft: 8,
+    marginBottom: 8,
   },
   weightValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.dark,
+    color: COLORS.text,
   },
-  badgesContainer: {
+  weightDate: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  weightDivider: {
+    height: 1,
+    backgroundColor: COLORS.background,
+  },
+  achievementsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+    gap: 16,
   },
-  badge: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
+  achievementCard: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
-    width: (width - 64) / 2,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -565,22 +575,22 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  badgeEmoji: {
+  achievementEmoji: {
     fontSize: 32,
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  badgeTitle: {
+  achievementTitle: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.dark,
+    fontWeight: '600',
+    color: COLORS.text,
     marginBottom: 4,
   },
-  badgeDescription: {
+  achievementDescription: {
     fontSize: 12,
-    color: COLORS.lightGray,
+    color: COLORS.textSecondary,
     textAlign: 'center',
   },
   bottomSpacing: {
-    height: 30,
+    height: 24,
   },
 });

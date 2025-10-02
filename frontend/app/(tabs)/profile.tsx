@@ -11,7 +11,6 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { 
   User, 
   Mail, 
@@ -21,19 +20,26 @@ import {
   Target, 
   Activity, 
   LogOut,
-  Edit,
-  Save
+  Edit2,
+  Save,
+  Settings
 } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { createOrUpdateProfile, saveWeight } from '../../lib/api';
 
+// KetoDiet inspired colors
 const COLORS = {
-  primary: '#27AE60',
-  purple: '#8E44AD',
-  white: '#FFFFFF',
-  gray: '#F8F9FA',
-  dark: '#2C3E50',
-  lightGray: '#BDC3C7'
+  primary: '#4CAF50',
+  secondary: '#81C784',
+  accent: '#FF7043',
+  background: '#FAFAFA',
+  surface: '#FFFFFF',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
+  error: '#F44336',
+  warning: '#FF9800',
+  success: '#4CAF50',
 };
 
 export default function ProfileScreen() {
@@ -87,7 +93,6 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     if (!user) return;
 
-    // Validation
     if (!editData.name || !editData.age || !editData.weight || !editData.height) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
       return;
@@ -108,12 +113,11 @@ export default function ProfileScreen() {
         height: Number(editData.height),
       };
 
-      // Mettre à jour le profil
       await createOrUpdateProfile(updatedProfile);
       await updateUser(updatedProfile);
 
       setEditing(false);
-      Alert.alert('Succès', 'Profil mis à jour avec succès');
+      Alert.alert('Succès', 'Profil mis à jour');
     } catch (error) {
       console.error('Erreur lors de la mise à jour:', error);
       Alert.alert('Erreur', 'Impossible de mettre à jour le profil');
@@ -141,11 +145,10 @@ export default function ProfileScreen() {
         date: new Date().toISOString().split('T')[0],
       });
       
-      // Mettre à jour le poids dans le profil
       await updateUser({ ...user, weight });
       
       setNewWeight('');
-      Alert.alert('Succès', 'Poids enregistré avec succès');
+      Alert.alert('Succès', 'Poids enregistré');
     } catch (error) {
       console.error('Erreur lors de l\'enregistrement du poids:', error);
       Alert.alert('Erreur', 'Impossible d\'enregistrer le poids');
@@ -155,7 +158,7 @@ export default function ProfileScreen() {
   const handleLogout = () => {
     Alert.alert(
       'Déconnexion',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      'Êtes-vous sûr ?',
       [
         { text: 'Annuler', style: 'cancel' },
         { text: 'Déconnecter', style: 'destructive', onPress: logout },
@@ -167,7 +170,7 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Erreur de chargement du profil</Text>
+          <Text style={styles.errorText}>Erreur de chargement</Text>
         </View>
       </SafeAreaView>
     );
@@ -181,18 +184,17 @@ export default function ProfileScreen() {
       >
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <LinearGradient
-            colors={[COLORS.primary, COLORS.purple]}
-            style={styles.header}
-          >
-            <View style={styles.headerContent}>
+          <View style={styles.header}>
+            <View style={styles.profileSection}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.avatarText}>
                   {user.name.charAt(0).toUpperCase()}
                 </Text>
               </View>
-              <Text style={styles.userName}>{user.name}</Text>
-              <Text style={styles.userEmail}>{user.email}</Text>
+              <View style={styles.profileInfo}>
+                <Text style={styles.userName}>{user.name}</Text>
+                <Text style={styles.userEmail}>{user.email}</Text>
+              </View>
             </View>
             
             <TouchableOpacity 
@@ -200,26 +202,23 @@ export default function ProfileScreen() {
               onPress={() => editing ? handleSave() : setEditing(true)}
               disabled={loading}
             >
-              <View style={styles.editButtonContent}>
+              <View style={[styles.editIcon, { backgroundColor: editing ? COLORS.success + '20' : COLORS.primary + '20' }]}>
                 {editing ? (
-                  <Save color={COLORS.primary} size={18} />
+                  <Save color={editing ? COLORS.success : COLORS.primary} size={18} />
                 ) : (
-                  <Edit color={COLORS.primary} size={18} />
+                  <Edit2 color={COLORS.primary} size={18} />
                 )}
-                <Text style={styles.editButtonText}>
-                  {editing ? (loading ? 'Sauvegarde...' : 'Sauvegarder') : 'Modifier'}
-                </Text>
               </View>
             </TouchableOpacity>
-          </LinearGradient>
+          </View>
 
-          {/* Informations personnelles */}
+          {/* Personal Info */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Informations personnelles</Text>
             
-            <View style={styles.infoContainer}>
+            <View style={styles.infoCard}>
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.primary + '20' }]}>
                   <User color={COLORS.primary} size={20} />
                 </View>
                 <View style={styles.infoContent}>
@@ -238,8 +237,8 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Mail color={COLORS.primary} size={20} />
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.accent + '20' }]}>
+                  <Mail color={COLORS.accent} size={20} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Email</Text>
@@ -248,8 +247,8 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Calendar color={COLORS.primary} size={20} />
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.secondary + '20' }]}>
+                  <Calendar color={COLORS.secondary} size={20} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Âge</Text>
@@ -268,7 +267,7 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.primary + '20' }]}>
                   <User color={COLORS.primary} size={20} />
                 </View>
                 <View style={styles.infoContent}>
@@ -279,17 +278,17 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Mesures corporelles */}
+          {/* Body Metrics */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Mesures corporelles</Text>
             
-            <View style={styles.infoContainer}>
+            <View style={styles.infoCard}>
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Weight color={COLORS.purple} size={20} />
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.accent + '20' }]}>
+                  <Weight color={COLORS.accent} size={20} />
                 </View>
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Poids</Text>
+                  <Text style={styles.infoLabel}>Poids actuel</Text>
                   {editing ? (
                     <TextInput
                       style={styles.editInput}
@@ -305,8 +304,8 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Ruler color={COLORS.purple} size={20} />
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.primary + '20' }]}>
+                  <Ruler color={COLORS.primary} size={20} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Taille</Text>
@@ -326,25 +325,25 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Objectifs et activité */}
+          {/* Goals & Activity */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Objectifs et activité</Text>
+            <Text style={styles.sectionTitle}>Objectifs</Text>
             
-            <View style={styles.infoContainer}>
+            <View style={styles.infoCard}>
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Target color={COLORS.primary} size={20} />
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.success + '20' }]}>
+                  <Target color={COLORS.success} size={20} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Objectif</Text>
                   {editing ? (
-                    <View style={styles.optionsContainer}>
+                    <View style={styles.optionsGrid}>
                       {GOAL_OPTIONS.map((option) => (
                         <TouchableOpacity
                           key={option.key}
                           style={[
-                            styles.optionButton,
-                            editData.goal === option.key && styles.selectedOption,
+                            styles.optionChip,
+                            editData.goal === option.key && styles.selectedOptionChip,
                           ]}
                           onPress={() => setEditData({ ...editData, goal: option.key })}
                         >
@@ -365,19 +364,19 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Activity color={COLORS.primary} size={20} />
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.accent + '20' }]}>
+                  <Activity color={COLORS.accent} size={20} />
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Niveau d'activité</Text>
                   {editing ? (
-                    <View style={styles.optionsContainer}>
+                    <View style={styles.optionsGrid}>
                       {ACTIVITY_OPTIONS.map((option) => (
                         <TouchableOpacity
                           key={option.key}
                           style={[
-                            styles.optionButton,
-                            editData.activity_level === option.key && styles.selectedOption,
+                            styles.optionChip,
+                            editData.activity_level === option.key && styles.selectedOptionChip,
                           ]}
                           onPress={() => setEditData({ ...editData, activity_level: option.key })}
                         >
@@ -398,36 +397,40 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Nouveau poids */}
+          {/* Weight Tracker */}
           {!editing && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Enregistrer nouveau poids</Text>
+              <Text style={styles.sectionTitle}>Nouveau poids</Text>
               
-              <View style={styles.weightInputContainer}>
-                <TextInput
-                  style={styles.weightInput}
-                  value={newWeight}
-                  onChangeText={setNewWeight}
-                  placeholder="Nouveau poids en kg"
-                  keyboardType="numeric"
-                />
-                <TouchableOpacity
-                  style={styles.weightSaveButton}
-                  onPress={handleSaveWeight}
-                  disabled={!newWeight}
-                >
-                  <Text style={styles.weightSaveButtonText}>Enregistrer</Text>
-                </TouchableOpacity>
+              <View style={styles.weightCard}>
+                <View style={styles.weightInputRow}>
+                  <TextInput
+                    style={styles.weightInput}
+                    value={newWeight}
+                    onChangeText={setNewWeight}
+                    placeholder="Nouveau poids (kg)"
+                    keyboardType="numeric"
+                  />
+                  <TouchableOpacity
+                    style={styles.weightButton}
+                    onPress={handleSaveWeight}
+                    disabled={!newWeight}
+                  >
+                    <Text style={styles.weightButtonText}>Enregistrer</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           )}
 
-          {/* Bouton de déconnexion */}
+          {/* Logout */}
           {!editing && (
             <View style={styles.section}>
-              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <LogOut color={COLORS.white} size={20} />
-                <Text style={styles.logoutButtonText}>Se déconnecter</Text>
+              <TouchableOpacity style={styles.logoutCard} onPress={handleLogout}>
+                <View style={[styles.infoIconContainer, { backgroundColor: COLORS.error + '20' }]}>
+                  <LogOut color={COLORS.error} size={20} />
+                </View>
+                <Text style={styles.logoutText}>Se déconnecter</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -442,7 +445,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.background,
   },
   scrollContainer: {
     flex: 1,
@@ -454,73 +457,71 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: COLORS.dark,
+    color: COLORS.text,
   },
   header: {
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-  },
-  headerContent: {
-    alignItems: 'center',
-  },
-  avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: COLORS.white,
-    opacity: 0.9,
-  },
-  editButton: {
-    marginTop: 20,
-    alignSelf: 'center',
-  },
-  editButtonContent: {
+    paddingVertical: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+    justifyContent: 'space-between',
   },
-  editButtonText: {
-    color: COLORS.primary,
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  avatarText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.surface,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 20,
     fontWeight: '600',
-    marginLeft: 8,
+    color: COLORS.text,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  editButton: {
+    marginLeft: 16,
+  },
+  editIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   section: {
     marginHorizontal: 20,
-    marginTop: 30,
+    marginTop: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.dark,
+    fontWeight: '600',
+    color: COLORS.text,
     marginBottom: 16,
   },
-  infoContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+  infoCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -533,71 +534,74 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.background,
   },
-  infoIcon: {
+  infoIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 16,
   },
   infoContent: {
     flex: 1,
   },
   infoLabel: {
-    fontSize: 14,
-    color: COLORS.lightGray,
+    fontSize: 12,
+    color: COLORS.textSecondary,
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.dark,
+    fontWeight: '500',
+    color: COLORS.text,
   },
   editInput: {
     fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.dark,
+    fontWeight: '500',
+    color: COLORS.text,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.primary,
     paddingVertical: 4,
   },
-  optionsContainer: {
+  optionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
     marginTop: 8,
   },
-  optionButton: {
+  optionChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.background,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: COLORS.background,
   },
-  selectedOption: {
+  selectedOptionChip: {
     backgroundColor: COLORS.primary + '20',
     borderColor: COLORS.primary,
   },
   optionEmoji: {
-    fontSize: 14,
+    fontSize: 12,
     marginRight: 6,
   },
   optionText: {
     fontSize: 12,
-    color: COLORS.dark,
+    color: COLORS.text,
   },
   selectedOptionText: {
     color: COLORS.primary,
     fontWeight: '600',
   },
-  weightInputContainer: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+  weightCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: {
@@ -608,51 +612,53 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  weightInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   weightInput: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.dark,
+    color: COLORS.text,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderColor: COLORS.background,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     marginRight: 12,
   },
-  weightSaveButton: {
+  weightButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    justifyContent: 'center',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
-  weightSaveButtonText: {
-    color: COLORS.white,
+  weightButtonText: {
+    color: COLORS.surface,
     fontWeight: '600',
   },
-  logoutButton: {
+  logoutCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 16,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E74C3C',
-    borderRadius: 12,
-    paddingVertical: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
   },
-  logoutButtonText: {
-    color: COLORS.white,
+  logoutText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontWeight: '500',
+    color: COLORS.error,
+    marginLeft: 16,
   },
   bottomSpacing: {
-    height: 30,
+    height: 24,
   },
 });
