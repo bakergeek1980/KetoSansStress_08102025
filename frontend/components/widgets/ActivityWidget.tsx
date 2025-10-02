@@ -270,6 +270,76 @@ export default function ActivityWidget() {
           </View>
         </View>
       </LinearGradient>
+
+      {/* Settings Modal */}
+      <Modal
+        visible={showSettings}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowSettings(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Paramètres Activité</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowSettings(false)}
+            >
+              <X color={COLORS.textSecondary} size={24} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent}>
+            {/* Add calories objective setting */}
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingTitle}>Ajouter objectif calories</Text>
+                <Text style={styles.settingDescription}>
+                  Ajouter les calories dépensées pendant les activités énergétiques en plus de votre consommation d'énergie au repos
+                </Text>
+              </View>
+              <Switch
+                value={addCaloriesObjective}
+                onValueChange={setAddCaloriesObjective}
+                trackColor={{ false: COLORS.border, true: COLORS.primary + '50' }}
+                thumbColor={addCaloriesObjective ? COLORS.primary : COLORS.textLight}
+              />
+            </View>
+
+            {/* HealthApp sync setting */}
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingTitle}>Synch. avec HealthApp</Text>
+                <Text style={styles.settingDescription}>
+                  Synchroniser automatiquement vos données d'activité avec Apple Health
+                </Text>
+              </View>
+              <Switch
+                value={syncHealthApp}
+                onValueChange={setSyncHealthApp}
+                trackColor={{ false: COLORS.border, true: COLORS.primary + '50' }}
+                thumbColor={syncHealthApp ? COLORS.primary : COLORS.textLight}
+              />
+            </View>
+
+            {/* Fitbit import setting */}
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingTitle}>Importer de Fitbit</Text>
+                <Text style={styles.settingDescription}>
+                  Importer vos données d'activité depuis votre compte Fitbit
+                </Text>
+              </View>
+              <Switch
+                value={importFitbit}
+                onValueChange={setImportFitbit}
+                trackColor={{ false: COLORS.border, true: COLORS.primary + '50' }}
+                thumbColor={importFitbit ? COLORS.primary : COLORS.textLight}
+              />
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
