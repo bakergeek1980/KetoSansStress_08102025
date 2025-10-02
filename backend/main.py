@@ -528,7 +528,7 @@ async def get_keto_friendly_foods(limit: int = 50):
         for search_term in keto_searches:
             results = food_search_service.search_foods(search_term, limit=5)
             # Filtrer seulement les aliments avec un bon score keto
-            keto_results = [r for r in results if r.get('keto_score', 0) >= 7]
+            keto_results = [r for r in results if (r.get('keto_score') or 0) >= 7]
             all_results.extend(keto_results)
             
             if len(all_results) >= limit:
