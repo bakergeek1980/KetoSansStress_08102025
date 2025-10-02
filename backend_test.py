@@ -1,34 +1,131 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for KetoSansStress
-Tests the daily summary endpoint and resolves 404 error for demo user
+KetoSansStress Backend API Testing Suite
+Tests both legacy and new Supabase endpoints after migration
 """
 
 import requests
 import json
 import base64
-from datetime import datetime
 import os
-from dotenv import load_dotenv
+from datetime import datetime, date
+from typing import Dict, Any, Optional
+import logging
 
-# Load environment variables
-load_dotenv()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Get backend URL from frontend .env
-def get_backend_url():
-    try:
-        with open('/app/frontend/.env', 'r') as f:
-            for line in f:
-                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
-                    return line.split('=', 1)[1].strip()
-    except:
-        pass
-    return "http://localhost:8001"
+class KetoBackendTester:
+    def __init__(self):
+        # Get backend URL from frontend .env file
+        self.base_url = self._get_backend_url()
+        self.session = requests.Session()
+        self.auth_token = None
+        
+        # Test data
+        self.test_user = {
+            "email": "marie.test@keto.fr",
+            "password": "TestKeto123!",
+            "full_name": "Marie Test",
+            "age": 30,
+            "gender": "female",
+            "height": 170.0,
+            "weight": 70.0,
+            "activity_level": "moderately_active",
+            "goal": "weight_loss",
+            "timezone": "Europe/Paris"
+        }
+        
+        self.legacy_user = {
+            "name": "Marie Dubois",
+            "email": "marie.dubois@keto.fr", 
+            "age": 30,
+            "gender": "femme",
+            "weight": 70.0,
+            "height": 170.0,
+            "activity_level": "modere",
+            "goal": "perte_poids"
+        }
+        
+        # Sample meal data
+        self.sample_meal = {
+            "meal_type": "breakfast",
+            "food_name": "Œufs brouillés avec avocat",
+            "quantity": 1.0,
+            "unit": "portion",
+            "calories": 420,
+            "protein": 18.0,
+            "carbohydrates": 8.0,
+            "total_fat": 35.0,
+            "fiber": 6.0,
+            "notes": "Petit-déjeuner keto"
+        }
+        
+        # Create a minimal test image (1x1 pixel PNG in base64)
+        self.test_image_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77zgAAAABJRU5ErkJggg=="
+        
+    def _get_backend_url(self) -> str:
+        """Get backend URL from frontend .env file"""
+        try:
+            with open('/app/frontend/.env', 'r') as f:
+                for line in f:
+                    if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                        url = line.split('=', 1)[1].strip()
+                        return f"{url}/api"
+            
+            # Fallback
+            return "https://ketodash.preview.emergentagent.com/api"
+        except Exception as e:
+            logger.warning(f"Could not read frontend .env: {e}")
+            return "https://ketodash.preview.emergentagent.com/api"
+    
+    def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None, 
+                    headers: Optional[Dict] = None, auth_required: bool = False) -> Dict[str, Any]:
+        """Make HTTP request with error handling"""
+        url = f"{self.base_url}{endpoint}"
+        
+        # Add auth header if required and available
+        if auth_required and self.auth_token:
+            if not headers:
+                headers = {}
+            headers["Authorization"] = f"Bearer {self.auth_token}"
+        
+        try:
+            if method.upper() == "GET":
+                response = self.session.get(url, headers=headers, timeout=30)
+            elif method.upper() == "POST":
+                response = self.session.post(url, json=data, headers=headers, timeout=30)
+            elif method.upper() == "PUT":
+                response = self.session.put(url, json=data, headers=headers, timeout=30)
+            elif method.upper() == "DELETE":
+                response = self.session.delete(url, headers=headers, timeout=30)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+            
+            return {
+                "status_code": response.status_code,
+                "success": response.status_code < 400,
+                "data": response.json() if response.content else {},
+                "headers": dict(response.headers),
+                "url": url
+            }
+        except requests.exceptions.RequestException as e:
+            return {
+                "status_code": 0,
+                "success": False,
+                "error": str(e),
+                "url": url
+            }
+        except json.JSONDecodeError:
+            return {
+                "status_code": response.status_code,
+                "success": response.status_code < 400,
+                "data": response.text,
+                "url": url
+            }
 
-BASE_URL = get_backend_url()
-API_URL = f"{BASE_URL}/api"
-
-print(f"Testing backend at: {API_URL}")
+print(f"Testing backend at: {KetoBackendTester()._get_backend_url()}")
 
 def test_health_check():
     """Test the health check endpoint"""
