@@ -269,12 +269,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Supabase Database Schema Creation"
-    - "Email Confirmation Workflow"
-    - "Legacy Profile Retrieval Fix"
+    - "JWT Token Validation Fix"
+    - "Supabase Database Schema Completion"
+    - "New Supabase Meals API Testing"
   stuck_tasks:
-    - "Supabase Backend Migration"
-    - "New Supabase Authentication System" 
+    - "New Supabase Authentication System"
     - "New Supabase Meals API"
   test_all: false
   test_priority: "stuck_first"
