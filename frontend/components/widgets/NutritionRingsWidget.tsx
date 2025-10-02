@@ -30,6 +30,7 @@ const COLORS = {
 interface NutritionRingsWidgetProps {
   dailySummary: any;
   user: any;
+  isCollapsed?: boolean;
 }
 
 interface MacroRingProps {
