@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import {
   X,
-  Camera,
   Search,
   Plus,
   Minus,
