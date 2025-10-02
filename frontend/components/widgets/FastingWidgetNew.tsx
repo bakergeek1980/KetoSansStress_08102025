@@ -106,8 +106,8 @@ const FastingTimer = ({
       <Svg width={size} height={size}>
         <Defs>
           <RadialGradient id={`fastingGradient_${isCollapsed}`} cx="50%" cy="30%" r="70%">
-            <Stop offset="0%" stopColor={COLORS.purple} stopOpacity="0.8" />
-            <Stop offset="100%" stopColor={COLORS.pink} stopOpacity="1" />
+            <Stop offset="0%" stopColor={COLORS.primary} stopOpacity="0.8" />
+            <Stop offset="100%" stopColor={COLORS.secondary} stopOpacity="1" />
           </RadialGradient>
         </Defs>
         
