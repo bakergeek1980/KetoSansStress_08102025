@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 KetoSansStress Backend API Testing Suite
-Tests both legacy and new Supabase endpoints after migration
+Focus: JWT Authentication System Testing
 """
 
 import requests
@@ -16,7 +16,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class KetoBackendTester:
+# Configuration
+BACKEND_URL = "https://ketodash.preview.emergentagent.com/api"
+DEMO_EMAIL = "demo@keto.fr"
+DEMO_PASSWORD = "demo123456"
+
+class KetoJWTTester:
     def __init__(self):
         # Get backend URL from frontend .env file
         self.base_url = self._get_backend_url()
