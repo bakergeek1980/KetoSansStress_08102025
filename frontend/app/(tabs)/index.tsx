@@ -98,6 +98,10 @@ export default function HomeScreen() {
   const [isNutritionCollapsed, setIsNutritionCollapsed] = useState(false);
   const [isWaterCollapsed, setIsWaterCollapsed] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  
+  // États pour le widget des repas
+  const [addMealModalVisible, setAddMealModalVisible] = useState(false);
+  const [selectedMealType, setSelectedMealType] = useState<string>('breakfast');
 
   const loadDailySummary = async () => {
     if (!user?.email) return;
