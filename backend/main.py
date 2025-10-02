@@ -13,6 +13,9 @@ from datetime import datetime
 # Import application configuration
 from app.config import settings
 
+# Import integrations
+from integrations.openfoodfacts import food_search_service
+
 # Import database connection
 from app.database.connection import get_supabase_client
 
