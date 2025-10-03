@@ -303,14 +303,14 @@ export default function HomeScreen() {
       {/* Fixed Collapsed Widgets */}
       <View style={styles.fixedWidgetsContainer}>
         {isNutritionCollapsed && (
-          <NutritionRingsWidget 
+          <NutritionRingsWidgetNew 
             dailySummary={dailySummary}
             user={user}
             isCollapsed={true}
           />
         )}
         {isWaterCollapsed && (
-          <WaterProgressWidget
+          <WaterProgressWidgetNew
             current={waterIntake}
             target={waterTarget}
             onAddWater={(amount) => setWaterIntake(prev => prev + amount)}
