@@ -28,8 +28,6 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import NutritionRingsWidgetNew from '../../components/widgets/NutritionRingsWidgetNew';
 import WaterProgressWidgetNew from '../../components/widgets/WaterProgressWidgetNew';
-import NutritionRingsWidget from '../../components/widgets/NutritionRingsWidgetNew';
-import WaterProgressWidget from '../../components/widgets/WaterProgressWidgetNew';
 import TipsCarouselWidget from '../../components/widgets/TipsCarouselWidget';
 import MealsWidget from '../../components/widgets/MealsWidget';
 import TodayMealsWidget from '../../components/widgets/TodayMealsWidget';
