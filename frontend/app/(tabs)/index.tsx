@@ -221,6 +221,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView
         style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
