@@ -186,11 +186,6 @@ export default function HomeScreen() {
     // then navigate to food scanner or search
   };
 
-  const handleSettingsPress = () => {
-    console.log('Opening settings');
-    // Navigate to settings screen
-  };
-
   const getCurrentDate = () => {
     const today = new Date();
     const options: Intl.DateTimeFormatOptions = {
