@@ -38,6 +38,7 @@ import BottomNavigationBar from '../../components/navigation/BottomNavigationBar
 import ActivityWidget from '../../components/widgets/ActivityWidget';
 import WeightWidget from '../../components/widgets/WeightWidgetNew';
 import FastingWidget from '../../components/widgets/FastingWidgetNew';
+import SplashScreen from '../../components/SplashScreen';
 import { getDailySummary } from '../../lib/api';
 
 const { width, height } = Dimensions.get('window');
