@@ -180,12 +180,6 @@ export default function HomeScreen() {
     // Copy meal from previous day
   };
 
-  const handleReportsPress = () => {
-    console.log('Opening reports');
-    // Navigate to reports screen with tabs for day/week/month/year
-    // and categories for meals and nutritional breakdown
-  };
-
   const handleAddFoodPress = () => {
     console.log('Opening add food modal');
     // Show modal with meal type selection (breakfast, lunch, dinner, snack)
