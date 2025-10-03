@@ -243,7 +243,7 @@ export default function HomeScreen() {
         {/* Water Progress Widget - Normal Position */}
         {!isWaterCollapsed && (
           <View style={styles.widgetContainer}>
-            <WaterProgressWidget
+            <WaterProgressWidgetNew
               current={waterIntake}
               target={waterTarget}
               onAddWater={(amount) => setWaterIntake(prev => prev + amount)}
