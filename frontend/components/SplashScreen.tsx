@@ -85,7 +85,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         <View style={styles.avocadoContainer}>
           {/* Nous utilisons l'image téléchargée */}
           <Image
-            source={{ uri: 'file:///app/frontend/assets/images/splash-screen.png' }}
+            source={require('../assets/images/splash-screen.png')}
             style={styles.avocadoImage}
             resizeMode="contain"
           />
