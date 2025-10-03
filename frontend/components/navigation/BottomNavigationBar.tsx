@@ -30,7 +30,6 @@ interface BottomNavigationBarProps {
 
 export default function BottomNavigationBar({
   onReportsPress,
-  onAddPress,
   onSettingsPress,
 }: BottomNavigationBarProps) {
   return (
