@@ -105,6 +105,10 @@ export default function HomeScreen() {
   // États pour le widget des repas
   const [addMealModalVisible, setAddMealModalVisible] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<string>('breakfast');
+  
+  // États pour la navigation
+  const [reportsModalVisible, setReportsModalVisible] = useState(false);
+  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
 
   const loadDailySummary = async () => {
     if (!user?.email) return;
