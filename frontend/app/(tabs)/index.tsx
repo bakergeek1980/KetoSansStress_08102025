@@ -359,12 +359,33 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* Barre de navigation inférieure */}
+      <BottomNavigationBar
+        onReportsPress={handleReportsPress}
+        onAddPress={handleBottomAddPress}
+        onSettingsPress={handleSettingsPress}
+      />
+
       {/* Modal pour ajouter un repas */}
       <AddMealModal
         visible={addMealModalVisible}
         mealType={selectedMealType}
         onClose={() => setAddMealModalVisible(false)}
         onMealAdded={handleMealAdded}
+        userId={user?.email || ''}
+      />
+
+      {/* Modal des rapports */}
+      <ReportsModal
+        visible={reportsModalVisible}
+        onClose={() => setReportsModalVisible(false)}
+        userId={user?.email || ''}
+      />
+
+      {/* Modal des paramètres */}
+      <SettingsModal
+        visible={settingsModalVisible}
+        onClose={() => setSettingsModalVisible(false)}
         userId={user?.email || ''}
       />
     </SafeAreaView>
