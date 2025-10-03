@@ -260,12 +260,9 @@ export default function HomeScreen() {
           <TipsCarouselWidget />
         </View>
 
-        {/* Today's Meals Widget */}
+        {/* Meals Widget */}
         <View style={styles.widgetContainer}>
-          <TodayMealsWidget 
-            userId={user?.email || ''} 
-            onAddMeal={handleAddMeal}
-          />
+          <MealsWidget userEmail={user?.email || ''} />
         </View>
 
         {/* Activity Widget */}
