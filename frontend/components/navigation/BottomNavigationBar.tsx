@@ -25,7 +25,6 @@ const COLORS = {
 
 interface BottomNavigationBarProps {
   onReportsPress: () => void;
-  onAddPress: () => void;
   onSettingsPress: () => void;
 }
 
