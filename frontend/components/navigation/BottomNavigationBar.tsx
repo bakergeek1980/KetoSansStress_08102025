@@ -49,15 +49,6 @@ export default function BottomNavigationBar({
           <Text style={styles.navLabel}>Rapports</Text>
         </TouchableOpacity>
 
-        {/* Bouton Ajouter (central, plus grand) */}
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={onAddPress}
-          activeOpacity={0.7}
-        >
-          <Plus color={COLORS.surface} size={28} strokeWidth={3} />
-        </TouchableOpacity>
-
         {/* Bouton Paramètres */}
         <TouchableOpacity
           style={styles.navButton}
