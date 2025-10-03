@@ -26,8 +26,8 @@ import {
   Settings
 } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import NutritionRingsWidget from '../../components/widgets/NutritionRingsWidgetNew';
-import WaterProgressWidget from '../../components/widgets/WaterProgressWidgetNew';
+import NutritionRingsWidgetNew from '../../components/widgets/NutritionRingsWidgetNew';
+import WaterProgressWidgetNew from '../../components/widgets/WaterProgressWidgetNew';
 import NutritionRingsWidget from '../../components/widgets/NutritionRingsWidgetNew';
 import WaterProgressWidget from '../../components/widgets/WaterProgressWidgetNew';
 import TipsCarouselWidget from '../../components/widgets/TipsCarouselWidget';
