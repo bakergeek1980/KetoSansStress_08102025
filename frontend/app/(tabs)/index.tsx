@@ -229,7 +229,7 @@ export default function HomeScreen() {
         {/* Nutrition Rings Widget - Normal Position */}
         {!isNutritionCollapsed && (
           <View style={styles.widgetContainer}>
-            <NutritionRingsWidget 
+            <NutritionRingsWidgetNew 
               dailySummary={dailySummary}
               user={user}
               isCollapsed={false}
