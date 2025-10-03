@@ -110,6 +110,9 @@ export default function HomeScreen() {
   // États pour la navigation
   const [reportsModalVisible, setReportsModalVisible] = useState(false);
   const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  
+  // État pour le splash screen
+  const [showSplash, setShowSplash] = useState(true);
 
   const loadDailySummary = async () => {
     if (!user?.email) return;
