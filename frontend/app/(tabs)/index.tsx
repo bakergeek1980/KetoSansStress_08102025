@@ -140,6 +140,20 @@ export default function HomeScreen() {
     loadDailySummary();
   };
 
+  // Gestion de la navigation
+  const handleReportsPress = () => {
+    setReportsModalVisible(true);
+  };
+
+  const handleBottomAddPress = () => {
+    setSelectedMealType('snack'); // Par défaut collation pour le bouton +
+    setAddMealModalVisible(true);
+  };
+
+  const handleSettingsPress = () => {
+    setSettingsModalVisible(true);
+  };
+
   useEffect(() => {
     loadDailySummary();
   }, [user]);
