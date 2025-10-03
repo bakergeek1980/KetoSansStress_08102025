@@ -147,11 +147,6 @@ export default function HomeScreen() {
     setReportsModalVisible(true);
   };
 
-  const handleBottomAddPress = () => {
-    setSelectedMealType('snack'); // Par défaut collation pour le bouton +
-    setAddMealModalVisible(true);
-  };
-
   const handleSettingsPress = () => {
     setSettingsModalVisible(true);
   };
