@@ -349,7 +349,6 @@ export default function HomeScreen() {
       {/* Barre de navigation inférieure */}
       <BottomNavigationBar
         onReportsPress={handleReportsPress}
-        onAddPress={handleBottomAddPress}
         onSettingsPress={handleSettingsPress}
       />
 
