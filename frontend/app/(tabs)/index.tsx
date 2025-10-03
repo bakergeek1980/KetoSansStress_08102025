@@ -401,6 +401,9 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
   },
+  scrollViewContent: {
+    paddingBottom: 100, // Space for navigation bar
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
