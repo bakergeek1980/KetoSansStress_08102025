@@ -337,8 +337,8 @@ class FoodSearchService:
             sorted_results = sorted(
                 off_results,
                 key=lambda x: (
-                    x.get('keto_score', 0),
-                    x.get('data_quality_score', 0),
+                    x.get('keto_score') or 0,
+                    x.get('data_quality_score') or 0,
                     1 if x.get('product_name', '').lower().find(query.lower()) != -1 else 0
                 ),
                 reverse=True
