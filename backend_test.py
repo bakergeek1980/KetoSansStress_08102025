@@ -99,11 +99,11 @@ class KetoBackendTester:
                 "password": password,
                 "full_name": "Test User",
                 "age": 30,
-                "gender": "femme",
+                "gender": "female",
                 "height": 170.0,
                 "weight": 70.0,
-                "activity_level": "modere",
-                "goal": "perte_poids",
+                "activity_level": "moderately_active",
+                "goal": "weight_loss",
                 "timezone": "Europe/Paris"
             }
             
