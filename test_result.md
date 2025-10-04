@@ -281,6 +281,9 @@ backend:
       - working: true
         agent: "main"
         comment: "FIXED: Corrected NoneType comparison bug in keto score filtering. Fixed line 531 to check for None values before comparison: 'r.get('keto_score') is not None and r.get('keto_score') >= 7'. Also fixed sorting function to use default value of 0 instead of None. Backend restarted with fixes applied."
+      - working: true
+        agent: "testing"
+        comment: "CONFIRMED FIXED: NoneType comparison bug is resolved! GET /api/foods/keto-friendly endpoint now returns 200 status without errors. The endpoint returns empty results (count: 0) because OpenFoodFacts products found don't have keto_score >= 7, which is the expected behavior. The sorting issue in FoodSearchService was also fixed by using 'x.get('keto_score') or 0' instead of 'x.get('keto_score', 0)'. Phase 1 fix is working correctly."
 
   - task: "Supabase Database Schema Completion"
     implemented: false
