@@ -51,7 +51,6 @@ interface AddMealModalProps {
   mealType: string;
   onClose: () => void;
   onMealAdded: () => void;
-  userId: string;
 }
 
 interface NutritionalInfo {
@@ -66,21 +65,59 @@ interface NutritionalInfo {
   confidence: number;
 }
 
-export default function AddMealModal({ visible, mealType, onClose, onMealAdded, userId }: AddMealModalProps) {
+interface MealFormData {
+  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  food_name: string;
+  brand?: string;
+  serving_size?: string;
+  quantity: number;
+  unit: string;
+  calories?: number;
+  protein?: number;
+  carbohydrates?: number;
+  total_fat?: number;
+  saturated_fat?: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  notes?: string;
+  preparation_method?: string;
+}
+
+export default function AddMealModal({ visible, mealType, onClose, onMealAdded }: AddMealModalProps) {
+  const { user } = useAuth();
+  const { saveMeal, analyzeFoodImage, loading: apiLoading, error } = useApi();
+  
   const [currentStep, setCurrentStep] = useState<'method' | 'camera' | 'manual' | 'analysis' | 'confirm'>('method');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [nutritionalInfo, setNutritionalInfo] = useState<NutritionalInfo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [manualEntry, setManualEntry] = useState({
-    food_name: '',
-    quantity: 1,
-    unit: 'portion',
-    calories: 0,
-    protein: 0,
-    carbohydrates: 0,
-    total_fat: 0,
-    fiber: 0,
+  const [analyzing, setAnalyzing] = useState(false);
+  
+  // React Hook Form setup
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors, isValid } } = useForm<MealFormData>({
+    resolver: yupResolver(mealSchema),
+    defaultValues: {
+      meal_type: mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+      food_name: '',
+      brand: '',
+      serving_size: '',
+      quantity: 1,
+      unit: 'portion',
+      calories: 0,
+      protein: 0,
+      carbohydrates: 0,
+      total_fat: 0,
+      saturated_fat: 0,
+      fiber: 0,
+      sugar: 0,
+      sodium: 0,
+      notes: '',
+      preparation_method: '',
+    },
+    mode: 'onChange',
   });
+
+  const watchedValues = watch();
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
