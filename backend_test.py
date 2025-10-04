@@ -209,6 +209,7 @@ class KetoBackendTester:
                 "food_name": "Avocat grillé",
                 "meal_type": "breakfast",
                 "quantity": 1.0,
+                "unit": "piece",
                 "calories": 160,
                 "protein": 2.0,
                 "carbohydrates": 9.0,
