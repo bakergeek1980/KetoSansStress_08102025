@@ -217,37 +217,52 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
     }
   };
 
-  const analyzeImage = async (base64Image: string) => {
-    setLoading(true);
+  const analyzeImage = useCallback(async (base64Image: string) => {
+    setAnalyzing(true);
     setCurrentStep('analysis');
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/meals/analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image_base64: base64Image,
-          meal_type: mealType,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      const data = await analyzeFoodImage(base64Image, 'comprehensive');
+      
+      if (data && data.nutritional_info) {
         setNutritionalInfo(data.nutritional_info);
         setCurrentStep('confirm');
       } else {
-        throw new Error('Erreur lors de l\'analyse');
+        throw new Error('Aucune donnée nutritionnelle reçue');
       }
     } catch (error) {
       console.error('Erreur d\'analyse:', error);
       Alert.alert('Erreur', 'Impossible d\'analyser l\'image. Veuillez réessayer.');
       setCurrentStep('method');
     } finally {
-      setLoading(false);
+      setAnalyzing(false);
     }
-  };
+  }, [analyzeFoodImage]);
+
+  const onSubmit = useCallback(async (data: MealFormData) => {
+    if (!user) {
+      Alert.alert('Erreur', 'Utilisateur non connecté');
+      return;
+    }
+
+    try {
+      const success = await saveMeal({
+        ...data,
+        meal_type: mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+      });
+
+      if (success) {
+        Alert.alert('Succès', 'Repas ajouté avec succès!');
+        onMealAdded();
+        handleClose();
+      } else {
+        Alert.alert('Erreur', 'Impossible d\'ajouter le repas');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du repas:', error);
+      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'ajout du repas');
+    }
+  }, [user, saveMeal, mealType, onMealAdded, handleClose]);
 
   const saveMeal = async () => {
     setLoading(true);
