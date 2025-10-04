@@ -1,57 +1,214 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 interface User {
-  name: string;
+  id: string;
   email: string;
-  age: number;
-  gender: string;
-  weight: number;
-  height: number;
-  activity_level: string;
-  goal: string;
+  full_name?: string;
+  age?: number;
+  gender?: string;
+  height?: number;
+  weight?: number;
+  activity_level?: string;
+  goal?: string;
+  target_calories?: number;
+  target_protein?: number;
+  target_carbs?: number;
+  target_fat?: number;
 }
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   loading: boolean;
-  login: (userData: User) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (userData: RegisterData) => Promise<boolean>;
   logout: () => Promise<void>;
-  updateUser: (userData: Partial<User>) => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
+}
+
+interface RegisterData {
+  email: string;
+  password: string;
+  full_name: string;
+  age: number;
+  gender: 'male' | 'female' | 'other';
+  height: number;
+  weight: number;
+  activity_level: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active';
+  goal: 'weight_loss' | 'weight_gain' | 'maintenance' | 'muscle_gain' | 'fat_loss';
+  timezone?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>({
-    name: 'Demo User',
-    email: 'demo@keto.fr',
-    age: 30,
-    gender: 'homme',
-    weight: 70,
-    height: 170,
-    activity_level: 'modere',
-    goal: 'perte_poids',
-  });
-  const [loading, setLoading] = useState(false);
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8001';
 
-  const login = async (userData: User) => {
-    setUser(userData);
-  };
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const logout = async () => {
-    setUser(null);
-  };
+  // Initialize auth state from storage
+  useEffect(() => {
+    checkAuthState();
+  }, []);
 
-  const updateUser = async (userData: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...userData });
+  const checkAuthState = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('auth_token');
+      const storedUser = await AsyncStorage.getItem('user_data');
+
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+        
+        // Verify token is still valid
+        const isValid = await verifyToken(storedToken);
+        if (!isValid) {
+          await logout();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking auth state:', error);
+      await logout();
+    } finally {
+      setLoading(false);
     }
   };
 
-  const value = {
+  const verifyToken = async (authToken: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      return false;
+    }
+  };
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.access_token) {
+        const { access_token, user: userData } = data;
+        
+        await AsyncStorage.setItem('auth_token', access_token);
+        await AsyncStorage.setItem('user_data', JSON.stringify(userData));
+        
+        setToken(access_token);
+        setUser(userData);
+        
+        return true;
+      } else {
+        Alert.alert('Erreur de connexion', data.detail || 'Identifiants invalides');
+        return false;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (userData: RegisterData): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...userData,
+          timezone: userData.timezone || 'Europe/Paris'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          'Inscription réussie', 
+          'Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.'
+        );
+        return true;
+      } else {
+        Alert.alert('Erreur d\'inscription', data.detail || 'Erreur lors de la création du compte');
+        return false;
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      // Call logout endpoint if token exists
+      if (token) {
+        await fetch(`${API_BASE_URL}/api/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Clear local state regardless of API call result
+      await AsyncStorage.multiRemove(['auth_token', 'user_data']);
+      setToken(null);
+      setUser(null);
+    }
+  };
+
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      AsyncStorage.setItem('user_data', JSON.stringify(updatedUser));
+    }
+  };
+
+  const value: AuthContextType = {
     user,
+    token,
     loading,
     login,
+    register,
     logout,
     updateUser,
   };
@@ -61,7 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export function useAuth() {
   const context = useContext(AuthContext);
