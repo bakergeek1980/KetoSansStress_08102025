@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -28,9 +28,13 @@ export default function Index() {
 
   useEffect(() => {
     if (isInitialized && !loading) {
-      router.replace('/(tabs)');
+      if (user) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/auth');
+      }
     }
-  }, [isInitialized, loading, router]);
+  }, [isInitialized, loading, user, router]);
 
   if (loading || !isInitialized) {
     return (
