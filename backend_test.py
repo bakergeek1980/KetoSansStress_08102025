@@ -23,6 +23,10 @@ TEST_CREDENTIALS = {
     "demo_user": {
         "email": "demo@ketosansstress.com", 
         "password": "password123"
+    },
+    "test_user": {
+        "email": "test@ketosansstress.com",
+        "password": "password123"
     }
 }
 
