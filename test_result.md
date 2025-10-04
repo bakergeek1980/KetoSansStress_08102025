@@ -269,7 +269,7 @@ backend:
 
   - task: "OpenFoodFacts Keto-Friendly Foods API"
     implemented: true
-    working: false
+    working: true
     file: "backend/main.py"
     stuck_count: 1
     priority: "medium"
@@ -278,6 +278,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL BUG: GET /api/foods/keto-friendly endpoint returns 500 error due to NoneType comparison in keto score filtering. Error: '>=' not supported between instances of 'NoneType' and 'int'. The OpenFoodFacts integration is working but the keto score filtering logic needs null value handling. Other OpenFoodFacts endpoints (search, enhanced analysis) work correctly."
+      - working: true
+        agent: "main"
+        comment: "FIXED: Corrected NoneType comparison bug in keto score filtering. Fixed line 531 to check for None values before comparison: 'r.get('keto_score') is not None and r.get('keto_score') >= 7'. Also fixed sorting function to use default value of 0 instead of None. Backend restarted with fixes applied."
 
   - task: "Supabase Database Schema Completion"
     implemented: false
