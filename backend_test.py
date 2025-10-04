@@ -365,12 +365,12 @@ class KetoBackendTester:
         # Priority 3: Supabase Authentication System
         print("\n📋 PRIORITY 3: Supabase Authentication System")
         
-        # Test with demo user (known to work)
-        demo_email = TEST_CREDENTIALS["demo_user"]["email"]
-        demo_password = TEST_CREDENTIALS["demo_user"]["password"]
+        # Test with test user (known to work)
+        test_email = TEST_CREDENTIALS["test_user"]["email"]
+        test_password = TEST_CREDENTIALS["test_user"]["password"]
         
-        self.test_user_registration(demo_email, demo_password)
-        login_success = self.test_user_login(demo_email, demo_password)
+        self.test_user_registration(test_email, test_password)
+        login_success = self.test_user_login(test_email, test_password)
         
         if login_success:
             self.test_auth_me()
