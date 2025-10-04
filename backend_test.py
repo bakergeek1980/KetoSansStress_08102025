@@ -12,7 +12,7 @@ from datetime import datetime, date
 from typing import Dict, Any, Optional
 
 # Configuration
-BACKEND_URL = "https://ketodash.preview.emergentagent.com/api"
+BACKEND_URL = "https://ketotrack.preview.emergentagent.com/api"
 TEST_EMAIL = "contact@ketosansstress.com"
 TEST_PASSWORD = "TestKeto2025!"
 DEMO_EMAIL = "demo@keto.fr"

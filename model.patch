@@ -351,7 +351,7 @@ index bb55108..e69de29 100644
 -----+from jose import jwt
 -----+
 -----+# Get a token first
------+BACKEND_URL = "https://ketodash.preview.emergentagent.com/api"
+-----+BACKEND_URL = "https://ketotrack.preview.emergentagent.com/api"
 -----+DEMO_EMAIL = "demo@keto.fr"
 -----+DEMO_PASSWORD = "demo123456"
 -----+
