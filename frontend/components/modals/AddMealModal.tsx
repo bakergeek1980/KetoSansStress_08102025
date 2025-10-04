@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {
   X,
@@ -21,6 +23,13 @@ import {
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ExpoCamera from 'expo-camera';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import ValidatedInput from '../forms/ValidatedInput';
+import LoadingButton from '../forms/LoadingButton';
+import { mealSchema } from '../../validation/schemas';
+import { useApi } from '../../hooks/useApi';
+import { useAuth } from '../../hooks/useAuth';
 
 const COLORS = {
   primary: '#4CAF50',
