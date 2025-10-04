@@ -119,9 +119,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
 
   const watchedValues = watch();
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
-
-  const getMealTypeName = (type: string) => {
+  const getMealTypeName = useCallback((type: string) => {
     switch (type) {
       case 'breakfast': return 'Petit-déjeuner';
       case 'lunch': return 'Déjeuner';
@@ -129,29 +127,33 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
       case 'snack': return 'Collation';
       default: return 'Repas';
     }
-  };
+  }, []);
 
-  const resetModal = () => {
+  const resetModal = useCallback(() => {
     setCurrentStep('method');
     setSelectedImage(null);
     setNutritionalInfo(null);
-    setLoading(false);
-    setManualEntry({
-      food_name: '',
-      quantity: 1,
-      unit: 'portion',
-      calories: 0,
-      protein: 0,
-      carbohydrates: 0,
-      total_fat: 0,
-      fiber: 0,
-    });
-  };
+    setAnalyzing(false);
+    reset();
+  }, [reset]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     resetModal();
     onClose();
-  };
+  }, [resetModal, onClose]);
+
+  // Auto-populate form when nutritional info is analyzed
+  React.useEffect(() => {
+    if (nutritionalInfo && nutritionalInfo.foods_detected.length > 0) {
+      setValue('food_name', nutritionalInfo.foods_detected[0]);
+      setValue('calories', nutritionalInfo.calories);
+      setValue('protein', nutritionalInfo.protein);
+      setValue('carbohydrates', nutritionalInfo.carbohydrates);
+      setValue('total_fat', nutritionalInfo.total_fat);
+      setValue('fiber', nutritionalInfo.fiber);
+      setValue('serving_size', nutritionalInfo.portions[0] || 'portion');
+    }
+  }, [nutritionalInfo, setValue]);
 
   const requestCameraPermissions = async () => {
     const { status } = await ExpoCamera.requestCameraPermissionsAsync();
