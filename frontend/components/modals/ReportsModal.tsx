@@ -85,10 +85,6 @@ interface ProgressMetrics {
   totalDays: number;
   avgKetoScore: number;
 }
-  lunch: { calories: number; percentage: number };
-  dinner: { calories: number; percentage: number };
-  snack: { calories: number; percentage: number };
-}
 
 export default function ReportsModal({ visible, onClose, userId }: ReportsModalProps) {
   const [selectedNutrient, setSelectedNutrient] = useState<'calories' | 'net_carbs' | 'proteins' | 'lipids' | 'fiber'>('calories');
