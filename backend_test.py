@@ -46,7 +46,14 @@ class PreferencesAPITester:
             register_data = {
                 "email": TEST_USER_EMAIL,
                 "password": TEST_USER_PASSWORD,
-                "full_name": "Test Preferences User"
+                "full_name": "Test Preferences User",
+                "age": 28,
+                "gender": "female",
+                "height": 165.0,
+                "weight": 65.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss",
+                "timezone": "Europe/Paris"
             }
             
             register_response = self.session.post(
