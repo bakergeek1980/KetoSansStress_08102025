@@ -480,8 +480,14 @@ class KetoBackendTester:
         
         # Priority 2: Authentication System
         print("\n📋 PRIORITY 2: Authentication System")
+        # Try with the expected demo user first
         self.test_user_registration(TEST_USER_EMAIL, TEST_USER_PASSWORD)
         login_success = self.test_user_login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        
+        # If demo user login fails, try creating a fresh user
+        if not login_success:
+            print("Demo user login failed, trying fresh user...")
+            login_success = self.test_create_fresh_user()
         
         if login_success:
             self.test_auth_me()
