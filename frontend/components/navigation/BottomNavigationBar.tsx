@@ -70,12 +70,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     position: 'absolute',
-    bottom: 30, // Position flottante au-dessus du bas
+    bottom: 3, // 3px du bord comme demandé
     left: 0,
     right: 0,
     alignItems: 'center',
     paddingHorizontal: 20,
-    zIndex: 1000,
+    zIndex: 9999, // Z-index très élevé pour être au-dessus de tout
   },
   navigationPill: {
     flexDirection: 'row',
