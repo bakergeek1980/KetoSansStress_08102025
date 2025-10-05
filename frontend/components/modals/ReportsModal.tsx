@@ -97,70 +97,302 @@ export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
   const [progressMetrics, setProgressMetrics] = useState<ProgressMetrics | null>(null);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'trends' | 'goals'>('overview');
 
-  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
-
-  // Charger les données de rapport
-  const loadReportData = async () => {
-    try {
-      setLoading(true);
-      
-      const response = await fetch(`${BACKEND_URL}/api/meals/daily-summary/${userId}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Simuler les données nutritionnelles basées sur les vraies données
-        const mockNutritionData: NutrientData = {
-          calories: { 
-            total: data.totals?.calories || 0, 
-            target: data.targets?.calories || 1843, 
-            percentage: data.percentages?.calories || 0 
-          },
-          net_carbs: { 
-            total: data.totals?.net_carbs || 0, 
-            target: data.targets?.carbs || 23, 
-            percentage: data.percentages?.carbs || 0 
-          },
-          proteins: { 
-            total: data.totals?.protein || 0, 
-            target: data.targets?.protein || 92, 
-            percentage: data.percentages?.protein || 0 
-          },
-          lipids: { 
-            total: data.totals?.total_fat || 0, 
-            target: data.targets?.fats || 154, 
-            percentage: data.percentages?.fats || 0 
-          },
-          fiber: { 
-            total: data.totals?.fiber || 0, 
-            target: 25, 
-            percentage: 0 
-          },
-        };
-
-        // Simuler la répartition par repas
-        const mockMealBreakdown: MealBreakdown = {
-          breakfast: { calories: 0, percentage: 0 },
-          lunch: { calories: 0, percentage: 0 },
-          dinner: { calories: 0, percentage: 0 },
-          snack: { calories: 0, percentage: 0 },
-        };
-
-        setNutritionData(mockNutritionData);
-        setMealBreakdown(mockMealBreakdown);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des rapports:', error);
-    } finally {
-      setLoading(false);
-    }
+  // KetoDiet inspired colors
+  const COLORS = {
+    primary: '#4CAF50',
+    secondary: '#81C784',
+    accent: '#FF7043',
+    background: '#FAFAFA',
+    surface: '#FFFFFF',
+    text: '#212121',
+    textSecondary: '#757575',
+    success: '#4CAF50',
+    warning: '#FF9800',
+    error: '#F44336',
+    keto: '#2E7D32',
+    carbs: '#FFA726',
+    protein: '#42A5F5',
+    fat: '#AB47BC',
   };
 
   useEffect(() => {
-    if (visible) {
-      loadReportData();
+    if (visible && user) {
+      loadReportsData();
     }
-  }, [visible, selectedPeriod]);
+  }, [visible, selectedPeriod, user]);
+
+  const loadReportsData = async () => {
+    if (!user?.email) return;
+
+    try {
+      // Charger les données des 7 derniers jours
+      const today = new Date();
+      const promises = [];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        promises.push(getDailySummary(user.email, dateStr));
+      }
+
+      const weekData = await Promise.all(promises);
+      
+      // Transformer les données pour les graphiques
+      const processedWeekData: WeeklyData[] = weekData.map((day, index) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - index));
+        
+        return {
+          day: date.toLocaleDateString('fr-FR', { weekday: 'short' }),
+          calories: day?.totals?.calories || 0,
+          carbs: day?.totals?.net_carbs || 0,
+          protein: day?.totals?.proteins || 0,
+          fat: day?.totals?.fats || 0,
+          ketoScore: day?.keto_status === 'ketogenic' ? 10 : 5,
+        };
+      });
+
+      setWeeklyData(processedWeekData);
+
+      // Calculer la distribution des macros (moyenne de la semaine)
+      const avgCalories = processedWeekData.reduce((sum, d) => sum + d.calories, 0) / 7;
+      const avgCarbs = processedWeekData.reduce((sum, d) => sum + d.carbs, 0) / 7;
+      const avgProtein = processedWeekData.reduce((sum, d) => sum + d.protein, 0) / 7;
+      const avgFat = processedWeekData.reduce((sum, d) => sum + d.fat, 0) / 7;
+
+      const totalMacros = (avgCarbs * 4) + (avgProtein * 4) + (avgFat * 9);
+      
+      setMacroDistribution([
+        {
+          label: 'Lipides',
+          value: totalMacros > 0 ? Math.round(((avgFat * 9) / totalMacros) * 100) : 0,
+          color: COLORS.fat,
+        },
+        {
+          label: 'Protéines', 
+          value: totalMacros > 0 ? Math.round(((avgProtein * 4) / totalMacros) * 100) : 0,
+          color: COLORS.protein,
+        },
+        {
+          label: 'Glucides',
+          value: totalMacros > 0 ? Math.round(((avgCarbs * 4) / totalMacros) * 100) : 0,
+          color: COLORS.carbs,
+        },
+      ]);
+
+      // Calculer les métriques de progression
+      const ketoticDays = processedWeekData.filter(d => d.ketoScore >= 8).length;
+      const avgKetoScore = processedWeekData.reduce((sum, d) => sum + d.ketoScore, 0) / 7;
+
+      setProgressMetrics({
+        currentWeight: user.weight || 70,
+        goalWeight: user.weight ? user.weight - 5 : 65,
+        startWeight: user.weight ? user.weight + 2 : 72,
+        daysInKetosis: ketoticDays,
+        totalDays: 7,
+        avgKetoScore: Math.round(avgKetoScore * 10) / 10,
+      });
+
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadReportsData();
+    setRefreshing(false);
+  }, [loadReportsData]);
+
+  const getPeriodText = () => {
+    switch (selectedPeriod) {
+      case 'week': return 'Cette semaine';
+      case 'month': return 'Ce mois-ci';
+      case 'year': return 'Cette année';
+      default: return 'Cette semaine';
+    }
+  };
+
+  const renderOverviewTab = () => (
+    <View style={styles.tabContent}>
+      {/* Métriques de progression */}
+      <View style={styles.metricsContainer}>
+        <Text style={styles.sectionTitle}>Progression</Text>
+        
+        <View style={styles.metricsGrid}>
+          <View style={styles.metricCard}>
+            <Target size={24} color={COLORS.success} />
+            <Text style={styles.metricValue}>
+              {progressMetrics?.daysInKetosis || 0}/{progressMetrics?.totalDays || 7}
+            </Text>
+            <Text style={styles.metricLabel}>Jours en cétose</Text>
+          </View>
+
+          <View style={styles.metricCard}>
+            <Award size={24} color={COLORS.keto} />
+            <Text style={styles.metricValue}>
+              {progressMetrics?.avgKetoScore || 0}/10
+            </Text>
+            <Text style={styles.metricLabel}>Score Keto moyen</Text>
+          </View>
+
+          <View style={styles.metricCard}>
+            <Activity size={24} color={COLORS.primary} />
+            <Text style={styles.metricValue}>
+              {progressMetrics?.currentWeight || 0} kg
+            </Text>
+            <Text style={styles.metricLabel}>Poids actuel</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Distribution des macronutriments */}
+      <View style={styles.chartContainer}>
+        <Text style={styles.sectionTitle}>Distribution des macros</Text>
+        {macroDistribution.length > 0 ? (
+          <View style={styles.pieChartContainer}>
+            <VictoryPie
+              data={macroDistribution.map(item => ({ x: item.label, y: item.value }))}
+              width={screenWidth - 80}
+              height={200}
+              colorScale={macroDistribution.map(item => item.color)}
+              innerRadius={50}
+              labelComponent={<></>}
+            />
+            <View style={styles.legend}>
+              {macroDistribution.map((item, index) => (
+                <View key={index} style={styles.legendItem}>
+                  <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                  <Text style={styles.legendText}>
+                    {item.label}: {item.value}%
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.noDataText}>Aucune donnée disponible</Text>
+        )}
+      </View>
+    </View>
+  );
+
+  const renderTrendsTab = () => (
+    <View style={styles.tabContent}>
+      <Text style={styles.sectionTitle}>Tendances - {getPeriodText()}</Text>
+      
+      {weeklyData.length > 0 ? (
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Calories quotidiennes</Text>
+          <VictoryChart
+            width={screenWidth - 40}
+            height={200}
+            theme={VictoryTheme.material}
+            padding={{ left: 60, right: 40, top: 20, bottom: 50 }}
+          >
+            <VictoryAxis />
+            <VictoryAxis dependentAxis />
+            <VictoryLine
+              data={weeklyData}
+              x="day"
+              y="calories"
+              style={{
+                data: { stroke: COLORS.primary, strokeWidth: 3 }
+              }}
+            />
+          </VictoryChart>
+
+          <Text style={styles.chartTitle}>Score Keto quotidien</Text>
+          <VictoryChart
+            width={screenWidth - 40}
+            height={200}
+            theme={VictoryTheme.material}
+            padding={{ left: 60, right: 40, top: 20, bottom: 50 }}
+          >
+            <VictoryAxis />
+            <VictoryAxis dependentAxis />
+            <VictoryBar
+              data={weeklyData}
+              x="day"
+              y="ketoScore"
+              style={{
+                data: { fill: COLORS.keto }
+              }}
+            />
+          </VictoryChart>
+        </View>
+      ) : (
+        <Text style={styles.noDataText}>Aucune donnée de tendance disponible</Text>
+      )}
+    </View>
+  );
+
+  const renderGoalsTab = () => (
+    <View style={styles.tabContent}>
+      <Text style={styles.sectionTitle}>Objectifs & Cibles</Text>
+      
+      <View style={styles.goalsContainer}>
+        <View style={styles.goalCard}>
+          <Text style={styles.goalTitle}>Objectif de poids</Text>
+          <View style={styles.goalProgress}>
+            <Text style={styles.goalCurrent}>{progressMetrics?.currentWeight} kg</Text>
+            <Text style={styles.goalArrow}>→</Text>
+            <Text style={styles.goalTarget}>{progressMetrics?.goalWeight} kg</Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { 
+                  width: `${Math.min(100, ((progressMetrics?.startWeight || 0) - (progressMetrics?.currentWeight || 0)) / ((progressMetrics?.startWeight || 0) - (progressMetrics?.goalWeight || 0)) * 100)}%`,
+                  backgroundColor: COLORS.success 
+                }
+              ]} 
+            />
+          </View>
+        </View>
+
+        <View style={styles.goalCard}>
+          <Text style={styles.goalTitle}>Cétose cette semaine</Text>
+          <View style={styles.goalProgress}>
+            <Text style={styles.goalCurrent}>
+              {progressMetrics?.daysInKetosis} / {progressMetrics?.totalDays} jours
+            </Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { 
+                  width: `${((progressMetrics?.daysInKetosis || 0) / (progressMetrics?.totalDays || 1)) * 100}%`,
+                  backgroundColor: COLORS.keto 
+                }
+              ]} 
+            />
+          </View>
+        </View>
+
+        <View style={styles.goalCard}>
+          <Text style={styles.goalTitle}>Macros quotidiens cibles</Text>
+          <View style={styles.macroTargets}>
+            <View style={styles.macroTarget}>
+              <Text style={styles.macroLabel}>Lipides</Text>
+              <Text style={styles.macroValue}>{user?.target_fat || 0}g (65-75%)</Text>
+            </View>
+            <View style={styles.macroTarget}>
+              <Text style={styles.macroLabel}>Protéines</Text>
+              <Text style={styles.macroValue}>{user?.target_protein || 0}g (20-25%)</Text>
+            </View>
+            <View style={styles.macroTarget}>
+              <Text style={styles.macroLabel}>Glucides nets</Text>
+              <Text style={styles.macroValue}>{user?.target_carbs || 0}g (5-10%)</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 
   const getNutrientDisplayName = (nutrient: string) => {
     switch (nutrient) {
