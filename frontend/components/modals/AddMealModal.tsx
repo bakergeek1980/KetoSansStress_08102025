@@ -22,7 +22,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as ExpoCamera from 'expo-camera';
+import { Camera } from 'expo-camera';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ValidatedInput from '../forms/ValidatedInput';
