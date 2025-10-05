@@ -137,8 +137,9 @@ export default function HomeScreen() {
 
   // Gestion des repas
   const handleAddMeal = (mealType: string) => {
+    console.log('Adding meal:', mealType);
     setSelectedMealType(mealType);
-    setAddMealModalVisible(true);
+    setFoodSearchModalVisible(true);
   };
 
   const handleQuickAddMeal = () => {
