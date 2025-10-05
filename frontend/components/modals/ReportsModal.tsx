@@ -394,35 +394,7 @@ export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
     </View>
   );
 
-  const getNutrientDisplayName = (nutrient: string) => {
-    switch (nutrient) {
-      case 'calories': return 'Calories';
-      case 'net_carbs': return 'Gluc. nets';
-      case 'proteins': return 'Protéines';
-      case 'lipids': return 'Lipides';
-      case 'fiber': return 'Fibres';
-      default: return nutrient;
-    }
-  };
-
-  const getNutrientUnit = (nutrient: string) => {
-    return nutrient === 'calories' ? 'kcal' : 'g';
-  };
-
-  const getMealDisplayName = (meal: string) => {
-    switch (meal) {
-      case 'breakfast': return 'Petit déjeuner';
-      case 'lunch': return 'Déjeuner';
-      case 'dinner': return 'Dîner';
-      case 'snack': return 'En-cas';
-      default: return meal;
-    }
-  };
-
-  const getCurrentData = () => {
-    if (!nutritionData) return { total: 0, target: 0, percentage: 0 };
-    return nutritionData[selectedNutrient];
-  };
+  // Helper functions removed - using new tab-based structure
 
   const renderNutrientTabs = () => (
     <ScrollView 
