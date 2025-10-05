@@ -139,6 +139,18 @@ export default function HomeScreen() {
     setAddMealModalVisible(true);
   };
 
+  const handleQuickAddMeal = () => {
+    // Détecter automatiquement le type de repas basé sur l'heure
+    const hour = new Date().getHours();
+    let mealType = 'snack'; // Par défaut
+    
+    if (hour >= 6 && hour < 11) mealType = 'breakfast';
+    else if (hour >= 11 && hour < 15) mealType = 'lunch';
+    else if (hour >= 18 && hour < 22) mealType = 'dinner';
+    
+    handleAddMeal(mealType);
+  };
+
   const handleMealAdded = () => {
     // Recharger les données après ajout d'un repas
     loadDailySummary();
