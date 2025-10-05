@@ -9,23 +9,29 @@ interface ApiState {
 
 interface MealData {
   meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  food_name: string;
+  name: string;
   brand?: string;
   serving_size?: string;
-  quantity: number;
-  unit: string;
-  calories?: number;
-  protein?: number;
-  carbohydrates?: number;
-  total_fat?: number;
-  saturated_fat?: number;
-  fiber?: number;
-  sugar?: number;
-  sodium?: number;
-  potassium?: number;
+  calories: number;
+  proteins: number;
+  carbs: number;
+  net_carbs: number;
+  total_fat: number;
+  fiber: number;
+  keto_score?: number;
   consumed_at?: string;
   notes?: string;
   preparation_method?: string;
+  // Legacy fields for compatibility
+  food_name?: string;
+  quantity?: number;
+  unit?: string;
+  protein?: number;
+  carbohydrates?: number;
+  saturated_fat?: number;
+  sugar?: number;
+  sodium?: number;
+  potassium?: number;
 }
 
 interface DailySummary {
