@@ -823,4 +823,49 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textLight,
   },
+  
+  // Styles HealthApp
+  healthAppButton: {
+    minWidth: 80,
+  },
+  permissionsContainer: {
+    backgroundColor: COLORS.textSecondary,
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 12,
+  },
+  permissionsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.surface,
+    marginBottom: 12,
+  },
+  permissionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  permissionText: {
+    fontSize: 14,
+    color: COLORS.surface,
+    marginLeft: 12,
+    flex: 1,
+  },
+  permissionStatus: {
+    fontSize: 12,
+    color: COLORS.textLight,
+  },
+  disconnectButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.error,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  disconnectButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.surface,
+  },
 });
