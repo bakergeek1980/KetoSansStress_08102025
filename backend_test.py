@@ -466,6 +466,54 @@ class KetoBackendTester:
         except Exception as e:
             self.log_test("New Meals API - Create with Brand", False, f"Request failed: {str(e)}")
             return False
+    
+    def test_new_meals_api_without_brand(self):
+        """Test new Supabase meals API - Create meal without brand column (fallback test)."""
+        if not self.auth_token:
+            self.log_test("New Meals API - Create without Brand", False, "No auth token available")
+            return False
+            
+        try:
+            meal_data = {
+                "food_name": "Avocat simple",
+                "meal_type": "breakfast",
+                "serving_size": "1 medium avocado",
+                "quantity": 1.0,
+                "unit": "piece",
+                "calories": 234,
+                "protein": 2.9,
+                "carbohydrates": 12.0,
+                "total_fat": 21.4,
+                "saturated_fat": 3.1,
+                "fiber": 10.0,
+                "sugar": 1.0,
+                "sodium": 7.0,
+                "potassium": 485.0,
+                "notes": "Test meal without brand column",
+                "preparation_method": "raw",
+                "consumed_at": datetime.now().isoformat()
+            }
+            
+            response = self.session.post(
+                f"{self.base_url}/meals/",
+                json=meal_data,
+                timeout=10
+            )
+            
+            if response.status_code == 201:
+                data = response.json()
+                meal_id = data.get("id")
+                self.log_test("New Meals API - Create without Brand", True,
+                            f"Meal created successfully without brand. ID: {meal_id}")
+                return True
+            else:
+                self.log_test("New Meals API - Create without Brand", False,
+                            f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("New Meals API - Create without Brand", False, f"Request failed: {str(e)}")
+            return False
 
     def run_comprehensive_test(self):
         """Run all backend tests focusing on post-schema completion validation."""
