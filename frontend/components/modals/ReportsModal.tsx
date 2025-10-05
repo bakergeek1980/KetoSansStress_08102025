@@ -47,6 +47,21 @@ interface ReportsModalProps {
   onClose: () => void;
 }
 
+interface NutrientData {
+  calories: { total: number; target: number; percentage: number };
+  net_carbs: { total: number; target: number; percentage: number };
+  proteins: { total: number; target: number; percentage: number };
+  lipids: { total: number; target: number; percentage: number };
+  fiber: { total: number; target: number; percentage: number };
+}
+
+interface MealBreakdown {
+  breakfast: { calories: number; percentage: number };
+  lunch: { calories: number; percentage: number };
+  dinner: { calories: number; percentage: number };
+  snack: { calories: number; percentage: number };
+}
+
 interface WeeklyData {
   day: string;
   calories: number;
