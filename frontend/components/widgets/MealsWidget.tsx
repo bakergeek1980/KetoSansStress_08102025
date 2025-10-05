@@ -154,7 +154,9 @@ export default function MealsWidget({ userEmail, onAddMeal }: MealsWidgetProps) 
 
   const handleAddFood = (mealType: string) => {
     console.log('Adding food to:', mealType);
-    // Navigate to food scanner or search
+    if (onAddMeal) {
+      onAddMeal(mealType);
+    }
   };
 
   const handleCopyPreviousDay = (mealType: string) => {
