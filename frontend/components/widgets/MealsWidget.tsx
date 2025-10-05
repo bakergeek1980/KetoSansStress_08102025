@@ -122,7 +122,7 @@ const MealItem = ({ meal, onAddFood, onCopyPreviousDay }: {
   );
 };
 
-export default function MealsWidget({ userEmail }: MealsWidgetProps) {
+export default function MealsWidget({ userEmail, onAddMeal }: MealsWidgetProps) {
   const [meals, setMeals] = useState<Meal[]>([
     {
       id: '1',
