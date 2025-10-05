@@ -316,6 +316,128 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
         </View>
       </View>
 
+      {/* Section HealthApp */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Synchronisation Santé</Text>
+        
+        {/* HealthApp Connection */}
+        <View style={styles.settingCard}>
+          <View style={styles.settingIcon}>
+            <Heart color={healthAppConnected ? COLORS.success : COLORS.textSecondary} size={24} />
+          </View>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingTitle}>
+              HealthApp {healthAppSupported ? '' : '(Non supporté)'}
+            </Text>
+            <Text style={styles.settingValue}>
+              {healthAppConnected 
+                ? `Connecté${lastSyncDate ? ` • Sync: ${lastSyncDate.toLocaleDateString('fr-FR')}` : ''}`
+                : 'Non connecté'
+              }
+            </Text>
+          </View>
+          <LoadingButton
+            title={healthAppConnected ? 'Sync' : 'Connecter'}
+            onPress={healthAppConnected ? syncHealthData : requestPermissions}
+            loading={healthAppLoading}
+            variant={healthAppConnected ? 'secondary' : 'primary'}
+            size="small"
+            disabled={!healthAppSupported}
+            style={styles.healthAppButton}
+          />
+        </View>
+
+        {/* HealthApp Permissions */}
+        {healthAppConnected && (
+          <View style={styles.permissionsContainer}>
+            <Text style={styles.permissionsTitle}>Données synchronisées :</Text>
+            
+            <View style={styles.permissionRow}>
+              <Activity size={16} color={permissions.steps ? COLORS.success : COLORS.textSecondary} />
+              <Text style={styles.permissionText}>Pas & Activité</Text>
+              <Text style={styles.permissionStatus}>
+                {permissions.steps ? 'Activé' : 'Désactivé'}
+              </Text>
+            </View>
+
+            <View style={styles.permissionRow}>
+              <Target size={16} color={permissions.weight ? COLORS.success : COLORS.textSecondary} />
+              <Text style={styles.permissionText}>Poids</Text>
+              <Text style={styles.permissionStatus}>
+                {permissions.weight ? 'Activé' : 'Désactivé'}
+              </Text>
+            </View>
+
+            <View style={styles.permissionRow}>
+              <Zap size={16} color={permissions.activeEnergyBurned ? COLORS.success : COLORS.textSecondary} />
+              <Text style={styles.permissionText}>Calories brûlées</Text>
+              <Text style={styles.permissionStatus}>
+                {permissions.activeEnergyBurned ? 'Activé' : 'Désactivé'}
+              </Text>
+            </View>
+
+            <View style={styles.permissionRow}>
+              <Heart size={16} color={permissions.heartRate ? COLORS.success : COLORS.textSecondary} />
+              <Text style={styles.permissionText}>Rythme cardiaque</Text>
+              <Text style={styles.permissionStatus}>
+                {permissions.heartRate ? 'Activé' : 'Désactivé'}
+              </Text>
+            </View>
+
+            {/* Disconnect Button */}
+            <TouchableOpacity 
+              style={styles.disconnectButton}
+              onPress={disconnectHealthApp}
+              disabled={healthAppLoading}
+            >
+              <Text style={styles.disconnectButtonText}>Déconnecter HealthApp</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Synchronisation automatique */}
+        <View style={styles.settingRow}>
+          <View style={styles.settingRowIcon}>
+            <Cloud color={COLORS.primary} size={20} />
+          </View>
+          <Text style={styles.settingRowText}>Sync automatique</Text>
+          <Switch
+            value={autoSync}
+            onValueChange={setAutoSync}
+            trackColor={{ false: COLORS.border, true: COLORS.secondary }}
+            thumbColor={autoSync ? COLORS.primary : COLORS.textLight}
+          />
+        </View>
+
+        {/* Économiseur de données */}
+        <View style={styles.settingRow}>
+          <View style={styles.settingRowIcon}>
+            <Shield size={20} color={COLORS.primary} />
+          </View>
+          <Text style={styles.settingRowText}>Économiseur de données</Text>
+          <Switch
+            value={dataSaver}
+            onValueChange={setDataSaver}
+            trackColor={{ false: COLORS.border, true: COLORS.secondary }}
+            thumbColor={dataSaver ? COLORS.primary : COLORS.textLight}
+          />
+        </View>
+
+        {/* Verrouillage biométrique */}
+        <View style={styles.settingRow}>
+          <View style={styles.settingRowIcon}>
+            <Smartphone size={20} color={COLORS.primary} />
+          </View>
+          <Text style={styles.settingRowText}>Verrouillage biométrique</Text>
+          <Switch
+            value={biometricLock}
+            onValueChange={setBiometricLock}
+            trackColor={{ false: COLORS.border, true: COLORS.secondary }}
+            thumbColor={biometricLock ? COLORS.primary : COLORS.textLight}
+          />
+        </View>
+      </View>
+
       {/* Bouton Information */}
       <View style={styles.section}>
         <TouchableOpacity 
