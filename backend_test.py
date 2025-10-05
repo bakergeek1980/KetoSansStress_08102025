@@ -1,41 +1,20 @@
 #!/usr/bin/env python3
 """
-KetoSansStress Backend API Testing Suite
-CRITICAL VALIDATION: Testing after GLOBAL RESET SQL script execution
-Expected: 100% success rate (was 73.3% before)
-Focus: Verify "brand" column and all schema issues are COMPLETELY RESOLVED
+Backend API Testing for KetoSansStress User Preferences
+Tests all User Preferences CRUD operations and helper endpoints
+Focus: Comprehensive testing of the newly implemented preferences API
 """
 
 import requests
 import json
-import base64
-import os
-import time
-from datetime import datetime, date
+import uuid
+from datetime import datetime
 from typing import Dict, Any, Optional
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-# Get backend URL from frontend .env file
-def get_backend_url():
-    frontend_env_path = "/app/frontend/.env"
-    try:
-        with open(frontend_env_path, 'r') as f:
-            for line in f:
-                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
-                    return line.split('=', 1)[1].strip()
-    except Exception as e:
-        print(f"❌ Could not read frontend .env file: {e}")
-    return "https://ketotrackerapp-1.preview.emergentagent.com"
-
-BACKEND_URL = f"{get_backend_url()}/api"
-
-# Test credentials - using fresh user for clean testing
-TEST_USER_EMAIL = "test.global.reset@ketosansstress.com"
-TEST_USER_PASSWORD = "GlobalReset2025!"
-DEMO_USER_EMAIL = "demo@keto.fr"
+# Configuration
+BASE_URL = "https://ketotrackerapp-1.preview.emergentagent.com/api"
+TEST_USER_EMAIL = f"test_prefs_{uuid.uuid4().hex[:8]}@ketosansstress.com"
+TEST_USER_PASSWORD = "TestPassword123!"
 
 class KetoBackendTester:
     def __init__(self):
