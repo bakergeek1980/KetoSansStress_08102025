@@ -675,103 +675,71 @@ class PreferencesAPITester:
             self.log_test("Data Validation (invalid units)", False, f"Exception: {str(e)}")
 
     def run_all_tests(self):
-        """Run all backend tests."""
-        print("🚀 CRITICAL VALIDATION: KetoSansStress Backend Testing After GLOBAL RESET")
-        print("Expected: 100% success rate (was 73.3% before)")
+        """Run all preference API tests"""
+        print("🧪 Starting User Preferences API Testing...")
+        print(f"📍 Backend URL: {self.base_url}")
+        print(f"👤 Test User: {TEST_USER_EMAIL}")
         print("=" * 80)
         
-        # Core system tests
-        self.test_health_check()
+        # Step 1: Authentication setup
+        if not self.register_and_login_user():
+            print("❌ Authentication failed - cannot proceed with tests")
+            return False
         
-        # Authentication system tests
-        self.test_user_registration()
-        self.test_user_login()
-        self.test_jwt_validation()
+        print("\n🔧 Testing Helper Endpoints...")
+        # Step 2: Test helper endpoints (no auth required)
+        self.test_helper_endpoints()
         
-        # NEW SUPABASE MEALS API TESTS (PRIORITY VALIDATION)
-        print("\n" + "="*50)
-        print("🎯 PRIORITY VALIDATION TESTS - NEW SUPABASE MEALS API")
-        print("="*50)
-        self.test_new_meals_api_create()  # THE MAIN BLOCKER
-        self.test_new_meals_api_list()
-        self.test_new_meals_api_today()
+        print("\n👤 Testing User Preferences CRUD Operations...")
+        # Step 3: Test CRUD operations
+        self.test_get_user_preferences_with_defaults()
+        self.test_create_user_preferences()
+        self.test_update_user_preferences_patch()
+        self.test_replace_user_preferences_put()
+        self.test_get_user_preferences_after_updates()
         
-        # Database schema validation
-        self.test_database_schema_validation()
+        print("\n🔒 Testing Security and Validation...")
+        # Step 4: Test security and validation
+        self.test_authentication_security()
+        self.test_data_validation()
         
-        # Legacy endpoints tests
-        print("\n" + "="*40)
-        print("🔄 LEGACY ENDPOINTS VALIDATION")
-        print("="*40)
-        self.test_legacy_meal_analysis()
-        self.test_legacy_food_search()
-        self.test_legacy_daily_summary()
+        print("\n🗑️ Testing Deletion...")
+        # Step 5: Test deletion
+        self.test_delete_user_preferences()
         
-        # OpenFoodFacts integration
-        self.test_openfoodfacts_keto_friendly()
+        # Summary
+        print("\n" + "=" * 80)
+        print("📊 TEST SUMMARY")
+        print("=" * 80)
         
-        # Print final results
-        self.print_final_results()
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        
+        if failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"  • {result['test']}: {result['details']}")
+        
+        return failed_tests == 0
 
-    def print_final_results(self):
-        """Print comprehensive test results."""
-        print("\n" + "=" * 80)
-        print("🧪 COMPREHENSIVE TEST RESULTS - GLOBAL RESET VALIDATION")
-        print("=" * 80)
-        
-        success_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
-        
-        print(f"📊 Overall Success Rate: {success_rate:.1f}% ({self.passed_tests}/{self.total_tests})")
-        print(f"📈 Previous Success Rate: 73.3%")
-        
-        if success_rate == 100.0:
-            print("🎉 PERFECT SCORE! GLOBAL RESET SQL SCRIPT WORKED!")
-            print("✅ All database schema issues resolved!")
-            print("✅ 'brand' column issue completely fixed!")
-        elif success_rate >= 90.0:
-            print("🎯 EXCELLENT! Nearly perfect - minor issues remain")
-        elif success_rate >= 80.0:
-            print("👍 GOOD! Significant improvement from 73.3%")
-        elif success_rate <= 73.3:
-            print("❌ CRITICAL: NO IMPROVEMENT! GLOBAL RESET SQL SCRIPT NOT EXECUTED!")
-            print("🚨 The 'brand' column and other schema issues are still present!")
-        else:
-            print("⚠️  PARTIAL IMPROVEMENT but critical issues remain")
-        
-        # Show failed tests
-        failed_tests = [r for r in self.test_results if not r["success"]]
-        if failed_tests:
-            print(f"\n❌ FAILED TESTS ({len(failed_tests)}):")
-            for test in failed_tests:
-                print(f"   • {test['test']}: {test['details']}")
-                
-            # Check for specific critical failures
-            critical_failures = [t for t in failed_tests if "brand" in t['details'].lower()]
-            if critical_failures:
-                print(f"\n🚨 CRITICAL FINDING:")
-                print("   The 'brand' column error is still present!")
-                print("   This proves the GLOBAL RESET SQL script was NOT executed!")
-        
-        # Show passed tests
-        passed_tests = [r for r in self.test_results if r["success"]]
-        if passed_tests:
-            print(f"\n✅ PASSED TESTS ({len(passed_tests)}):")
-            for test in passed_tests:
-                print(f"   • {test['test']}")
-        
-        print("\n" + "=" * 80)
-        
-        # Final verdict
-        if success_rate <= 73.3:
-            print("🔴 VERDICT: USER HAS NOT EXECUTED THE GLOBAL RESET SQL SCRIPT!")
-            print("   The database schema issues are still present.")
-            print("   Expected 100% success rate, got {:.1f}%".format(success_rate))
-        elif success_rate == 100.0:
-            print("🟢 VERDICT: GLOBAL RESET SQL SCRIPT SUCCESSFULLY EXECUTED!")
-            print("   All database schema issues resolved!")
-        else:
-            print("🟡 VERDICT: PARTIAL SUCCESS - Some improvements made")
+def main():
+    """Main test execution"""
+    tester = PreferencesAPITester()
+    success = tester.run_all_tests()
+    
+    if success:
+        print("\n🎉 All tests passed! User Preferences API is working correctly.")
+        return 0
+    else:
+        print("\n💥 Some tests failed. Check the details above.")
+        return 1
 
 if __name__ == "__main__":
-    tester = KetoBackendTester()
-    tester.run_all_tests()
+    exit(main())
