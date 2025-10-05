@@ -338,62 +338,162 @@ class KetoBackendTester:
         except Exception as e:
             self.log_test("Legacy Daily Summary", False, f"Request failed: {str(e)}")
     
+    def test_user_profile_completeness(self):
+        """Test that demo user has complete profile data after schema update."""
+        if not self.auth_token:
+            self.log_test("User Profile Completeness", False, "No auth token available")
+            return False
+            
+        try:
+            response = self.session.get(f"{self.base_url}/auth/me", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                required_fields = ['age', 'gender', 'height', 'weight', 'activity_level', 'goal']
+                missing_fields = []
+                
+                for field in required_fields:
+                    if not data.get(field):
+                        missing_fields.append(field)
+                
+                if not missing_fields:
+                    profile_summary = f"Age: {data.get('age')}, Gender: {data.get('gender')}, Height: {data.get('height')}cm, Weight: {data.get('weight')}kg, Activity: {data.get('activity_level')}, Goal: {data.get('goal')}"
+                    self.log_test("User Profile Completeness", True, profile_summary)
+                    return True
+                else:
+                    self.log_test("User Profile Completeness", False, 
+                                f"Missing required fields: {', '.join(missing_fields)}")
+                    return False
+            else:
+                self.log_test("User Profile Completeness", False,
+                            f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("User Profile Completeness", False, f"Request failed: {str(e)}")
+            return False
+
+    def test_new_meals_api_with_brand(self):
+        """Test new Supabase meals API - Create meal with brand column."""
+        if not self.auth_token:
+            self.log_test("New Meals API - Create with Brand", False, "No auth token available")
+            return False
+            
+        try:
+            meal_data = {
+                "food_name": "Avocat bio français",
+                "brand": "Carrefour Bio",  # This was the missing column
+                "meal_type": "breakfast",
+                "serving_size": "1 medium avocado",
+                "quantity": 1.0,
+                "unit": "piece",
+                "calories": 234,
+                "protein": 2.9,
+                "carbohydrates": 12.0,
+                "total_fat": 21.4,
+                "saturated_fat": 3.1,
+                "fiber": 10.0,
+                "sugar": 1.0,
+                "sodium": 7.0,
+                "potassium": 485.0,
+                "notes": "Test meal after schema completion",
+                "preparation_method": "raw",
+                "consumed_at": datetime.now().isoformat()
+            }
+            
+            response = self.session.post(
+                f"{self.base_url}/meals/",
+                json=meal_data,
+                timeout=10
+            )
+            
+            if response.status_code == 201:
+                data = response.json()
+                meal_id = data.get("id")
+                brand = data.get("brand")
+                self.log_test("New Meals API - Create with Brand", True,
+                            f"Meal created successfully. ID: {meal_id}, Brand: {brand}")
+                return True
+            else:
+                self.log_test("New Meals API - Create with Brand", False,
+                            f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("New Meals API - Create with Brand", False, f"Request failed: {str(e)}")
+            return False
+
     def run_comprehensive_test(self):
-        """Run all backend tests in priority order."""
-        print("🧪 Starting KetoSansStress Backend Testing Suite")
-        print("Testing Phase 1 and Phase 2 improvements")
-        print("=" * 60)
+        """Run all backend tests focusing on post-schema completion validation."""
+        print("🧪 KETOSANSSTRESS BACKEND TESTING SUITE")
+        print("🎯 FINAL VALIDATION AFTER SUPABASE SCHEMA COMPLETION")
+        print("Expected: 100% success rate (was 81.8% before)")
+        print("=" * 70)
         
-        # Priority 1: Health Check
-        print("\n📋 PRIORITY 1: Health Check")
+        # Priority 1: System Health
+        print("\n📋 PRIORITY 1: System Health Check")
         self.test_health_check()
         
-        # Priority 2: Fixed OpenFoodFacts Keto-Friendly API
-        print("\n📋 PRIORITY 2: Fixed OpenFoodFacts Keto-Friendly Foods")
-        self.test_keto_friendly_foods()
-        
-        # Priority 3: Supabase Authentication System
-        print("\n📋 PRIORITY 3: Supabase Authentication System")
-        
-        # Test with test user (known to work)
-        test_email = TEST_CREDENTIALS["test_user"]["email"]
-        test_password = TEST_CREDENTIALS["test_user"]["password"]
-        
-        self.test_user_registration(test_email, test_password)
-        login_success = self.test_user_login(test_email, test_password)
+        # Priority 2: Authentication System
+        print("\n📋 PRIORITY 2: Authentication System")
+        self.test_user_registration(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        login_success = self.test_user_login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
         
         if login_success:
             self.test_auth_me()
+            self.test_user_profile_completeness()
         
-        # Priority 4: New Supabase Meals API (may fail due to missing schema)
-        print("\n📋 PRIORITY 4: New Supabase Meals API")
-        self.test_new_meals_api_create()
+        # Priority 3: NEW SUPABASE MEALS API (Main focus - was failing before)
+        print("\n🎯 PRIORITY 3: NEW SUPABASE MEALS API (Expected to be FIXED)")
+        print("Previously failing due to missing 'brand' column")
+        self.test_new_meals_api_with_brand()
         self.test_new_meals_api_get()
         self.test_new_meals_api_today()
         
-        # Priority 5: Legacy Endpoints (regression testing)
-        print("\n📋 PRIORITY 5: Legacy Endpoints (Regression Testing)")
+        # Priority 4: Legacy Endpoints (regression testing)
+        print("\n📋 PRIORITY 4: Legacy Endpoints (Regression Testing)")
         self.test_legacy_endpoints()
         
+        # Priority 5: Fixed OpenFoodFacts API
+        print("\n📋 PRIORITY 5: Fixed OpenFoodFacts Keto-Friendly Foods")
+        self.test_keto_friendly_foods()
+        
         # Summary
-        print("\n" + "=" * 60)
-        print("🏁 TEST SUMMARY")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("🏁 FINAL TEST SUMMARY")
+        print("=" * 70)
         
         passed = sum(1 for result in self.test_results if result["success"])
         total = len(self.test_results)
+        success_rate = (passed/total*100) if total > 0 else 0
         
         print(f"Total Tests: {total}")
-        print(f"Passed: {passed}")
-        print(f"Failed: {total - passed}")
-        print(f"Success Rate: {(passed/total*100):.1f}%")
+        print(f"Passed: {passed} ✅")
+        print(f"Failed: {total - passed} ❌")
+        print(f"Success Rate: {success_rate:.1f}%")
         
-        # Show failed tests
+        if success_rate == 100.0:
+            print("\n🎉 PERFECT! All tests passed - Supabase schema completion successful!")
+        elif success_rate >= 90.0:
+            print(f"\n✅ EXCELLENT! {success_rate:.1f}% success rate - Major improvement from 81.8%")
+        elif success_rate > 81.8:
+            print(f"\n📈 IMPROVED! {success_rate:.1f}% success rate - Better than previous 81.8%")
+        else:
+            print(f"\n⚠️  NEEDS WORK: {success_rate:.1f}% success rate - Still below previous 81.8%")
+        
+        # Show failed tests with details
         failed_tests = [result for result in self.test_results if not result["success"]]
         if failed_tests:
             print(f"\n❌ FAILED TESTS ({len(failed_tests)}):")
             for test in failed_tests:
                 print(f"  • {test['test']}: {test['details']}")
+        
+        # Show successful tests
+        successful_tests = [result for result in self.test_results if result["success"]]
+        if successful_tests:
+            print(f"\n✅ SUCCESSFUL TESTS ({len(successful_tests)}):")
+            for test in successful_tests:
+                print(f"  • {test['test']}")
         
         return self.test_results
 
