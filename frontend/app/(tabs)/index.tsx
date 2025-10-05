@@ -32,6 +32,7 @@ import TipsCarouselWidget from '../../components/widgets/TipsCarouselWidget';
 import MealsWidget from '../../components/widgets/MealsWidget';
 import TodayMealsWidget from '../../components/widgets/TodayMealsWidget';
 import AddMealModal from '../../components/modals/AddMealModal';
+import FoodSearchModal from '../../components/modals/FoodSearchModal';
 import ReportsModal from '../../components/modals/ReportsModal';
 import SettingsModal from '../../components/modals/SettingsModal';
 import BottomNavigationBar from '../../components/navigation/BottomNavigationBar';
