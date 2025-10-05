@@ -262,7 +262,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
       console.error('Erreur lors de l\'ajout du repas:', error);
       Alert.alert('Erreur', 'Une erreur est survenue lors de l\'ajout du repas');
     }
-  }, [user, saveMeal, mealType, onMealAdded, handleClose]);
+  }, [user, mealType, onMealAdded, handleClose]);
 
   // Fonction dupliquée supprimée - on utilise onSubmit avec useApi hook
 
