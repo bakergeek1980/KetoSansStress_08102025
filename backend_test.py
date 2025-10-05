@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 KetoSansStress Backend API Testing Suite
-Testing Phase 1 and Phase 2 improvements with priority focus
+Testing after Supabase schema completion - FINAL VALIDATION
+Focus: Verify all previously blocked functionality now works
 """
 
 import requests
@@ -15,20 +16,8 @@ from typing import Dict, Any, Optional
 BACKEND_URL = "https://ketotrack.preview.emergentagent.com/api"
 
 # Test credentials from review request
-TEST_CREDENTIALS = {
-    "contact_user": {
-        "email": "contact@ketosansstress.com",
-        "password": "password123"
-    },
-    "demo_user": {
-        "email": "demo@ketosansstress.com", 
-        "password": "password123"
-    },
-    "test_user": {
-        "email": "test@ketosansstress.com",
-        "password": "password123"
-    }
-}
+TEST_USER_EMAIL = "contact@ketosansstress.com"
+TEST_USER_PASSWORD = "password123"
 
 class KetoBackendTester:
     def __init__(self):
