@@ -92,6 +92,24 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [nutritionalInfo, setNutritionalInfo] = useState<NutritionalInfo | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [manualEntry, setManualEntry] = useState<MealFormData>({
+    meal_type: mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+    food_name: '',
+    brand: '',
+    serving_size: '',
+    quantity: 1,
+    unit: 'portion',
+    calories: 0,
+    protein: 0,
+    carbohydrates: 0,
+    total_fat: 0,
+    saturated_fat: 0,
+    fiber: 0,
+    sugar: 0,
+    sodium: 0,
+    notes: '',
+    preparation_method: '',
+  });
   
   // React Hook Form setup
   const { control, handleSubmit, reset, setValue, watch, formState: { errors, isValid } } = useForm<MealFormData>({
