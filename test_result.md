@@ -280,9 +280,9 @@ backend:
     implemented: true
     working: false
     file: "backend/app/api/v1/preferences.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
