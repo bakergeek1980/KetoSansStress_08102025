@@ -607,8 +607,8 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.actionButton, styles.primaryButton]}
-                onPress={saveMeal}
-                disabled={loading}
+                onPress={handleSubmit(onSubmit)}
+                disabled={apiLoading}
                 activeOpacity={0.7}
               >
                 {loading ? (
