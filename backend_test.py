@@ -90,7 +90,7 @@ class KetoBackendTester:
             registration_data = {
                 "email": email,
                 "password": password,
-                "full_name": "Test User",
+                "full_name": "Test User Demo",
                 "age": 30,
                 "gender": "female",
                 "height": 170.0,
@@ -123,6 +123,50 @@ class KetoBackendTester:
                 
         except Exception as e:
             self.log_test("User Registration", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_create_fresh_user(self):
+        """Create a fresh test user for testing."""
+        import time
+        fresh_email = f"test{int(time.time())}@ketosansstress.com"
+        fresh_password = "testpass123"
+        
+        try:
+            registration_data = {
+                "email": fresh_email,
+                "password": fresh_password,
+                "full_name": "Fresh Test User",
+                "age": 25,
+                "gender": "male",
+                "height": 175.0,
+                "weight": 75.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss",
+                "timezone": "Europe/Paris"
+            }
+            
+            response = self.session.post(
+                f"{self.base_url}/auth/register",
+                json=registration_data,
+                timeout=10
+            )
+            
+            if response.status_code == 201:
+                data = response.json()
+                user_id = data.get("user_id")
+                self.log_test("Fresh User Registration", True,
+                            f"Fresh user registered. ID: {user_id}, Email: {fresh_email}")
+                
+                # Now try to login with the fresh user
+                login_success = self.test_user_login(fresh_email, fresh_password)
+                return login_success
+            else:
+                self.log_test("Fresh User Registration", False,
+                            f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Fresh User Registration", False, f"Request failed: {str(e)}")
             return False
     
     def test_user_login(self, email: str, password: str):
