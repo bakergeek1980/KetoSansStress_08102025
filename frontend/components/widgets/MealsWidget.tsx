@@ -35,6 +35,7 @@ interface Meal {
 
 interface MealsWidgetProps {
   userEmail: string;
+  onAddMeal?: (mealType: string) => void;
 }
 
 const mealTypeIcons = {
