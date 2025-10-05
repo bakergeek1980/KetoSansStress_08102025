@@ -1,23 +1,41 @@
 #!/usr/bin/env python3
 """
 KetoSansStress Backend API Testing Suite
-Testing after Supabase schema completion - FINAL VALIDATION
-Focus: Verify all previously blocked functionality now works
+CRITICAL VALIDATION: Testing after GLOBAL RESET SQL script execution
+Expected: 100% success rate (was 73.3% before)
+Focus: Verify "brand" column and all schema issues are COMPLETELY RESOLVED
 """
 
 import requests
 import json
 import base64
 import os
+import time
 from datetime import datetime, date
 from typing import Dict, Any, Optional
+from dotenv import load_dotenv
 
-# Configuration
-BACKEND_URL = "https://ketotrack.preview.emergentagent.com/api"
+# Load environment variables
+load_dotenv()
 
-# Test credentials from review request
-TEST_USER_EMAIL = "contact@ketosansstress.com"
-TEST_USER_PASSWORD = "password123"
+# Get backend URL from frontend .env file
+def get_backend_url():
+    frontend_env_path = "/app/frontend/.env"
+    try:
+        with open(frontend_env_path, 'r') as f:
+            for line in f:
+                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                    return line.split('=', 1)[1].strip()
+    except Exception as e:
+        print(f"❌ Could not read frontend .env file: {e}")
+    return "https://ketotrack.preview.emergentagent.com"
+
+BACKEND_URL = f"{get_backend_url()}/api"
+
+# Test credentials - using fresh user for clean testing
+TEST_USER_EMAIL = "test.global.reset@ketosansstress.com"
+TEST_USER_PASSWORD = "GlobalReset2025!"
+DEMO_USER_EMAIL = "demo@keto.fr"
 
 class KetoBackendTester:
     def __init__(self):
