@@ -545,6 +545,7 @@ class KetoBackendTester:
         print("\n🎯 PRIORITY 3: NEW SUPABASE MEALS API (Expected to be FIXED)")
         print("Previously failing due to missing 'brand' column")
         self.test_new_meals_api_with_brand()
+        self.test_new_meals_api_without_brand()  # Fallback test
         self.test_new_meals_api_get()
         self.test_new_meals_api_today()
         
