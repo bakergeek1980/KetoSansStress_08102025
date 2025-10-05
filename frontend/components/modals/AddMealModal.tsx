@@ -174,7 +174,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
   }, [nutritionalInfo, setValue]);
 
   const requestCameraPermissions = async () => {
-    const { status } = await ExpoCamera.requestCameraPermissionsAsync();
+    const { status } = await Camera.requestCameraPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission requise', 'L\'accès à la caméra est nécessaire pour scanner vos repas.');
       return false;
