@@ -86,12 +86,16 @@ interface ProgressMetrics {
   avgKetoScore: number;
 }
 
-export default function ReportsModal({ visible, onClose, userId }: ReportsModalProps) {
-  const [selectedNutrient, setSelectedNutrient] = useState<'calories' | 'net_carbs' | 'proteins' | 'lipids' | 'fiber'>('calories');
-  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | '3months' | 'year'>('today');
-  const [loading, setLoading] = useState(false);
-  const [nutritionData, setNutritionData] = useState<NutrientData | null>(null);
-  const [mealBreakdown, setMealBreakdown] = useState<MealBreakdown | null>(null);
+export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
+  const { user } = useAuth();
+  const { getDailySummary, getMeals, loading: apiLoading, error } = useApi();
+  
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week');
+  const [refreshing, setRefreshing] = useState(false);
+  const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
+  const [macroDistribution, setMacroDistribution] = useState<MacroDistribution[]>([]);
+  const [progressMetrics, setProgressMetrics] = useState<ProgressMetrics | null>(null);
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'trends' | 'goals'>('overview');
 
   const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
