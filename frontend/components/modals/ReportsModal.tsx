@@ -870,4 +870,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.textLight,
   },
+  chartPlaceholder: {
+    height: 200,
+    backgroundColor: COLORS.textSecondary,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+  },
+  chartPlaceholderText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.surface,
+    marginBottom: 4,
+  },
+  chartPlaceholderSubtext: {
+    fontSize: 14,
+    color: COLORS.textLight,
+  },
 });
