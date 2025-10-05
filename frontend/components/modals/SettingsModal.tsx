@@ -55,7 +55,6 @@ const COLORS = {
 interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
-  userId: string;
 }
 
 export default function SettingsModal({ visible, onClose, userId }: SettingsModalProps) {
