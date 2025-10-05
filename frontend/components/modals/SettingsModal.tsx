@@ -57,7 +57,19 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-export default function SettingsModal({ visible, onClose, userId }: SettingsModalProps) {
+export default function SettingsModal({ visible, onClose }: SettingsModalProps) {
+  const { user, logout } = useAuth();
+  const { 
+    isConnected: healthAppConnected, 
+    permissions, 
+    loading: healthAppLoading, 
+    lastSyncDate,
+    requestPermissions, 
+    syncHealthData, 
+    disconnectHealthApp,
+    isSupported: healthAppSupported 
+  } = useHealthApp();
+
   const [currentView, setCurrentView] = useState<'main' | 'information'>('main');
   
   // États des paramètres
@@ -69,6 +81,12 @@ export default function SettingsModal({ visible, onClose, userId }: SettingsModa
   const [units, setUnits] = useState('kcal,kg');
   const [darkMode, setDarkMode] = useState<'auto' | 'light' | 'dark'>('dark');
   const [synchronizationEnabled, setSynchronizationEnabled] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+  const [autoSync, setAutoSync] = useState(true);
+  const [ketoAlerts, setKetoAlerts] = useState(true);
+  const [language, setLanguage] = useState('français');
+  const [biometricLock, setBiometricLock] = useState(false);
+  const [dataSaver, setDataSaver] = useState(false);
 
   const handleUpgradeToPro = () => {
     Alert.alert(
