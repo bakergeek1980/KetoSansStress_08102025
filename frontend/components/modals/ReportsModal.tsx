@@ -40,22 +40,36 @@ const COLORS = {
   error: '#F44336',
 };
 
+const { width: screenWidth } = Dimensions.get('window');
+
 interface ReportsModalProps {
   visible: boolean;
   onClose: () => void;
-  userId: string;
 }
 
-interface NutrientData {
-  calories: { total: number; target: number; percentage: number };
-  net_carbs: { total: number; target: number; percentage: number };
-  proteins: { total: number; target: number; percentage: number };
-  lipids: { total: number; target: number; percentage: number };
-  fiber: { total: number; target: number; percentage: number };
+interface WeeklyData {
+  day: string;
+  calories: number;
+  carbs: number;
+  protein: number;
+  fat: number;
+  ketoScore: number;
 }
 
-interface MealBreakdown {
-  breakfast: { calories: number; percentage: number };
+interface MacroDistribution {
+  label: string;
+  value: number;
+  color: string;
+}
+
+interface ProgressMetrics {
+  currentWeight: number;
+  goalWeight: number;
+  startWeight: number;
+  daysInKetosis: number;
+  totalDays: number;
+  avgKetoScore: number;
+}
   lunch: { calories: number; percentage: number };
   dinner: { calories: number; percentage: number };
   snack: { calories: number; percentage: number };
