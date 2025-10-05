@@ -435,6 +435,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "User Preferences API Endpoints"
     - "API Integration and Data Loading"
     - "Navigation and Modal System"
   stuck_tasks:
