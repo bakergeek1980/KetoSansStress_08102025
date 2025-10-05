@@ -182,6 +182,15 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
     return true;
   };
 
+  const requestGalleryPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission requise', 'L\'accès à la galerie est nécessaire pour sélectionner une image.');
+      return false;
+    }
+    return true;
+  };
+
   const takePicture = async () => {
     const hasPermission = await requestCameraPermissions();
     if (!hasPermission) return;
