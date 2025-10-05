@@ -291,42 +291,18 @@ export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
       {weeklyData.length > 0 ? (
         <View style={styles.chartContainer}>
           <Text style={styles.chartTitle}>Calories quotidiennes</Text>
-          <VictoryChart
-            width={screenWidth - 40}
-            height={200}
-            theme={VictoryTheme.material}
-            padding={{ left: 60, right: 40, top: 20, bottom: 50 }}
-          >
-            <VictoryAxis />
-            <VictoryAxis dependentAxis />
-            <VictoryLine
-              data={weeklyData}
-              x="day"
-              y="calories"
-              style={{
-                data: { stroke: COLORS.primary, strokeWidth: 3 }
-              }}
-            />
-          </VictoryChart>
+          {/* Placeholder for VictoryChart */}
+          <View style={styles.chartPlaceholder}>
+            <Text style={styles.chartPlaceholderText}>Graphique des calories</Text>
+            <Text style={styles.chartPlaceholderSubtext}>Données des 7 derniers jours</Text>
+          </View>
 
           <Text style={styles.chartTitle}>Score Keto quotidien</Text>
-          <VictoryChart
-            width={screenWidth - 40}
-            height={200}
-            theme={VictoryTheme.material}
-            padding={{ left: 60, right: 40, top: 20, bottom: 50 }}
-          >
-            <VictoryAxis />
-            <VictoryAxis dependentAxis />
-            <VictoryBar
-              data={weeklyData}
-              x="day"
-              y="ketoScore"
-              style={{
-                data: { fill: COLORS.keto }
-              }}
-            />
-          </VictoryChart>
+          {/* Placeholder for VictoryChart */}
+          <View style={styles.chartPlaceholder}>
+            <Text style={styles.chartPlaceholderText}>Graphique Keto Score</Text>
+            <Text style={styles.chartPlaceholderSubtext}>Évolution hebdomadaire</Text>
+          </View>
         </View>
       ) : (
         <Text style={styles.noDataText}>Aucune donnée de tendance disponible</Text>
