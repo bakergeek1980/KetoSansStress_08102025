@@ -20,15 +20,16 @@ import {
   Award,
   Activity,
 } from 'lucide-react-native';
-import { 
-  VictoryChart, 
-  VictoryArea, 
-  VictoryPie, 
-  VictoryAxis, 
-  VictoryTheme, 
-  VictoryLine, 
-  VictoryBar 
-} from 'victory-native';
+// TODO: Re-enable Victory Native charts once the component import issue is resolved
+// import { 
+//   VictoryChart, 
+//   VictoryArea, 
+//   VictoryPie, 
+//   VictoryAxis, 
+//   VictoryTheme, 
+//   VictoryLine, 
+//   VictoryBar 
+// } from 'victory-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useApi } from '../../hooks/useApi';
 import LoadingButton from '../forms/LoadingButton';
