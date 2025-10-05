@@ -402,13 +402,11 @@ export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
-        {/* En-tête */}
+        {/* Header */}
         <View style={styles.modalHeader}>
           <View style={styles.headerContent}>
-            <Text style={styles.modalTitle}>
-              {selectedPeriod === 'today' ? 'Apport par repas' : 'Rapports nutritionnels'}
-            </Text>
-            <Text style={styles.dateSubtitle}>{getDateTitle()}</Text>
+            <Text style={styles.modalTitle}>Rapports Nutritionnels</Text>
+            <Text style={styles.dateSubtitle}>{getPeriodText()}</Text>
           </View>
           <TouchableOpacity
             style={styles.closeButton}
@@ -419,42 +417,85 @@ export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
           </TouchableOpacity>
         </View>
 
-        {/* Contenu */}
-        <View style={styles.modalContent}>
-          {/* Sélecteur de période */}
-          {renderPeriodSelector()}
-
-          {/* Onglets des nutriments */}
-          {renderNutrientTabs()}
-
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
-              <Text style={styles.loadingText}>Chargement des rapports...</Text>
-            </View>
-          ) : (
-            <ScrollView style={styles.contentScrollView} showsVerticalScrollIndicator={false}>
-              {/* Graphique circulaire */}
-              {renderCircularProgress()}
-
-              {/* Répartition par repas (seulement pour "aujourd'hui") */}
-              {selectedPeriod === 'today' && renderMealBreakdown()}
-            </ScrollView>
-          )}
+        {/* Period Selector */}
+        <View style={styles.periodContainer}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.periodScrollContent}
+          >
+            {[
+              { key: 'week', label: 'Semaine' },
+              { key: 'month', label: 'Mois' },
+              { key: 'year', label: 'Année' }
+            ].map((period) => (
+              <TouchableOpacity
+                key={period.key}
+                style={[
+                  styles.periodTab,
+                  selectedPeriod === period.key && styles.selectedPeriodTab
+                ]}
+                onPress={() => setSelectedPeriod(period.key as any)}
+                activeOpacity={0.7}
+              >
+                <Text style={[
+                  styles.periodTabText,
+                  selectedPeriod === period.key && styles.selectedPeriodTabText
+                ]}>
+                  {period.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
-        {/* Barre d'icônes en bas */}
-        <View style={styles.bottomIconBar}>
-          <TouchableOpacity style={styles.bottomIcon}>
-            <TrendingUp color={COLORS.textSecondary} size={20} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomIcon}>
-            <BarChart3 color={COLORS.primary} size={20} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomIcon}>
-            <PieChart color={COLORS.textSecondary} size={20} />
-          </TouchableOpacity>
+        {/* Tab Navigation */}
+        <View style={styles.tabNavigation}>
+          {[
+            { key: 'overview', label: 'Vue d\'ensemble', icon: BarChart3 },
+            { key: 'trends', label: 'Tendances', icon: TrendingUp },
+            { key: 'goals', label: 'Objectifs', icon: Target }
+          ].map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
+              style={[
+                styles.tabButton,
+                selectedTab === tab.key && styles.selectedTabButton
+              ]}
+              onPress={() => setSelectedTab(tab.key as any)}
+              activeOpacity={0.7}
+            >
+              <tab.icon 
+                size={20} 
+                color={selectedTab === tab.key ? COLORS.primary : COLORS.textSecondary} 
+              />
+              <Text style={[
+                styles.tabButtonText,
+                selectedTab === tab.key && styles.selectedTabButtonText
+              ]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
+
+        {/* Content */}
+        <ScrollView 
+          style={styles.contentScrollView} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
+            />
+          }
+        >
+          {selectedTab === 'overview' && renderOverviewTab()}
+          {selectedTab === 'trends' && renderTrendsTab()}
+          {selectedTab === 'goals' && renderGoalsTab()}
+        </ScrollView>
       </View>
     </Modal>
   );
