@@ -559,6 +559,17 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
           <Text style={styles.ketoScoreText}>{calculateKetoScore(manualEntry)}/10</Text>
         </View>
       </View>
+
+      <View style={styles.submitButtonContainer}>
+        <LoadingButton
+          onPress={handleManualSubmit}
+          loading={apiLoading}
+          style={styles.submitButton}
+          textStyle={styles.submitButtonText}
+        >
+          Ajouter le repas
+        </LoadingButton>
+      </View>
     </ScrollView>
   );
 
