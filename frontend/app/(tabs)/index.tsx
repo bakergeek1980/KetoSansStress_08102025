@@ -357,21 +357,18 @@ export default function HomeScreen() {
         mealType={selectedMealType}
         onClose={() => setAddMealModalVisible(false)}
         onMealAdded={handleMealAdded}
-        userId={user?.email || ''}
       />
 
       {/* Modal des rapports */}
       <ReportsModal
         visible={reportsModalVisible}
         onClose={() => setReportsModalVisible(false)}
-        userId={user?.email || ''}
       />
 
       {/* Modal des paramètres */}
       <SettingsModal
         visible={settingsModalVisible}
         onClose={() => setSettingsModalVisible(false)}
-        userId={user?.email || ''}
       />
     </SafeAreaView>
   );
