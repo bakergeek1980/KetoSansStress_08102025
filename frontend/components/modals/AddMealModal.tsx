@@ -629,7 +629,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
                 disabled={apiLoading}
                 activeOpacity={0.7}
               >
-                {loading ? (
+                {apiLoading ? (
                   <ActivityIndicator color={COLORS.surface} size="small" />
                 ) : (
                   <>
