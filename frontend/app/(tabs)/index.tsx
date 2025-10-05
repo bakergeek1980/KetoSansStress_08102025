@@ -106,6 +106,7 @@ export default function HomeScreen() {
   
   // États pour le widget des repas
   const [addMealModalVisible, setAddMealModalVisible] = useState(false);
+  const [foodSearchModalVisible, setFoodSearchModalVisible] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<string>('breakfast');
   
   // États pour la navigation
