@@ -218,17 +218,7 @@ export const fastingEntrySchema = Yup.object({
     .nullable(),
 });
 
-// Export all schemas
-export {
-  registerSchema,
-  loginSchema,
-  mealSchema,
-  profileUpdateSchema,
-  foodSearchSchema,
-  waterIntakeSchema,
-  weightEntrySchema,
-  fastingEntrySchema,
-};
+// All schemas are already exported above
 
 // Validation helper function
 export const validateField = async (schema: Yup.AnySchema, fieldName: string, value: any): Promise<string | null> => {
