@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   Switch,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {
   X,
@@ -26,7 +27,14 @@ import {
   RotateCcw,
   Cloud,
   ChevronRight,
+  Heart,
+  Activity,
+  Zap,
+  Shield,
 } from 'lucide-react-native';
+import { useAuth } from '../../hooks/useAuth';
+import { useHealthApp } from '../../hooks/useHealthApp';
+import LoadingButton from '../forms/LoadingButton';
 
 const COLORS = {
   primary: '#4CAF50',
