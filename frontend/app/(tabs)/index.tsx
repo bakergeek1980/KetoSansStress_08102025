@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    paddingBottom: 100, // Espace pour la barre de navigation
+    paddingBottom: 80, // Espace réduit pour la navigation pill compacte
   },
   loadingContainer: {
     flex: 1,
