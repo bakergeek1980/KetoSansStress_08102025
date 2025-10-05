@@ -16,31 +16,26 @@ BASE_URL = "https://ketotrackerapp-1.preview.emergentagent.com/api"
 TEST_USER_EMAIL = f"test_prefs_{uuid.uuid4().hex[:8]}@ketosansstress.com"
 TEST_USER_PASSWORD = "TestPassword123!"
 
-class KetoBackendTester:
+class PreferencesAPITester:
     def __init__(self):
-        self.base_url = BACKEND_URL
+        self.base_url = BASE_URL
         self.session = requests.Session()
-        self.auth_token = None
+        self.access_token = None
+        self.user_id = None
         self.test_results = []
-        self.total_tests = 0
-        self.passed_tests = 0
         
-        print(f"🔗 Testing backend at: {self.base_url}")
-        
-    def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
-        """Log test results."""
-        self.total_tests += 1
-        if success:
-            self.passed_tests += 1
-            
+    def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
+        """Log test results"""
         result = {
             "test": test_name,
             "success": success,
             "details": details,
-            "timestamp": datetime.now().isoformat(),
-            "response_data": response_data
+            "timestamp": datetime.now().isoformat()
         }
+        if response_data:
+            result["response_data"] = response_data
         self.test_results.append(result)
+        
         status = "✅ PASS" if success else "❌ FAIL"
         print(f"{status} {test_name}: {details}")
         
