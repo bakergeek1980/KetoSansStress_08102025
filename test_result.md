@@ -278,15 +278,18 @@ backend:
 
   - task: "User Preferences API Endpoints"
     implemented: true
-    working: "NA"
+    working: false
     file: "backend/app/api/v1/preferences.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "IMPLEMENTED: Created comprehensive user preferences API with GET, POST, PATCH, PUT, DELETE endpoints for managing user settings (dark_mode, region, units, health_sync, etc.). Fixed import issue that was preventing module from loading. Backend restarted successfully and ready for testing."
+      - working: false
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING COMPLETED: API implementation is correct but blocked by missing database table. ✅ WORKING: Authentication system (JWT validation), helper endpoints (GET /api/preferences/regions, GET /api/preferences/units), authorization security (proper 401/403 responses), data validation (rejects invalid regions/units). ❌ BLOCKED: All CRUD operations (GET, POST, PATCH, PUT, DELETE /api/user-preferences) fail with 'Could not find table public.user_preferences in schema cache' error. CRITICAL: The user_preferences table does not exist in Supabase database. Fixed authentication bug (current_user.get('id') → current_user.id). Success rate: 60% (9/15 tests passed). PRIORITY: Execute supabase_user_preferences_table.sql script in Supabase SQL Editor to create missing table."
 
   - task: "OpenFoodFacts Keto-Friendly Foods API"
     implemented: true
