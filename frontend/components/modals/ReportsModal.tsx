@@ -20,7 +20,15 @@ import {
   Award,
   Activity,
 } from 'lucide-react-native';
-import { VictoryChart, VictoryArea, VictoryPie, VictoryAxis, VictoryTheme, VictoryLine, VictoryBar } from 'victory-native';
+import { 
+  VictoryChart, 
+  VictoryArea, 
+  VictoryPie, 
+  VictoryAxis, 
+  VictoryTheme, 
+  VictoryLine, 
+  VictoryBar 
+} from 'victory-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useApi } from '../../hooks/useApi';
 import LoadingButton from '../forms/LoadingButton';
