@@ -220,6 +220,9 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
   };
 
   const pickImage = async () => {
+    const hasPermission = await requestGalleryPermissions();
+    if (!hasPermission) return;
+
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
