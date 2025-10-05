@@ -28,7 +28,7 @@ def get_backend_url():
                     return line.split('=', 1)[1].strip()
     except Exception as e:
         print(f"❌ Could not read frontend .env file: {e}")
-    return "https://ketotrack.preview.emergentagent.com"
+    return "https://ketotrackerapp-1.preview.emergentagent.com"
 
 BACKEND_URL = f"{get_backend_url()}/api"
 
