@@ -261,14 +261,11 @@ export default function ReportsModal({ visible, onClose }: ReportsModalProps) {
         <Text style={styles.sectionTitle}>Distribution des macros</Text>
         {macroDistribution.length > 0 ? (
           <View style={styles.pieChartContainer}>
-            <VictoryPie
-              data={macroDistribution.map(item => ({ x: item.label, y: item.value }))}
-              width={screenWidth - 80}
-              height={200}
-              colorScale={macroDistribution.map(item => item.color)}
-              innerRadius={50}
-              labelComponent={<></>}
-            />
+            {/* Placeholder for VictoryPie chart */}
+            <View style={styles.chartPlaceholder}>
+              <Text style={styles.chartPlaceholderText}>Graphique des macros</Text>
+              <Text style={styles.chartPlaceholderSubtext}>Affichage temporaire</Text>
+            </View>
             <View style={styles.legend}>
               {macroDistribution.map((item, index) => (
                 <View key={index} style={styles.legendItem}>
