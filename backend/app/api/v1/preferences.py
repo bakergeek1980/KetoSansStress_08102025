@@ -93,7 +93,7 @@ async def get_user_preferences(
     current_user: dict = Depends(get_current_user)
 ):
     """Récupérer les préférences d'un utilisateur"""
-    if current_user.get("id") != user_id:
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès non autorisé aux préférences de cet utilisateur"
@@ -179,7 +179,7 @@ async def update_user_preferences(
     current_user: dict = Depends(get_current_user)
 ):
     """Mettre à jour les préférences d'un utilisateur"""
-    if current_user.get("id") != user_id:
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès non autorisé aux préférences de cet utilisateur"
@@ -229,7 +229,7 @@ async def replace_user_preferences(
     current_user: dict = Depends(get_current_user)
 ):
     """Remplacer complètement les préférences d'un utilisateur"""
-    if current_user.get("id") != user_id:
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès non autorisé aux préférences de cet utilisateur"
@@ -272,7 +272,7 @@ async def delete_user_preferences(
     current_user: dict = Depends(get_current_user)
 ):
     """Supprimer les préférences d'un utilisateur"""
-    if current_user.get("id") != user_id:
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès non autorisé aux préférences de cet utilisateur"
