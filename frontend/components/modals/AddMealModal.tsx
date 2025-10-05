@@ -264,60 +264,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
     }
   }, [user, saveMeal, mealType, onMealAdded, handleClose]);
 
-  const saveMeal = async () => {
-    setLoading(true);
-
-    try {
-      let mealData;
-      
-      if (nutritionalInfo) {
-        // Repas analysé par IA
-        mealData = {
-          user_id: userId,
-          meal_type: mealType,
-          food_name: nutritionalInfo.foods_detected.join(', '),
-          quantity: 1,
-          unit: 'portion',
-          calories: nutritionalInfo.calories,
-          protein: nutritionalInfo.protein,
-          carbohydrates: nutritionalInfo.carbohydrates,
-          total_fat: nutritionalInfo.total_fat,
-          fiber: nutritionalInfo.fiber,
-          keto_score: nutritionalInfo.keto_score,
-          image_base64: selectedImage ? selectedImage.split(',')[1] : null,
-        };
-      } else {
-        // Saisie manuelle
-        mealData = {
-          user_id: userId,
-          meal_type: mealType,
-          ...manualEntry,
-          keto_score: calculateKetoScore(manualEntry),
-        };
-      }
-
-      const response = await fetch(`${BACKEND_URL}/api/meals/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(mealData),
-      });
-
-      if (response.ok) {
-        Alert.alert('Succès', 'Repas ajouté avec succès!');
-        onMealAdded();
-        handleClose();
-      } else {
-        throw new Error('Erreur lors de la sauvegarde');
-      }
-    } catch (error) {
-      console.error('Erreur de sauvegarde:', error);
-      Alert.alert('Erreur', 'Impossible de sauvegarder le repas.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fonction dupliquée supprimée - on utilise onSubmit avec useApi hook
 
   const calculateKetoScore = (meal: typeof manualEntry): number => {
     const netCarbs = meal.carbohydrates - meal.fiber;
