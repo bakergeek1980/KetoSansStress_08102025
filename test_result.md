@@ -276,6 +276,18 @@ backend:
         agent: "testing"
         comment: "WORKING AS DESIGNED: Legacy profile retrieval endpoint GET /api/users/profile/{email} works correctly for demo user (demo@keto.fr) returning complete profile with calculated macros. For non-demo users, it returns 404 'Profil non trouvé' which is the expected behavior since the legacy system only supports the demo user profile. This is not a bug but the intended design during the migration period."
 
+  - task: "User Preferences API Endpoints"
+    implemented: true
+    working: "NA"
+    file: "backend/app/api/v1/preferences.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Created comprehensive user preferences API with GET, POST, PATCH, PUT, DELETE endpoints for managing user settings (dark_mode, region, units, health_sync, etc.). Fixed import issue that was preventing module from loading. Backend restarted successfully and ready for testing."
+
   - task: "OpenFoodFacts Keto-Friendly Foods API"
     implemented: true
     working: true
