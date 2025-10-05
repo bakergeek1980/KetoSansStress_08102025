@@ -314,13 +314,12 @@ metadata:
 
 test_plan:
   current_focus:
+    - "New Supabase Meals API"
     - "Supabase Database Schema Completion"
-    - "OpenFoodFacts Keto-Friendly Foods API"
-    - "New Supabase Meals API Testing"
+    - "Demo User Authentication"
   stuck_tasks:
     - "New Supabase Meals API"
     - "Supabase Database Schema Completion"
-    - "OpenFoodFacts Keto-Friendly Foods API"
   test_all: false
   test_priority: "stuck_first"
 
