@@ -141,7 +141,7 @@ async def create_user_preferences(
     current_user: dict = Depends(get_current_user)
 ):
     """Créer les préférences pour un utilisateur"""
-    if preferences.user_id != current_user.get("id"):
+    if preferences.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Impossible de créer des préférences pour un autre utilisateur"
