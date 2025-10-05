@@ -281,7 +281,10 @@ export default function HomeScreen() {
 
         {/* Meals Widget */}
         <View style={styles.widgetContainer}>
-          <MealsWidget userEmail={user?.email || ''} />
+          <MealsWidget 
+            userEmail={user?.email || ''} 
+            onAddMeal={handleAddMeal}
+          />
         </View>
 
         {/* Activity Widget */}
