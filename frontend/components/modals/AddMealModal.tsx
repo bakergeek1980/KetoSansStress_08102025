@@ -605,7 +605,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
                 disabled={!watchedValues.food_name || apiLoading}
                 activeOpacity={0.7}
               >
-                {loading ? (
+                {apiLoading ? (
                   <ActivityIndicator color={COLORS.surface} size="small" />
                 ) : (
                   <Text style={styles.primaryButtonText}>Ajouter</Text>
