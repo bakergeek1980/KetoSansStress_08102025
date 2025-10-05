@@ -22,6 +22,9 @@ export default function TabLayout() {
         tabBarInactiveTintColor: COLORS.textLight,
         tabBarStyle: {
           display: 'none',
+          position: 'absolute',
+          bottom: -100, // Cache complètement la tabBar hors écran
+          height: 0,
         },
         tabBarLabelStyle: {
           fontSize: 11,
