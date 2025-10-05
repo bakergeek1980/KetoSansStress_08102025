@@ -375,7 +375,7 @@ export default function HomeScreen() {
         visible={addMealModalVisible}
         mealType={selectedMealType}
         onClose={() => setAddMealModalVisible(false)}
-        onMealAdded={handleMealAdded}
+        onFoodAdded={handleMealAdded}
       />
 
       {/* Modal de recherche d'aliments */}
@@ -383,7 +383,7 @@ export default function HomeScreen() {
         visible={foodSearchModalVisible}
         mealType={selectedMealType}
         onClose={() => setFoodSearchModalVisible(false)}
-        onMealAdded={handleMealAdded}
+        onFoodAdded={handleMealAdded}
       />
 
       {/* Modal des rapports */}
