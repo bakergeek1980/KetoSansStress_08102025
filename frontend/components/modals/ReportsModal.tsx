@@ -722,4 +722,170 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: COLORS.textSecondary,
   },
+  // New styles for tab-based structure
+  tabNavigation: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#1A1A2E',
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginHorizontal: 4,
+    borderRadius: 20,
+    backgroundColor: COLORS.textSecondary,
+  },
+  selectedTabButton: {
+    backgroundColor: COLORS.surface,
+  },
+  tabButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.surface,
+    marginLeft: 6,
+  },
+  selectedTabButtonText: {
+    color: COLORS.text,
+  },
+  tabContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.surface,
+    marginBottom: 16,
+  },
+  metricsContainer: {
+    marginBottom: 30,
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  metricCard: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
+    marginHorizontal: 4,
+    backgroundColor: COLORS.textSecondary,
+    borderRadius: 12,
+  },
+  metricValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.surface,
+    marginTop: 8,
+  },
+  metricLabel: {
+    fontSize: 12,
+    color: COLORS.textLight,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  chartContainer: {
+    marginBottom: 30,
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.surface,
+    marginBottom: 12,
+  },
+  pieChartContainer: {
+    alignItems: 'center',
+  },
+  legend: {
+    marginTop: 16,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  legendColor: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  legendText: {
+    fontSize: 14,
+    color: COLORS.surface,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: COLORS.textLight,
+    textAlign: 'center',
+    marginTop: 40,
+  },
+  goalsContainer: {
+    marginTop: 16,
+  },
+  goalCard: {
+    backgroundColor: COLORS.textSecondary,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  goalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.surface,
+    marginBottom: 12,
+  },
+  goalProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  goalCurrent: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.surface,
+  },
+  goalArrow: {
+    fontSize: 16,
+    color: COLORS.textLight,
+    marginHorizontal: 12,
+  },
+  goalTarget: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: COLORS.border,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  macroTargets: {
+    marginTop: 8,
+  },
+  macroTarget: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  macroLabel: {
+    fontSize: 14,
+    color: COLORS.surface,
+  },
+  macroValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textLight,
+  },
 });
