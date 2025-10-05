@@ -375,6 +375,14 @@ export default function HomeScreen() {
         onMealAdded={handleMealAdded}
       />
 
+      {/* Modal de recherche d'aliments */}
+      <FoodSearchModal
+        visible={foodSearchModalVisible}
+        mealType={selectedMealType}
+        onClose={() => setFoodSearchModalVisible(false)}
+        onMealAdded={handleMealAdded}
+      />
+
       {/* Modal des rapports */}
       <ReportsModal
         visible={reportsModalVisible}
