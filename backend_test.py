@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for KetoSansStress Enhanced Registration System
-Testing enhanced password validation and security rules
+KetoSansStress Backend Testing Suite - Email Confirmation System
+Comprehensive testing of the new email validation workflow
 """
 
 import requests
 import json
-import sys
-import os
+import time
+import uuid
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, Optional
 
-# Get the backend URL from frontend environment
-def get_backend_url():
-    """Get backend URL from frontend .env file"""
-    try:
-        with open('/app/frontend/.env', 'r') as f:
-            for line in f:
-                if line.startswith('EXPO_PUBLIC_API_URL='):
-                    return line.split('=', 1)[1].strip()
-    except Exception as e:
-        print(f"Warning: Could not read frontend .env: {e}")
-    
-    # Fallback to default
-    return "https://ketotrackerapp-1.preview.emergentagent.com"
-
-BACKEND_URL = get_backend_url()
-API_BASE = f"{BACKEND_URL}/api"
+# Configuration
+BASE_URL = "https://ketotrackerapp-1.preview.emergentagent.com/api"
+TEST_EMAIL = "test.confirm@ketosansstress.com"
+TEST_PASSWORD = "SecureTest123!"
+TEST_USER_DATA = {
+    "email": TEST_EMAIL,
+    "password": TEST_PASSWORD,
+    "full_name": "Test Confirmation User",
+    "age": 28,
+    "gender": "female",
+    "height": 165.0,
+    "weight": 60.0,
+    "activity_level": "moderately_active",
+    "goal": "weight_loss",
+    "timezone": "Europe/Paris"
+}
 
 class KetoRegistrationTester:
     def __init__(self):
