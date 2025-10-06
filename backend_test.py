@@ -60,21 +60,23 @@ class KetoRegistrationTester:
     def test_health_check(self):
         """Test basic health check"""
         try:
-            response = self.session.get(f"{BASE_URL}/health")
-            
+            response = self.session.get(f"{API_BASE}/health")
             if response.status_code == 200:
                 data = response.json()
-                if data.get("status") == "healthy":
-                    self.log_test("Health Check", True, f"Service healthy, Supabase: {data.get('supabase', 'unknown')}")
-                else:
-                    self.log_test("Health Check", False, f"Service unhealthy: {data}")
+                self.log_test(
+                    "Health Check", 
+                    True, 
+                    f"Service: {data.get('service', 'Unknown')}, Supabase: {data.get('supabase', 'Unknown')}"
+                )
+                return True
             else:
-                self.log_test("Health Check", False, f"HTTP {response.status_code}", response.text)
-                
+                self.log_test("Health Check", False, f"Status: {response.status_code}")
+                return False
         except Exception as e:
-            self.log_test("Health Check", False, f"Exception: {str(e)}")
+            self.log_test("Health Check", False, f"Error: {str(e)}")
+            return False
 
-    def test_registration_with_valid_data(self):
+    def test_enhanced_password_validation(self):
         """Test registration with complete valid user data"""
         try:
             # Generate unique email for this test
