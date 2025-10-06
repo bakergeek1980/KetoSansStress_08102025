@@ -210,13 +210,9 @@ export default function UserProfileModal({ visible, onClose }: UserProfileModalP
           text: 'Supprimer',
           style: 'destructive',
           onPress: async () => {
-            try {
-              // TODO: Implémenter la suppression de compte
-              console.log('Delete account');
-              Alert.alert('Succès', '✅ Votre compte et vos données ont été supprimés avec succès');
-            } catch (error) {
-              console.error('Delete account error:', error);
-              Alert.alert('Erreur', 'Impossible de supprimer le compte');
+            const success = await deleteAccount();
+            if (success) {
+              onClose(); // Close the modal after successful deletion
             }
           }
         }
