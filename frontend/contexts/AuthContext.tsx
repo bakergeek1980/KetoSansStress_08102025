@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       Alert.alert('Erreur', 'Problème de connexion au serveur');
       return { success: false };
     } finally {
-      setLoading(false);
+      setRegisterLoading(false);
     }
   };
 
