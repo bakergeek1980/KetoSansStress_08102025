@@ -45,12 +45,19 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleFocus = useCallback(() => {
+    console.log('🎯 ValidatedInput Focus reçu:', label);
     setIsFocused(true);
-  }, []);
+  }, [label]);
 
   const handleBlur = useCallback(() => {
+    console.log('🎯 ValidatedInput Blur reçu:', label);
     setIsFocused(false);
-  }, []);
+  }, [label]);
+
+  const handleChangeText = useCallback((text: string) => {
+    console.log('🎯 ValidatedInput Text changé:', label, text);
+    onChangeText(text);
+  }, [label, onChangeText]);
 
   const togglePasswordVisibility = useCallback(() => {
     setIsPasswordVisible(prev => !prev);
