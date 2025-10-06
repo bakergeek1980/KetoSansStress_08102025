@@ -116,12 +116,12 @@ export default function AuthScreen() {
       
       if (result.success) {
         if (result.needsEmailConfirmation) {
-          // Redirection vers la page d'email envoyé
-          router.push(`/email-sent?email=${encodeURIComponent(data.email)}`);
+          // Redirection vers la page de confirmation d'email
+          router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}`);
         } else {
           // Inscription classique, tentative de connexion automatique
-          const loginSuccess = await login(data.email, data.password);
-          if (loginSuccess) {
+          const loginResult = await login(data.email, data.password);
+          if (loginResult.success) {
             router.replace('/(tabs)');
           } else {
             // Si auto-login échoue, afficher le formulaire de connexion
