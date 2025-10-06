@@ -395,7 +395,7 @@ export default function AuthScreen() {
           <ValidatedInput
             label="Poids (kg)"
             value={value ? value.toString() : ''}
-            onChangeText={(text) => onChange(text ? parseFloat(text) || '' : '')}
+            onChangeText={(text) => onChange(text ? parseFloat(text) || 0 : 0)}
             error={registerErrors.weight?.message}
             keyboardType="decimal-pad"
             placeholder="Ex: 70.5"
