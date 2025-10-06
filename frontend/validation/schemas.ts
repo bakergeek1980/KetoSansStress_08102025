@@ -8,8 +8,8 @@ export const registerSchema = Yup.object({
   password: Yup.string()
     .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre'
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+      'Le mot de passe doit contenir : 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial (!@#$%^&*)'
     )
     .required('Le mot de passe est requis'),
   confirmPassword: Yup.string()
