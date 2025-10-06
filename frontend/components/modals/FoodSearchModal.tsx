@@ -28,6 +28,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useApi } from '../../hooks/useApi';
 import LoadingButton from '../forms/LoadingButton';
+import BarcodeScannerModal from './BarcodeScannerModal';
 import Constants from 'expo-constants';
 
 const COLORS = {
