@@ -59,32 +59,14 @@ class ResendConfirmationRequest(BaseModel):
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserRegistration,
+    confirm_email: bool = False,
     supabase: Client = Depends(get_supabase_client)
 ) -> Dict[str, Any]:
     """Register a new user with Supabase Auth."""
     try:
-        # Create user with Supabase Auth
-        auth_response = supabase.auth.sign_up({
-            "email": user_data.email,
-            "password": user_data.password,
-            "options": {
-                "data": {
-                    "full_name": user_data.full_name,
-                    "age": user_data.age,
-                    "gender": user_data.gender,
-                    "height": float(user_data.height),
-                    "weight": float(user_data.weight),
-                    "activity_level": user_data.activity_level,
-                    "goal": user_data.goal
-                }
-            }
-        })
-        
-        if auth_response.user:
-            # Create user profile in database
-            profile_data = {
-                "id": auth_response.user.id,
-                "email": user_data.email,
+        # Préparer les options pour Supabase
+        auth_options = {
+            "data": {
                 "full_name": user_data.full_name,
                 "age": user_data.age,
                 "gender": user_data.gender,
@@ -93,38 +75,71 @@ async def register_user(
                 "activity_level": user_data.activity_level,
                 "goal": user_data.goal,
                 "timezone": user_data.timezone,
-                "created_at": "now()",
-                "updated_at": "now()"
             }
+        }
+        
+        # Si confirmation email activée, ajouter l'URL de redirection
+        if confirm_email:
+            auth_options["redirect_to"] = "https://ketosansstress.app/confirm"
+            auth_options["email_redirect_to"] = "https://ketosansstress.app/confirm"
+
+        # Register user with Supabase Auth
+        auth_response = supabase.auth.sign_up({
+            "email": user_data.email,
+            "password": user_data.password,
+            "options": auth_options
+        })
+
+        if auth_response.user:
+            # Vérifier si l'email nécessite une confirmation
+            needs_email_confirmation = not auth_response.user.email_confirmed_at and confirm_email
             
-            try:
-                profile_result = supabase.table("users").insert(profile_data).execute()
-                logger.info(f"User profile created: {auth_response.user.id}")
-            except Exception as e:
-                logger.warning(f"Failed to create user profile: {e}")
-            
+            # Si pas de confirmation nécessaire, créer le profil immédiatement
+            if not needs_email_confirmation:
+                # Create user profile in our users table
+                user_profile_data = {
+                    "id": auth_response.user.id,
+                    "email": user_data.email,
+                    "full_name": user_data.full_name,
+                    "age": user_data.age,
+                    "gender": user_data.gender,
+                    "height": float(user_data.height),
+                    "weight": float(user_data.weight),
+                    "activity_level": user_data.activity_level,
+                    "goal": user_data.goal,
+                    "timezone": user_data.timezone,
+                    "created_at": "now()",
+                    "updated_at": "now()"
+                }
+
+                try:
+                    profile_result = supabase.table("users").insert(user_profile_data).execute()
+                    logger.info(f"User profile created: {auth_response.user.id}")
+                except Exception as e:
+                    logger.warning(f"Failed to create user profile: {e}")
+
             return {
-                "message": "User registered successfully",
+                "message": "User registered successfully" if not needs_email_confirmation else "Registration successful - email confirmation required",
                 "user_id": auth_response.user.id,
-                "email": auth_response.user.email,
-                "requires_verification": not auth_response.session
+                "email": user_data.email,
+                "needs_email_confirmation": needs_email_confirmation
             }
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Registration failed"
+                detail="Failed to create user account"
             )
-            
+
     except Exception as e:
         logger.error(f"Registration error: {e}")
-        if "already registered" in str(e).lower():
+        if "User already registered" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="User already exists"
             )
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Registration failed: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Registration failed"
         )
 
 @router.post("/login")
