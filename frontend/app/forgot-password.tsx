@@ -44,7 +44,7 @@ const forgotPasswordSchema = Yup.object({
 });
 
 export default function ForgotPasswordScreen() {
-  const [loading, setLoading] = useState(false);
+  const { requestPasswordReset, loading } = useAuth();
   const [emailSent, setEmailSent] = useState(false);
 
   const { control, handleSubmit, formState: { errors }, getValues } = useForm<ForgotPasswordData>({
