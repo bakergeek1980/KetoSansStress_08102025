@@ -26,6 +26,10 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<{ success: boolean; needsEmailConfirmation?: boolean }>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
+  updateProfile: (profileData: ProfileUpdateData) => Promise<boolean>;
+  changePassword: (passwordData: PasswordChangeData) => Promise<boolean>;
+  deleteAccount: () => Promise<boolean>;
+  requestPasswordReset: (email: string) => Promise<boolean>;
   confirmEmail: (token: string) => Promise<boolean>;
   resendConfirmationEmail: (email: string) => Promise<boolean>;
 }
