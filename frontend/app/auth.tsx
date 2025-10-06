@@ -62,8 +62,8 @@ export default function AuthScreen() {
   const { control: loginControl, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors } } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
     defaultValues: {
-      email: 'demo@ketosansstress.com',
-      password: 'password123',
+      email: '',
+      password: '',
     },
     mode: 'onChange',
   });
