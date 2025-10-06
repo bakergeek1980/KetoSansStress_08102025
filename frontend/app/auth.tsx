@@ -297,42 +297,37 @@ export default function AuthScreen() {
         )}
       />
 
-      <View style={styles.row}>
-        <View style={[styles.col, { marginRight: 8 }]}>
-          <Controller
-            control={registerControl}
-            name="height"
-            render={({ field: { onChange, value } }) => (
-              <ValidatedInput
-                label="Taille (cm)"
-                value={value.toString()}
-                onChangeText={(text) => onChange(parseFloat(text) || 0)}
-                error={registerErrors.height?.message}
-                keyboardType="numeric"
-                placeholder="170"
-                required
-              />
-            )}
+      <Controller
+        control={registerControl}
+        name="height"
+        render={({ field: { onChange, value } }) => (
+          <ValidatedInput
+            label="Taille (cm)"
+            value={value ? value.toString() : ''}
+            onChangeText={(text) => onChange(text ? parseInt(text) || '' : '')}
+            error={registerErrors.height?.message}
+            keyboardType="numeric"
+            placeholder="Ex: 170"
+            required
           />
-        </View>
-        <View style={[styles.col, { marginLeft: 8 }]}>
-          <Controller
-            control={registerControl}
-            name="weight"
-            render={({ field: { onChange, value } }) => (
-              <ValidatedInput
-                label="Poids (kg)"
-                value={value.toString()}
-                onChangeText={(text) => onChange(parseFloat(text) || 0)}
-                error={registerErrors.weight?.message}
-                keyboardType="numeric"
-                placeholder="70"
-                required
-              />
-            )}
+        )}
+      />
+
+      <Controller
+        control={registerControl}
+        name="weight"
+        render={({ field: { onChange, value } }) => (
+          <ValidatedInput
+            label="Poids (kg)"
+            value={value ? value.toString() : ''}
+            onChangeText={(text) => onChange(text ? parseFloat(text) || '' : '')}
+            error={registerErrors.weight?.message}
+            keyboardType="decimal-pad"
+            placeholder="Ex: 70.5"
+            required
           />
-        </View>
-      </View>
+        )}
+      />
 
       <LoadingButton
         title="S'inscrire"
