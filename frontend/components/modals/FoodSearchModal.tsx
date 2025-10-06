@@ -562,7 +562,10 @@ export default function FoodSearchModal({
                   onChangeText={setSearchQuery}
                 />
               </View>
-              <TouchableOpacity style={styles.scanButton}>
+              <TouchableOpacity 
+                style={styles.scanButton}
+                onPress={() => setScannerVisible(true)}
+              >
                 <Scan color={COLORS.primary} size={20} />
                 <Text style={styles.scanText}>Scanner</Text>
               </TouchableOpacity>
