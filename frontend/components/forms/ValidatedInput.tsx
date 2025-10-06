@@ -202,6 +202,11 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
     paddingVertical: 12,
     paddingHorizontal: 12,
+    // Styles spécifiques pour React Native Web
+    outline: 'none', // Supprime l'outline par défaut du navigateur
+    border: 'none', // Supprime la bordure par défaut du navigateur
+    backgroundColor: 'transparent', // Fond transparent
+    pointerEvents: 'auto', // Force l'interactivité
   },
   inputWithLeftIcon: {
     paddingLeft: 0,
