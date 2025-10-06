@@ -377,7 +377,8 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
   },
   logoContainer: {
     alignItems: 'center',
