@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Configuration des URLs
-BACKEND_URL = "https://ketosansstress.preview.emergentagent.com/api"
+BACKEND_URL = "http://localhost:8001/api"
 
 class KetoSansStressBackendTester:
     def __init__(self):
