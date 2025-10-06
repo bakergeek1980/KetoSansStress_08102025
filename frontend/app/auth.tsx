@@ -403,10 +403,7 @@ export default function AuthScreen() {
 
       <LoadingButton
         title="S'inscrire"
-        onPress={() => {
-          Alert.alert('Debug', 'Bouton S\'inscrire cliqué !');
-          handleRegisterSubmit(onRegisterSubmit)();
-        }}
+        onPress={handleRegisterSubmit(onRegisterSubmit)}
         loading={loading}
         style={styles.submitButton}
       />
