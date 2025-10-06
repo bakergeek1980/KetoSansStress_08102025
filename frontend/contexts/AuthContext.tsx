@@ -342,7 +342,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.ok) {
         // Update local user state with new profile data
-        updateUser(data.user);
+        await updateUser(data.user);
         Alert.alert('Succès', 'Profil mis à jour avec succès!');
         return true;
       } else {
