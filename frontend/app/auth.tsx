@@ -395,7 +395,10 @@ export default function AuthScreen() {
 
       <LoadingButton
         title="S'inscrire"
-        onPress={handleRegisterSubmit(onRegisterSubmit)}
+        onPress={() => {
+          console.log('🔥 Bouton S\'inscrire cliqué !');
+          handleRegisterSubmit(onRegisterSubmit)();
+        }}
         loading={loading}
         style={styles.submitButton}
       />
