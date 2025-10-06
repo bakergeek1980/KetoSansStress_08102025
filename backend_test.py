@@ -14,33 +14,28 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class EmailConfirmationTester:
+class KetoSansStressAPITester:
     def __init__(self):
+        # Use the production URL from frontend .env
+        self.base_url = "https://ketometrics.preview.emergentagent.com/api"
         self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        })
-        self.test_results = []
         self.access_token = None
-        self.user_id = None
+        self.test_user_email = "test.profile@ketosansstress.com"
+        self.test_user_password = "TestPass123!"
+        self.test_results = []
         
-    def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
-        """Log test results"""
-        result = {
+    def log_test_result(self, test_name: str, success: bool, details: str = ""):
+        """Log test result"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        logger.info(f"{status}: {test_name}")
+        if details:
+            logger.info(f"   Details: {details}")
+        
+        self.test_results.append({
             "test": test_name,
             "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat(),
-            "response_data": response_data
-        }
-        self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name}")
-        print(f"   Details: {details}")
-        if response_data and not success:
-            print(f"   Response: {json.dumps(response_data, indent=2)}")
-        print()
+            "details": details
+        })
 
     def test_health_check(self):
         """Test basic health check"""
