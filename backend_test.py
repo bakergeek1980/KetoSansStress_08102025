@@ -143,7 +143,7 @@ class KetoSansStressBackendTester:
             "gender": "female",
             "height": 168,
             "weight": 58,
-            "activity_level": "active",
+            "activity_level": "very_active",
             "goal": "maintenance",
             "timezone": "Europe/Paris"
         }
