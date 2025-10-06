@@ -28,33 +28,32 @@ TEST_USER_DATA = {
     "timezone": "Europe/Paris"
 }
 
-class KetoRegistrationTester:
+class EmailConfirmationTester:
     def __init__(self):
-        self.test_results = []
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         })
+        self.test_results = []
+        self.access_token = None
+        self.user_id = None
         
-    def log_test(self, test_name: str, success: bool, details: str = "", response_data: Dict = None):
-        """Log test result"""
+    def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
+        """Log test results"""
         result = {
-            'test': test_name,
-            'success': success,
-            'details': details,
-            'timestamp': datetime.now().isoformat()
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "timestamp": datetime.now().isoformat(),
+            "response_data": response_data
         }
-        if response_data:
-            result['response'] = response_data
         self.test_results.append(result)
-        
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"    {details}")
-        if not success and response_data:
-            print(f"    Response: {response_data}")
+        print(f"{status}: {test_name}")
+        print(f"   Details: {details}")
+        if response_data and not success:
+            print(f"   Response: {json.dumps(response_data, indent=2)}")
         print()
 
     def test_health_check(self):
