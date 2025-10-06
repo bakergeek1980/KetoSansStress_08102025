@@ -458,13 +458,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
-  row: {
-    flexDirection: 'row',
-    marginHorizontal: -8,
-  },
-  col: {
-    flex: 1,
-  },
   submitButton: {
     marginTop: 24,
     marginBottom: 16,
