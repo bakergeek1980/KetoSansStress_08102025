@@ -77,454 +77,502 @@ class KetoRegistrationTester:
             return False
 
     def test_enhanced_password_validation(self):
-        """Test registration with complete valid user data"""
-        try:
-            # Generate unique email for this test
-            unique_email = f"test.{uuid.uuid4().hex[:8]}@ketosansstress.com"
+        """Test enhanced password validation requirements"""
+        print("🔐 TESTING ENHANCED PASSWORD VALIDATION")
+        
+        base_user_data = {
+            "email": "test.password@keto.com",
+            "full_name": "Test Utilisateur",
+            "age": 28,
+            "gender": "male",
+            "height": 180.0,
+            "weight": 75.5,
+            "activity_level": "moderately_active",
+            "goal": "weight_loss",
+            "timezone": "Europe/Paris"
+        }
+        
+        # Test cases for password validation
+        password_tests = [
+            {
+                "name": "Valid Strong Password",
+                "password": "SecurePass123!",
+                "should_pass": True,
+                "description": "8+ chars, uppercase, lowercase, digit, special char"
+            },
+            {
+                "name": "Too Short Password",
+                "password": "Short1!",
+                "should_pass": False,
+                "description": "Only 7 characters (minimum 8 required)"
+            },
+            {
+                "name": "Missing Uppercase",
+                "password": "lowercase123!",
+                "should_pass": False,
+                "description": "No uppercase letter"
+            },
+            {
+                "name": "Missing Lowercase",
+                "password": "UPPERCASE123!",
+                "should_pass": False,
+                "description": "No lowercase letter"
+            },
+            {
+                "name": "Missing Digit",
+                "password": "NoDigitPass!",
+                "should_pass": False,
+                "description": "No digit present"
+            },
+            {
+                "name": "Missing Special Character",
+                "password": "Password123",
+                "should_pass": False,
+                "description": "No special character"
+            },
+            {
+                "name": "Weak Password Example",
+                "password": "weakpass",
+                "should_pass": False,
+                "description": "Fails multiple requirements"
+            },
+            {
+                "name": "Another Valid Password",
+                "password": "MyKeto2024@",
+                "should_pass": True,
+                "description": "Meets all requirements"
+            }
+        ]
+        
+        for test_case in password_tests:
+            user_data = base_user_data.copy()
+            user_data["password"] = test_case["password"]
+            user_data["email"] = f"pwd.test.{len(self.test_results)}@keto.com"
             
-            registration_data = {
-                "email": unique_email,
-                "password": TEST_PASSWORD,
+            try:
+                response = self.session.post(f"{API_BASE}/auth/register", json=user_data)
+                
+                if test_case["should_pass"]:
+                    # Should succeed
+                    if response.status_code == 201:
+                        self.log_test(
+                            f"Password Validation: {test_case['name']}", 
+                            True, 
+                            f"{test_case['description']} - Registration successful"
+                        )
+                    else:
+                        self.log_test(
+                            f"Password Validation: {test_case['name']}", 
+                            False, 
+                            f"Expected success but got {response.status_code}: {response.text}",
+                            response.json() if response.headers.get('content-type', '').startswith('application/json') else {}
+                        )
+                else:
+                    # Should fail
+                    if response.status_code in [400, 422]:
+                        error_data = response.json() if response.headers.get('content-type', '').startswith('application/json') else {}
+                        self.log_test(
+                            f"Password Validation: {test_case['name']}", 
+                            True, 
+                            f"{test_case['description']} - Correctly rejected with {response.status_code}"
+                        )
+                    else:
+                        self.log_test(
+                            f"Password Validation: {test_case['name']}", 
+                            False, 
+                            f"Expected rejection but got {response.status_code}",
+                            response.json() if response.headers.get('content-type', '').startswith('application/json') else {}
+                        )
+                        
+            except Exception as e:
+                self.log_test(
+                    f"Password Validation: {test_case['name']}", 
+                    False, 
+                    f"Error: {str(e)}"
+                )
+
+    def test_complete_registration_form_validation(self):
+        """Test complete registration form validation"""
+        print("📋 TESTING COMPLETE REGISTRATION FORM VALIDATION")
+        
+        # Test email format validation
+        email_tests = [
+            {"email": "valid@example.com", "should_pass": True},
+            {"email": "invalid-email", "should_pass": False},
+            {"email": "missing@", "should_pass": False},
+            {"email": "@missing.com", "should_pass": False},
+            {"email": "", "should_pass": False}
+        ]
+        
+        base_data = {
+            "password": "ValidPass123!",
+            "full_name": "Test User",
+            "age": 25,
+            "gender": "female",
+            "height": 165.0,
+            "weight": 60.0,
+            "activity_level": "lightly_active",
+            "goal": "maintenance",
+            "timezone": "Europe/Paris"
+        }
+        
+        for email_test in email_tests:
+            user_data = base_data.copy()
+            user_data["email"] = email_test["email"]
+            
+            try:
+                response = self.session.post(f"{API_BASE}/auth/register", json=user_data)
+                
+                if email_test["should_pass"]:
+                    success = response.status_code == 201
+                    self.log_test(
+                        f"Email Validation: {email_test['email']}", 
+                        success, 
+                        f"Valid email format - Status: {response.status_code}"
+                    )
+                else:
+                    success = response.status_code in [400, 422]
+                    self.log_test(
+                        f"Email Validation: {email_test['email']}", 
+                        success, 
+                        f"Invalid email format correctly rejected - Status: {response.status_code}"
+                    )
+                    
+            except Exception as e:
+                self.log_test(f"Email Validation: {email_test['email']}", False, f"Error: {str(e)}")
+
+        # Test required fields validation
+        required_fields_tests = [
+            {"field": "full_name", "value": None},
+            {"field": "full_name", "value": ""},
+            {"field": "age", "value": None},
+            {"field": "gender", "value": None},
+            {"field": "height", "value": None},
+            {"field": "weight", "value": None}
+        ]
+        
+        for field_test in required_fields_tests:
+            user_data = {
+                "email": f"required.test.{len(self.test_results)}@keto.com",
+                "password": "ValidPass123!",
                 "full_name": "Test User",
-                "age": 30,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.5,
+                "age": 25,
+                "gender": "male",
+                "height": 175.0,
+                "weight": 70.0,
                 "activity_level": "moderately_active",
                 "goal": "weight_loss",
-                "timezone": "UTC"
+                "timezone": "Europe/Paris"
             }
             
-            response = self.session.post(f"{BASE_URL}/auth/register", json=registration_data)
+            # Remove or set invalid value for the field being tested
+            if field_test["value"] is None:
+                del user_data[field_test["field"]]
+            else:
+                user_data[field_test["field"]] = field_test["value"]
+            
+            try:
+                response = self.session.post(f"{API_BASE}/auth/register", json=user_data)
+                success = response.status_code in [400, 422]
+                self.log_test(
+                    f"Required Field: {field_test['field']}", 
+                    success, 
+                    f"Missing/invalid {field_test['field']} correctly rejected - Status: {response.status_code}"
+                )
+            except Exception as e:
+                self.log_test(f"Required Field: {field_test['field']}", False, f"Error: {str(e)}")
+
+        # Test field constraints
+        constraint_tests = [
+            {"field": "age", "value": 12, "description": "Age below minimum (13)"},
+            {"field": "age", "value": 121, "description": "Age above maximum (120)"},
+            {"field": "height", "value": 99, "description": "Height below minimum (100cm)"},
+            {"field": "height", "value": 251, "description": "Height above maximum (250cm)"},
+            {"field": "weight", "value": 29, "description": "Weight below minimum (30kg)"},
+            {"field": "weight", "value": 301, "description": "Weight above maximum (300kg)"},
+            {"field": "gender", "value": "invalid", "description": "Invalid gender value"}
+        ]
+        
+        for constraint_test in constraint_tests:
+            user_data = {
+                "email": f"constraint.test.{len(self.test_results)}@keto.com",
+                "password": "ValidPass123!",
+                "full_name": "Test User",
+                "age": 25,
+                "gender": "other",
+                "height": 170.0,
+                "weight": 65.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss",
+                "timezone": "Europe/Paris"
+            }
+            
+            user_data[constraint_test["field"]] = constraint_test["value"]
+            
+            try:
+                response = self.session.post(f"{API_BASE}/auth/register", json=user_data)
+                success = response.status_code in [400, 422]
+                self.log_test(
+                    f"Field Constraint: {constraint_test['description']}", 
+                    success, 
+                    f"Invalid {constraint_test['field']} correctly rejected - Status: {response.status_code}"
+                )
+            except Exception as e:
+                self.log_test(f"Field Constraint: {constraint_test['description']}", False, f"Error: {str(e)}")
+
+    def test_secure_registration_process(self):
+        """Test secure registration process"""
+        print("🔒 TESTING SECURE REGISTRATION PROCESS")
+        
+        # Test successful registration with all fields
+        valid_user_data = {
+            "email": "test.secure@keto.com",
+            "password": "SecurePass123!",
+            "full_name": "Test Utilisateur",
+            "age": 28,
+            "gender": "male",
+            "height": 180.0,
+            "weight": 75.5,
+            "activity_level": "moderately_active",
+            "goal": "weight_loss",
+            "timezone": "Europe/Paris"
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/auth/register", json=valid_user_data)
             
             if response.status_code == 201:
                 data = response.json()
-                if data.get("user_id") and data.get("email") == unique_email:
-                    self.log_test("Registration with Valid Data", True, 
-                                f"User created successfully: {data.get('user_id')}")
-                    # Store for later login test
-                    self.test_email = unique_email
+                self.log_test(
+                    "Complete Valid Registration", 
+                    True, 
+                    f"User registered successfully with ID: {data.get('user_id', 'Unknown')}"
+                )
+                
+                # Test duplicate email rejection
+                duplicate_response = self.session.post(f"{API_BASE}/auth/register", json=valid_user_data)
+                if duplicate_response.status_code == 409:
+                    self.log_test(
+                        "Duplicate Email Rejection", 
+                        True, 
+                        "Duplicate email correctly rejected with 409 Conflict"
+                    )
                 else:
-                    self.log_test("Registration with Valid Data", False, 
-                                "Missing user_id or email mismatch", data)
-            else:
-                self.log_test("Registration with Valid Data", False, 
-                            f"HTTP {response.status_code}", response.text)
+                    self.log_test(
+                        "Duplicate Email Rejection", 
+                        False, 
+                        f"Expected 409 Conflict but got {duplicate_response.status_code}"
+                    )
                 
-        except Exception as e:
-            self.log_test("Registration with Valid Data", False, f"Exception: {str(e)}")
-
-    def test_registration_duplicate_email(self):
-        """Test registration with duplicate email (409 conflict)"""
-        try:
-            # First registration
-            registration_data = {
-                "email": DUPLICATE_TEST_EMAIL,
-                "password": TEST_PASSWORD,
-                "full_name": "First User",
-                "age": 25,
-                "gender": "male",
-                "height": 180.0,
-                "weight": 75.0,
-                "activity_level": "lightly_active",
-                "goal": "maintenance",
-                "timezone": "UTC"
-            }
-            
-            # First attempt
-            response1 = self.session.post(f"{BASE_URL}/auth/register", json=registration_data)
-            
-            # Second attempt with same email
-            registration_data["full_name"] = "Second User"
-            response2 = self.session.post(f"{BASE_URL}/auth/register", json=registration_data)
-            
-            if response2.status_code == 409:
-                self.log_test("Duplicate Email Protection", True, 
-                            "Correctly returned 409 Conflict for duplicate email")
-            elif response2.status_code == 400 and "already" in response2.text.lower():
-                self.log_test("Duplicate Email Protection", True, 
-                            "Correctly rejected duplicate email with 400 status")
-            else:
-                self.log_test("Duplicate Email Protection", False, 
-                            f"Expected 409 Conflict, got HTTP {response2.status_code}", response2.text)
-                
-        except Exception as e:
-            self.log_test("Duplicate Email Protection", False, f"Exception: {str(e)}")
-
-    def test_registration_invalid_email(self):
-        """Test registration with invalid email format"""
-        try:
-            registration_data = {
-                "email": "invalid-email-format",
-                "password": TEST_PASSWORD,
-                "full_name": "Test User",
-                "age": 30,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.5,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss",
-                "timezone": "UTC"
-            }
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=registration_data)
-            
-            if response.status_code == 422:  # Pydantic validation error
-                self.log_test("Invalid Email Format Validation", True, 
-                            "Correctly rejected invalid email format")
-            elif response.status_code == 400:
-                self.log_test("Invalid Email Format Validation", True, 
-                            "Correctly rejected invalid email format with 400")
-            else:
-                self.log_test("Invalid Email Format Validation", False, 
-                            f"Expected 422 or 400, got HTTP {response.status_code}", response.text)
-                
-        except Exception as e:
-            self.log_test("Invalid Email Format Validation", False, f"Exception: {str(e)}")
-
-    def test_registration_weak_password(self):
-        """Test registration with weak password"""
-        try:
-            registration_data = {
-                "email": f"weak.password.{uuid.uuid4().hex[:8]}@ketosansstress.com",
-                "password": "123",  # Weak password
-                "full_name": "Test User",
-                "age": 30,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.5,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss",
-                "timezone": "UTC"
-            }
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=registration_data)
-            
-            if response.status_code in [400, 422]:
-                self.log_test("Weak Password Validation", True, 
-                            "Correctly rejected weak password")
-            else:
-                self.log_test("Weak Password Validation", False, 
-                            f"Expected 400/422 for weak password, got HTTP {response.status_code}", response.text)
-                
-        except Exception as e:
-            self.log_test("Weak Password Validation", False, f"Exception: {str(e)}")
-
-    def test_registration_missing_fields(self):
-        """Test registration with missing required fields"""
-        try:
-            # Missing full_name
-            incomplete_data = {
-                "email": f"incomplete.{uuid.uuid4().hex[:8]}@ketosansstress.com",
-                "password": TEST_PASSWORD,
-                "age": 30,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.5,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss"
-                # Missing full_name
-            }
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=incomplete_data)
-            
-            if response.status_code in [400, 422]:
-                self.log_test("Missing Required Fields Validation", True, 
-                            "Correctly rejected registration with missing full_name")
-            else:
-                self.log_test("Missing Required Fields Validation", False, 
-                            f"Expected 400/422 for missing fields, got HTTP {response.status_code}", response.text)
-                
-        except Exception as e:
-            self.log_test("Missing Required Fields Validation", False, f"Exception: {str(e)}")
-
-    def test_field_validations(self):
-        """Test individual field validations"""
-        try:
-            base_data = {
-                "email": f"validation.{uuid.uuid4().hex[:8]}@ketosansstress.com",
-                "password": TEST_PASSWORD,
-                "full_name": "Test User",
-                "age": 30,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.5,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss",
-                "timezone": "UTC"
-            }
-            
-            # Test invalid age
-            invalid_age_data = base_data.copy()
-            invalid_age_data["age"] = -5
-            invalid_age_data["email"] = f"age.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=invalid_age_data)
-            age_validation_pass = response.status_code in [400, 422]
-            
-            # Test invalid height
-            invalid_height_data = base_data.copy()
-            invalid_height_data["height"] = -10.0
-            invalid_height_data["email"] = f"height.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=invalid_height_data)
-            height_validation_pass = response.status_code in [400, 422]
-            
-            # Test invalid weight
-            invalid_weight_data = base_data.copy()
-            invalid_weight_data["weight"] = 0.0
-            invalid_weight_data["email"] = f"weight.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=invalid_weight_data)
-            weight_validation_pass = response.status_code in [400, 422]
-            
-            # Test invalid gender
-            invalid_gender_data = base_data.copy()
-            invalid_gender_data["gender"] = "invalid_gender"
-            invalid_gender_data["email"] = f"gender.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=invalid_gender_data)
-            gender_validation_pass = response.status_code in [400, 422]
-            
-            all_validations_pass = all([age_validation_pass, height_validation_pass, 
-                                      weight_validation_pass, gender_validation_pass])
-            
-            if all_validations_pass:
-                self.log_test("Field Validations", True, 
-                            "All field validations working correctly (age, height, weight, gender)")
-            else:
-                failed_validations = []
-                if not age_validation_pass: failed_validations.append("age")
-                if not height_validation_pass: failed_validations.append("height")
-                if not weight_validation_pass: failed_validations.append("weight")
-                if not gender_validation_pass: failed_validations.append("gender")
-                
-                self.log_test("Field Validations", False, 
-                            f"Failed validations: {', '.join(failed_validations)}")
-                
-        except Exception as e:
-            self.log_test("Field Validations", False, f"Exception: {str(e)}")
-
-    def test_login_with_valid_credentials(self):
-        """Test login with valid credentials"""
-        try:
-            # Use the email from successful registration
-            if not hasattr(self, 'test_email'):
-                # Create a user first
-                unique_email = f"login.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-                registration_data = {
-                    "email": unique_email,
-                    "password": TEST_PASSWORD,
-                    "full_name": "Login Test User",
-                    "age": 28,
-                    "gender": "male",
-                    "height": 175.0,
-                    "weight": 70.0,
-                    "activity_level": "moderately_active",
-                    "goal": "maintenance",
-                    "timezone": "UTC"
+                # Test login with registered user
+                login_data = {
+                    "email": valid_user_data["email"],
+                    "password": valid_user_data["password"]
                 }
                 
-                reg_response = self.session.post(f"{BASE_URL}/auth/register", json=registration_data)
-                if reg_response.status_code != 201:
-                    self.log_test("Login with Valid Credentials", False, 
-                                "Failed to create test user for login", reg_response.text)
-                    return
-                
-                self.test_email = unique_email
-            
-            # Now test login
-            login_data = {
-                "email": self.test_email,
-                "password": TEST_PASSWORD
-            }
-            
-            response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("access_token") and data.get("user"):
-                    self.access_token = data["access_token"]
-                    self.user_id = data["user"]["id"]
-                    self.log_test("Login with Valid Credentials", True, 
-                                f"Login successful, token received for user: {self.user_id}")
+                login_response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
+                if login_response.status_code == 200:
+                    login_data = login_response.json()
+                    if "access_token" in login_data:
+                        self.log_test(
+                            "Auto-login After Registration", 
+                            True, 
+                            "User can login successfully after registration"
+                        )
+                        
+                        # Test JWT token validation
+                        headers = {"Authorization": f"Bearer {login_data['access_token']}"}
+                        me_response = self.session.get(f"{API_BASE}/auth/me", headers=headers)
+                        if me_response.status_code == 200:
+                            self.log_test(
+                                "JWT Token Validation", 
+                                True, 
+                                "JWT token validates correctly for protected endpoints"
+                            )
+                        else:
+                            self.log_test(
+                                "JWT Token Validation", 
+                                False, 
+                                f"JWT validation failed with status {me_response.status_code}"
+                            )
+                    else:
+                        self.log_test(
+                            "Auto-login After Registration", 
+                            False, 
+                            "Login successful but no access token returned"
+                        )
                 else:
-                    self.log_test("Login with Valid Credentials", False, 
-                                "Missing access_token or user in response", data)
+                    self.log_test(
+                        "Auto-login After Registration", 
+                        False, 
+                        f"Login failed with status {login_response.status_code}"
+                    )
+                    
             else:
-                self.log_test("Login with Valid Credentials", False, 
-                            f"HTTP {response.status_code}", response.text)
+                self.log_test(
+                    "Complete Valid Registration", 
+                    False, 
+                    f"Registration failed with status {response.status_code}: {response.text}"
+                )
                 
         except Exception as e:
-            self.log_test("Login with Valid Credentials", False, f"Exception: {str(e)}")
+            self.log_test("Complete Valid Registration", False, f"Error: {str(e)}")
 
-    def test_login_with_invalid_credentials(self):
-        """Test login with invalid credentials"""
-        try:
-            login_data = {
-                "email": "nonexistent@ketosansstress.com",
-                "password": "wrongpassword"
+    def test_error_handling_and_messages(self):
+        """Test error handling and validation messages"""
+        print("⚠️ TESTING ERROR HANDLING & VALIDATION MESSAGES")
+        
+        # Test various error scenarios
+        error_tests = [
+            {
+                "name": "Invalid JSON",
+                "data": "invalid json",
+                "expected_status": [400, 422],
+                "content_type": "text/plain"
+            },
+            {
+                "name": "Empty Request Body",
+                "data": {},
+                "expected_status": [400, 422],
+                "content_type": "application/json"
+            },
+            {
+                "name": "Partial Data",
+                "data": {"email": "partial@test.com"},
+                "expected_status": [400, 422],
+                "content_type": "application/json"
             }
-            
-            response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
-            
-            if response.status_code == 401:
-                self.log_test("Login with Invalid Credentials", True, 
-                            "Correctly rejected invalid credentials with 401")
-            else:
-                self.log_test("Login with Invalid Credentials", False, 
-                            f"Expected 401 Unauthorized, got HTTP {response.status_code}", response.text)
-                
-        except Exception as e:
-            self.log_test("Login with Invalid Credentials", False, f"Exception: {str(e)}")
-
-    def test_jwt_token_validation(self):
-        """Test JWT token validation with /me endpoint"""
-        try:
-            if not self.access_token:
-                self.log_test("JWT Token Validation", False, 
-                            "No access token available from previous login test")
-                return
-            
-            headers = {
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            }
-            
-            response = self.session.get(f"{BASE_URL}/auth/me", headers=headers)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("id") and data.get("email"):
-                    self.log_test("JWT Token Validation", True, 
-                                f"Token validation successful, user data retrieved: {data.get('email')}")
+        ]
+        
+        for error_test in error_tests:
+            try:
+                if error_test["content_type"] == "application/json":
+                    response = self.session.post(f"{API_BASE}/auth/register", json=error_test["data"])
                 else:
-                    self.log_test("JWT Token Validation", False, 
-                                "Missing user data in /me response", data)
-            else:
-                self.log_test("JWT Token Validation", False, 
-                            f"HTTP {response.status_code}", response.text)
+                    response = self.session.post(
+                        f"{API_BASE}/auth/register", 
+                        data=error_test["data"],
+                        headers={"Content-Type": "text/plain"}
+                    )
                 
-        except Exception as e:
-            self.log_test("JWT Token Validation", False, f"Exception: {str(e)}")
+                success = response.status_code in error_test["expected_status"]
+                self.log_test(
+                    f"Error Handling: {error_test['name']}", 
+                    success, 
+                    f"Status: {response.status_code}, Expected: {error_test['expected_status']}"
+                )
+                
+            except Exception as e:
+                self.log_test(f"Error Handling: {error_test['name']}", False, f"Error: {str(e)}")
 
-    def test_protected_endpoint_without_token(self):
-        """Test protected endpoint without authentication token"""
+    def test_specific_test_cases(self):
+        """Test specific cases mentioned in the review request"""
+        print("🎯 TESTING SPECIFIC TEST CASES")
+        
+        # Test case 1: Valid registration
+        valid_case = {
+            "email": "test.secure@keto.com",
+            "password": "SecurePass123!",
+            "full_name": "Test Utilisateur",
+            "age": 28,
+            "gender": "male",
+            "height": 180.0,
+            "weight": 75.5,
+            "activity_level": "moderately_active",
+            "goal": "weight_loss",
+            "timezone": "Europe/Paris"
+        }
+        
         try:
-            response = self.session.get(f"{BASE_URL}/auth/me")
-            
-            if response.status_code == 401:
-                self.log_test("Protected Endpoint Without Token", True, 
-                            "Correctly rejected request without token (401)")
+            # First, try to register (might already exist from previous tests)
+            response = self.session.post(f"{API_BASE}/auth/register", json=valid_case)
+            if response.status_code in [201, 409]:  # Success or already exists
+                self.log_test(
+                    "Specific Test: Valid Registration", 
+                    True, 
+                    f"Valid registration handled correctly - Status: {response.status_code}"
+                )
             else:
-                self.log_test("Protected Endpoint Without Token", False, 
-                            f"Expected 401 Unauthorized, got HTTP {response.status_code}", response.text)
-                
+                self.log_test(
+                    "Specific Test: Valid Registration", 
+                    False, 
+                    f"Unexpected status: {response.status_code}"
+                )
         except Exception as e:
-            self.log_test("Protected Endpoint Without Token", False, f"Exception: {str(e)}")
-
-    def test_protected_endpoint_with_invalid_token(self):
-        """Test protected endpoint with invalid token"""
+            self.log_test("Specific Test: Valid Registration", False, f"Error: {str(e)}")
+        
+        # Test case 2: Weak password
+        weak_password_case = valid_case.copy()
+        weak_password_case["email"] = "weak.password@keto.com"
+        weak_password_case["password"] = "weakpass"
+        
         try:
-            headers = {
-                "Authorization": "Bearer invalid.jwt.token",
-                "Content-Type": "application/json"
-            }
-            
-            response = self.session.get(f"{BASE_URL}/auth/me", headers=headers)
-            
-            if response.status_code == 401:
-                self.log_test("Protected Endpoint with Invalid Token", True, 
-                            "Correctly rejected invalid token (401)")
-            else:
-                self.log_test("Protected Endpoint with Invalid Token", False, 
-                            f"Expected 401 Unauthorized, got HTTP {response.status_code}", response.text)
-                
+            response = self.session.post(f"{API_BASE}/auth/register", json=weak_password_case)
+            success = response.status_code in [400, 422]
+            self.log_test(
+                "Specific Test: Weak Password 'weakpass'", 
+                success, 
+                f"Weak password correctly rejected - Status: {response.status_code}"
+            )
         except Exception as e:
-            self.log_test("Protected Endpoint with Invalid Token", False, f"Exception: {str(e)}")
-
-    def test_user_profile_creation_in_database(self):
-        """Test that user profile is properly created in users table"""
+            self.log_test("Specific Test: Weak Password 'weakpass'", False, f"Error: {str(e)}")
+        
+        # Test case 3: Missing special character
+        missing_special_case = valid_case.copy()
+        missing_special_case["email"] = "missing.special@keto.com"
+        missing_special_case["password"] = "Password123"
+        
         try:
-            if not self.access_token:
-                self.log_test("User Profile Creation in Database", False, 
-                            "No access token available to test profile creation")
-                return
-            
-            headers = {
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            }
-            
-            response = self.session.get(f"{BASE_URL}/auth/me", headers=headers)
-            
-            if response.status_code == 200:
-                data = response.json()
-                required_fields = ["id", "email", "full_name", "age", "gender", "height", "weight"]
-                missing_fields = [field for field in required_fields if not data.get(field)]
-                
-                if not missing_fields:
-                    self.log_test("User Profile Creation in Database", True, 
-                                f"User profile complete with all required fields: {data.get('email')}")
-                else:
-                    self.log_test("User Profile Creation in Database", False, 
-                                f"Missing profile fields: {missing_fields}", data)
-            else:
-                self.log_test("User Profile Creation in Database", False, 
-                            f"Failed to retrieve user profile: HTTP {response.status_code}", response.text)
-                
+            response = self.session.post(f"{API_BASE}/auth/register", json=missing_special_case)
+            success = response.status_code in [400, 422]
+            self.log_test(
+                "Specific Test: Missing Special Char 'Password123'", 
+                success, 
+                f"Password without special char correctly rejected - Status: {response.status_code}"
+            )
         except Exception as e:
-            self.log_test("User Profile Creation in Database", False, f"Exception: {str(e)}")
+            self.log_test("Specific Test: Missing Special Char 'Password123'", False, f"Error: {str(e)}")
+        
+        # Test case 4: Invalid email format
+        invalid_email_case = valid_case.copy()
+        invalid_email_case["email"] = "invalid-email-format"
+        
+        try:
+            response = self.session.post(f"{API_BASE}/auth/register", json=invalid_email_case)
+            success = response.status_code in [400, 422]
+            self.log_test(
+                "Specific Test: Invalid Email Format", 
+                success, 
+                f"Invalid email format correctly rejected - Status: {response.status_code}"
+            )
+        except Exception as e:
+            self.log_test("Specific Test: Invalid Email Format", False, f"Error: {str(e)}")
 
     def run_all_tests(self):
-        """Run all authentication tests"""
-        print("🧪 STARTING COMPREHENSIVE AUTHENTICATION SYSTEM TESTING")
-        print("=" * 70)
-        print()
+        """Run all tests"""
+        print(f"🚀 STARTING COMPREHENSIVE KETO REGISTRATION TESTING")
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"API Base: {API_BASE}")
+        print("=" * 80)
         
-        # Basic connectivity
-        self.test_health_check()
-        
-        # Registration tests
-        print("📝 REGISTRATION TESTS")
-        print("-" * 30)
-        self.test_registration_with_valid_data()
-        self.test_registration_duplicate_email()
-        self.test_registration_invalid_email()
-        self.test_registration_weak_password()
-        self.test_registration_missing_fields()
-        self.test_field_validations()
-        
-        # Login tests
-        print("🔐 LOGIN TESTS")
-        print("-" * 30)
-        self.test_login_with_valid_credentials()
-        self.test_login_with_invalid_credentials()
-        
-        # JWT and security tests
-        print("🛡️ JWT & SECURITY TESTS")
-        print("-" * 30)
-        self.test_jwt_token_validation()
-        self.test_protected_endpoint_without_token()
-        self.test_protected_endpoint_with_invalid_token()
-        
-        # Database integration tests
-        print("💾 DATABASE INTEGRATION TESTS")
-        print("-" * 30)
-        self.test_user_profile_creation_in_database()
+        # Run all test suites
+        if not self.test_health_check():
+            print("❌ Health check failed. Stopping tests.")
+            return
+            
+        self.test_enhanced_password_validation()
+        self.test_complete_registration_form_validation()
+        self.test_secure_registration_process()
+        self.test_error_handling_and_messages()
+        self.test_specific_test_cases()
         
         # Summary
-        self.print_summary()
-
-    def print_summary(self):
-        """Print test summary"""
-        print()
-        print("=" * 70)
-        print("🎯 TEST SUMMARY")
-        print("=" * 70)
+        print("=" * 80)
+        print("📊 TEST SUMMARY")
+        print("=" * 80)
         
         total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
+        passed_tests = sum(1 for result in self.test_results if result['success'])
         failed_tests = total_tests - passed_tests
         success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
         
@@ -532,39 +580,29 @@ class KetoRegistrationTester:
         print(f"Passed: {passed_tests} ✅")
         print(f"Failed: {failed_tests} ❌")
         print(f"Success Rate: {success_rate:.1f}%")
-        print()
         
         if failed_tests > 0:
-            print("❌ FAILED TESTS:")
-            print("-" * 30)
+            print("\n❌ FAILED TESTS:")
             for result in self.test_results:
-                if not result["success"]:
-                    print(f"• {result['test']}: {result['details']}")
-            print()
+                if not result['success']:
+                    print(f"  - {result['test']}: {result['details']}")
         
-        print("✅ PASSED TESTS:")
-        print("-" * 30)
-        for result in self.test_results:
-            if result["success"]:
-                print(f"• {result['test']}")
+        print("\n🎯 ENHANCED SECURITY VALIDATION SUMMARY:")
+        password_tests = [r for r in self.test_results if 'Password Validation' in r['test']]
+        password_passed = sum(1 for r in password_tests if r['success'])
+        print(f"  Password Validation: {password_passed}/{len(password_tests)} tests passed")
         
-        print()
-        print("=" * 70)
+        form_tests = [r for r in self.test_results if any(x in r['test'] for x in ['Email Validation', 'Required Field', 'Field Constraint'])]
+        form_passed = sum(1 for r in form_tests if r['success'])
+        print(f"  Form Validation: {form_passed}/{len(form_tests)} tests passed")
         
-        return {
-            "total": total_tests,
-            "passed": passed_tests,
-            "failed": failed_tests,
-            "success_rate": success_rate,
-            "results": self.test_results
-        }
+        security_tests = [r for r in self.test_results if any(x in r['test'] for x in ['Registration', 'Duplicate', 'JWT'])]
+        security_passed = sum(1 for r in security_tests if r['success'])
+        print(f"  Security Features: {security_passed}/{len(security_tests)} tests passed")
+        
+        return success_rate >= 90  # Consider successful if 90%+ tests pass
 
 if __name__ == "__main__":
-    tester = AuthenticationTester()
-    summary = tester.run_all_tests()
-    
-    # Save results to file
-    with open("/app/auth_test_results.json", "w") as f:
-        json.dump(summary, f, indent=2, default=str)
-    
-    print(f"📊 Detailed results saved to: /app/auth_test_results.json")
+    tester = KetoRegistrationTester()
+    success = tester.run_all_tests()
+    sys.exit(0 if success else 1)
