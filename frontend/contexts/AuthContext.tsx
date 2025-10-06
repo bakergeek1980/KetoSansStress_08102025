@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (userData: RegisterData): Promise<{ success: boolean; needsEmailConfirmation?: boolean }> => {
     try {
-      setLoading(true);
+      setRegisterLoading(true);
       
       const requestBody = {
         ...userData,
