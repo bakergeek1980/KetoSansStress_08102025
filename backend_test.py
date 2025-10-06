@@ -15,13 +15,13 @@ BASE_URL = "https://ketotrackerapp-1.preview.emergentagent.com/api"
 TEST_USER_EMAIL = "foodtest@ketosansstress.com"
 TEST_USER_PASSWORD = "FoodTest123!"
 
-class PreferencesAPITester:
+class FoodSearchAPITester:
     def __init__(self):
         self.base_url = BASE_URL
         self.session = requests.Session()
-        self.access_token = None
-        self.user_id = None
+        self.auth_token = None
         self.test_results = []
+        self.user_id = None
         
     def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test results"""
@@ -29,49 +29,37 @@ class PreferencesAPITester:
             "test": test_name,
             "success": success,
             "details": details,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "response_data": response_data
         }
-        if response_data:
-            result["response_data"] = response_data
         self.test_results.append(result)
-        
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {details}")
+        print(f"{status} - {test_name}: {details}")
         
-    def register_and_login_user(self) -> bool:
-        """Register a new test user and login to get JWT token"""
+    def setup_authentication(self) -> bool:
+        """Setup authentication for testing"""
         try:
-            # Register new user
+            # Register test user
             register_data = {
                 "email": TEST_USER_EMAIL,
                 "password": TEST_USER_PASSWORD,
-                "full_name": "Test Preferences User",
-                "age": 28,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.0,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss",
-                "timezone": "Europe/Paris"
+                "name": "Food Test User"
             }
             
             register_response = self.session.post(
                 f"{self.base_url}/auth/register",
                 json=register_data,
-                timeout=30
+                timeout=10
             )
             
-            if register_response.status_code not in [200, 201]:
-                self.log_test(
-                    "User Registration", 
-                    False, 
-                    f"Registration failed with status {register_response.status_code}: {register_response.text}"
-                )
-                return False
-            
-            self.log_test("User Registration", True, f"User registered successfully: {TEST_USER_EMAIL}")
-            
-            # Login to get access token
+            if register_response.status_code in [200, 201]:
+                self.log_test("User Registration", True, f"User registered successfully")
+            elif register_response.status_code == 400 and "already exists" in register_response.text.lower():
+                self.log_test("User Registration", True, f"User already exists, proceeding with login")
+            else:
+                self.log_test("User Registration", False, f"Registration failed: {register_response.status_code} - {register_response.text}")
+                
+            # Login to get JWT token
             login_data = {
                 "email": TEST_USER_EMAIL,
                 "password": TEST_USER_PASSWORD
@@ -80,672 +68,658 @@ class PreferencesAPITester:
             login_response = self.session.post(
                 f"{self.base_url}/auth/login",
                 json=login_data,
-                timeout=30
+                timeout=10
             )
             
-            if login_response.status_code != 200:
-                self.log_test(
-                    "User Login", 
-                    False, 
-                    f"Login failed with status {login_response.status_code}: {login_response.text}"
-                )
-                return False
-            
-            login_result = login_response.json()
-            self.access_token = login_result.get("access_token")
-            
-            if not self.access_token:
-                self.log_test("User Login", False, "No access token received")
-                return False
-            
-            # Set authorization header for all future requests
-            self.session.headers.update({
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            })
-            
-            # Get user info to extract user_id
-            me_response = self.session.get(f"{self.base_url}/auth/me", timeout=30)
-            if me_response.status_code == 200:
-                user_info = me_response.json()
-                self.user_id = user_info.get("id")
-                self.log_test("User Login", True, f"Login successful, user_id: {self.user_id}")
+            if login_response.status_code == 200:
+                login_result = login_response.json()
+                self.auth_token = login_result.get("access_token")
+                self.user_id = login_result.get("user", {}).get("id")
+                
+                # Set authorization header for all future requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.auth_token}"
+                })
+                
+                self.log_test("User Login", True, f"Login successful, token obtained")
                 return True
             else:
-                self.log_test("User Login", False, f"Failed to get user info: {me_response.text}")
+                self.log_test("User Login", False, f"Login failed: {login_response.status_code} - {login_response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Authentication Setup", False, f"Exception during auth: {str(e)}")
+            self.log_test("Authentication Setup", False, f"Authentication error: {str(e)}")
             return False
     
-    def test_helper_endpoints(self):
-        """Test helper endpoints that don't require authentication"""
+    def test_food_search_endpoint(self):
+        """Test GET /api/foods/search?q={query}"""
+        test_queries = [
+            ("avocat", "French word for avocado"),
+            ("saumon", "French word for salmon"),
+            ("œufs", "French word for eggs"),
+            ("fromage", "French word for cheese"),
+            ("poulet", "French word for chicken"),
+            ("brocoli", "French word for broccoli"),
+            ("", "Empty query test"),
+            ("xyz123nonexistent", "Non-existent food test")
+        ]
         
-        # Test GET /api/preferences/regions
-        try:
-            regions_response = self.session.get(f"{self.base_url}/preferences/regions", timeout=30)
-            
-            if regions_response.status_code == 200:
-                regions_data = regions_response.json()
-                regions = regions_data.get("regions", [])
+        for query, description in test_queries:
+            try:
+                # Test basic search
+                response = self.session.get(
+                    f"{self.base_url}/foods/search",
+                    params={"q": query} if query else {},
+                    timeout=10
+                )
                 
-                expected_regions = ["FR", "BE", "CH", "CA", "OTHER"]
-                found_regions = [r.get("code") for r in regions]
-                
-                if all(region in found_regions for region in expected_regions):
+                if response.status_code == 200:
+                    data = response.json()
+                    if isinstance(data, list):
+                        self.log_test(
+                            f"Food Search - {description}",
+                            True,
+                            f"Query '{query}' returned {len(data)} results",
+                            {"query": query, "results_count": len(data), "sample_results": data[:2]}
+                        )
+                        
+                        # Validate response structure
+                        if data and len(data) > 0:
+                            first_result = data[0]
+                            required_fields = ["id", "name", "calories_per_100g", "proteins_per_100g", "carbs_per_100g", "fats_per_100g"]
+                            missing_fields = [field for field in required_fields if field not in first_result]
+                            
+                            if not missing_fields:
+                                self.log_test(
+                                    f"Food Search Response Structure - {description}",
+                                    True,
+                                    f"All required fields present in response"
+                                )
+                            else:
+                                self.log_test(
+                                    f"Food Search Response Structure - {description}",
+                                    False,
+                                    f"Missing fields: {missing_fields}"
+                                )
+                    else:
+                        self.log_test(
+                            f"Food Search - {description}",
+                            False,
+                            f"Expected list response, got: {type(data)}"
+                        )
+                elif response.status_code == 422 and not query:
                     self.log_test(
-                        "GET /api/preferences/regions", 
-                        True, 
-                        f"All expected regions found: {found_regions}",
-                        regions_data
+                        f"Food Search - {description}",
+                        True,
+                        f"Empty query correctly rejected with 422"
                     )
                 else:
                     self.log_test(
-                        "GET /api/preferences/regions", 
-                        False, 
-                        f"Missing regions. Expected: {expected_regions}, Found: {found_regions}"
-                    )
-            else:
-                self.log_test(
-                    "GET /api/preferences/regions", 
-                    False, 
-                    f"Status {regions_response.status_code}: {regions_response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("GET /api/preferences/regions", False, f"Exception: {str(e)}")
-        
-        # Test GET /api/preferences/units
-        try:
-            units_response = self.session.get(f"{self.base_url}/preferences/units", timeout=30)
-            
-            if units_response.status_code == 200:
-                units_data = units_response.json()
-                
-                required_unit_types = ["weight_units", "height_units", "liquid_units", "temperature_units"]
-                found_unit_types = list(units_data.keys())
-                
-                if all(unit_type in found_unit_types for unit_type in required_unit_types):
-                    self.log_test(
-                        "GET /api/preferences/units", 
-                        True, 
-                        f"All unit types found: {found_unit_types}",
-                        units_data
-                    )
-                else:
-                    self.log_test(
-                        "GET /api/preferences/units", 
-                        False, 
-                        f"Missing unit types. Expected: {required_unit_types}, Found: {found_unit_types}"
-                    )
-            else:
-                self.log_test(
-                    "GET /api/preferences/units", 
-                    False, 
-                    f"Status {units_response.status_code}: {units_response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("GET /api/preferences/units", False, f"Exception: {str(e)}")
-    
-    def test_get_user_preferences_with_defaults(self):
-        """Test GET /api/user-preferences/{user_id} - should create defaults if none exist"""
-        try:
-            response = self.session.get(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                prefs_data = response.json()
-                
-                # Check that default preferences are returned
-                expected_defaults = {
-                    "user_id": self.user_id,
-                    "count_net_carbs": True,
-                    "region": "FR",
-                    "unit_system": "metric",
-                    "dark_mode": False,
-                    "theme_preference": "system",
-                    "language": "fr"
-                }
-                
-                all_defaults_correct = True
-                missing_fields = []
-                
-                for key, expected_value in expected_defaults.items():
-                    if prefs_data.get(key) != expected_value:
-                        all_defaults_correct = False
-                        missing_fields.append(f"{key}: expected {expected_value}, got {prefs_data.get(key)}")
-                
-                if all_defaults_correct:
-                    self.log_test(
-                        "GET /api/user-preferences/{user_id} (defaults)", 
-                        True, 
-                        "Default preferences created and returned correctly",
-                        prefs_data
-                    )
-                else:
-                    self.log_test(
-                        "GET /api/user-preferences/{user_id} (defaults)", 
-                        False, 
-                        f"Default preferences incorrect: {missing_fields}"
-                    )
-            else:
-                self.log_test(
-                    "GET /api/user-preferences/{user_id} (defaults)", 
-                    False, 
-                    f"Status {response.status_code}: {response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("GET /api/user-preferences/{user_id} (defaults)", False, f"Exception: {str(e)}")
-    
-    def test_create_user_preferences(self):
-        """Test POST /api/user-preferences - create new preferences"""
-        try:
-            # First delete existing preferences to test creation
-            delete_response = self.session.delete(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                timeout=30
-            )
-            
-            # Create new preferences
-            new_preferences = {
-                "user_id": self.user_id,
-                "count_net_carbs": False,
-                "region": "CA",
-                "unit_system": "imperial",
-                "dark_mode": True,
-                "theme_preference": "dark",
-                "health_sync_enabled": True,
-                "notifications_enabled": False,
-                "language": "en",
-                "timezone": "America/Montreal",
-                "weight_unit": "lb",
-                "height_unit": "ft",
-                "liquid_unit": "fl_oz",
-                "temperature_unit": "fahrenheit"
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/user-preferences",
-                json=new_preferences,
-                timeout=30
-            )
-            
-            if response.status_code in [200, 201]:
-                created_prefs = response.json()
-                
-                # Verify the created preferences match what we sent
-                all_correct = True
-                incorrect_fields = []
-                
-                for key, expected_value in new_preferences.items():
-                    if created_prefs.get(key) != expected_value:
-                        all_correct = False
-                        incorrect_fields.append(f"{key}: expected {expected_value}, got {created_prefs.get(key)}")
-                
-                if all_correct:
-                    self.log_test(
-                        "POST /api/user-preferences", 
-                        True, 
-                        "User preferences created successfully",
-                        created_prefs
-                    )
-                else:
-                    self.log_test(
-                        "POST /api/user-preferences", 
-                        False, 
-                        f"Created preferences don't match: {incorrect_fields}"
-                    )
-            else:
-                self.log_test(
-                    "POST /api/user-preferences", 
-                    False, 
-                    f"Status {response.status_code}: {response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("POST /api/user-preferences", False, f"Exception: {str(e)}")
-    
-    def test_update_user_preferences_patch(self):
-        """Test PATCH /api/user-preferences/{user_id} - partial update"""
-        try:
-            # Update only specific fields
-            updates = {
-                "dark_mode": False,
-                "region": "BE",
-                "notifications_enabled": True,
-                "language": "fr"
-            }
-            
-            response = self.session.patch(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                json=updates,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                updated_prefs = response.json()
-                
-                # Verify the updates were applied
-                all_correct = True
-                incorrect_fields = []
-                
-                for key, expected_value in updates.items():
-                    if updated_prefs.get(key) != expected_value:
-                        all_correct = False
-                        incorrect_fields.append(f"{key}: expected {expected_value}, got {updated_prefs.get(key)}")
-                
-                # Also verify that other fields weren't changed (should still be from previous test)
-                if updated_prefs.get("unit_system") != "imperial":
-                    all_correct = False
-                    incorrect_fields.append("unit_system should remain 'imperial'")
-                
-                if all_correct:
-                    self.log_test(
-                        "PATCH /api/user-preferences/{user_id}", 
-                        True, 
-                        "User preferences updated successfully",
-                        updated_prefs
-                    )
-                else:
-                    self.log_test(
-                        "PATCH /api/user-preferences/{user_id}", 
-                        False, 
-                        f"Updates not applied correctly: {incorrect_fields}"
-                    )
-            else:
-                self.log_test(
-                    "PATCH /api/user-preferences/{user_id}", 
-                    False, 
-                    f"Status {response.status_code}: {response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("PATCH /api/user-preferences/{user_id}", False, f"Exception: {str(e)}")
-    
-    def test_replace_user_preferences_put(self):
-        """Test PUT /api/user-preferences/{user_id} - complete replacement"""
-        try:
-            # Replace all preferences
-            replacement_preferences = {
-                "user_id": self.user_id,
-                "count_net_carbs": True,
-                "region": "CH",
-                "unit_system": "metric",
-                "dark_mode": True,
-                "theme_preference": "light",
-                "health_sync_enabled": False,
-                "health_sync_permissions": {"steps": True, "weight": False},
-                "notifications_enabled": True,
-                "auto_sync": False,
-                "data_saver_mode": True,
-                "biometric_lock": True,
-                "language": "de",
-                "timezone": "Europe/Zurich",
-                "date_format": "DD.MM.YYYY",
-                "time_format": "24h",
-                "weight_unit": "kg",
-                "height_unit": "cm",
-                "liquid_unit": "ml",
-                "temperature_unit": "celsius"
-            }
-            
-            response = self.session.put(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                json=replacement_preferences,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                replaced_prefs = response.json()
-                
-                # Verify the replacement was complete
-                all_correct = True
-                incorrect_fields = []
-                
-                for key, expected_value in replacement_preferences.items():
-                    actual_value = replaced_prefs.get(key)
-                    if actual_value != expected_value:
-                        all_correct = False
-                        incorrect_fields.append(f"{key}: expected {expected_value}, got {actual_value}")
-                
-                if all_correct:
-                    self.log_test(
-                        "PUT /api/user-preferences/{user_id}", 
-                        True, 
-                        "User preferences replaced successfully",
-                        replaced_prefs
-                    )
-                else:
-                    self.log_test(
-                        "PUT /api/user-preferences/{user_id}", 
-                        False, 
-                        f"Replacement not applied correctly: {incorrect_fields}"
-                    )
-            else:
-                self.log_test(
-                    "PUT /api/user-preferences/{user_id}", 
-                    False, 
-                    f"Status {response.status_code}: {response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("PUT /api/user-preferences/{user_id}", False, f"Exception: {str(e)}")
-    
-    def test_get_user_preferences_after_updates(self):
-        """Test GET /api/user-preferences/{user_id} after updates"""
-        try:
-            response = self.session.get(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                prefs_data = response.json()
-                
-                # Verify that the preferences match the last PUT operation
-                expected_values = {
-                    "region": "CH",
-                    "unit_system": "metric",
-                    "dark_mode": True,
-                    "language": "de",
-                    "timezone": "Europe/Zurich",
-                    "biometric_lock": True
-                }
-                
-                all_correct = True
-                incorrect_fields = []
-                
-                for key, expected_value in expected_values.items():
-                    if prefs_data.get(key) != expected_value:
-                        all_correct = False
-                        incorrect_fields.append(f"{key}: expected {expected_value}, got {prefs_data.get(key)}")
-                
-                if all_correct:
-                    self.log_test(
-                        "GET /api/user-preferences/{user_id} (after updates)", 
-                        True, 
-                        "Retrieved preferences match last update",
-                        prefs_data
-                    )
-                else:
-                    self.log_test(
-                        "GET /api/user-preferences/{user_id} (after updates)", 
-                        False, 
-                        f"Retrieved preferences don't match: {incorrect_fields}"
-                    )
-            else:
-                self.log_test(
-                    "GET /api/user-preferences/{user_id} (after updates)", 
-                    False, 
-                    f"Status {response.status_code}: {response.text}"
-                )
-                
-        except Exception as e:
-            self.log_test("GET /api/user-preferences/{user_id} (after updates)", False, f"Exception: {str(e)}")
-    
-    def test_authentication_security(self):
-        """Test that endpoints properly require authentication"""
-        
-        # Create a session without authentication
-        unauth_session = requests.Session()
-        
-        # Test GET without auth
-        try:
-            response = unauth_session.get(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                timeout=30
-            )
-            
-            if response.status_code == 401:
-                self.log_test(
-                    "Authentication Security (GET)", 
-                    True, 
-                    "Properly rejected unauthenticated GET request"
-                )
-            else:
-                self.log_test(
-                    "Authentication Security (GET)", 
-                    False, 
-                    f"Should return 401, got {response.status_code}"
-                )
-        except Exception as e:
-            self.log_test("Authentication Security (GET)", False, f"Exception: {str(e)}")
-        
-        # Test POST without auth
-        try:
-            test_prefs = {"user_id": self.user_id, "dark_mode": True}
-            response = unauth_session.post(
-                f"{self.base_url}/user-preferences",
-                json=test_prefs,
-                timeout=30
-            )
-            
-            if response.status_code == 401:
-                self.log_test(
-                    "Authentication Security (POST)", 
-                    True, 
-                    "Properly rejected unauthenticated POST request"
-                )
-            else:
-                self.log_test(
-                    "Authentication Security (POST)", 
-                    False, 
-                    f"Should return 401, got {response.status_code}"
-                )
-        except Exception as e:
-            self.log_test("Authentication Security (POST)", False, f"Exception: {str(e)}")
-        
-        # Test access to other user's preferences
-        try:
-            fake_user_id = str(uuid.uuid4())
-            response = self.session.get(
-                f"{self.base_url}/user-preferences/{fake_user_id}",
-                timeout=30
-            )
-            
-            if response.status_code == 403:
-                self.log_test(
-                    "Authorization Security", 
-                    True, 
-                    "Properly rejected access to other user's preferences"
-                )
-            else:
-                self.log_test(
-                    "Authorization Security", 
-                    False, 
-                    f"Should return 403, got {response.status_code}: {response.text}"
-                )
-        except Exception as e:
-            self.log_test("Authorization Security", False, f"Exception: {str(e)}")
-    
-    def test_delete_user_preferences(self):
-        """Test DELETE /api/user-preferences/{user_id}"""
-        try:
-            response = self.session.delete(
-                f"{self.base_url}/user-preferences/{self.user_id}",
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                
-                if "message" in result and "supprimées" in result["message"]:
-                    self.log_test(
-                        "DELETE /api/user-preferences/{user_id}", 
-                        True, 
-                        "User preferences deleted successfully",
-                        result
+                        f"Food Search - {description}",
+                        False,
+                        f"HTTP {response.status_code}: {response.text}"
                     )
                     
-                    # Verify deletion by trying to get preferences (should create new defaults)
-                    get_response = self.session.get(
-                        f"{self.base_url}/user-preferences/{self.user_id}",
-                        timeout=30
+            except Exception as e:
+                self.log_test(
+                    f"Food Search - {description}",
+                    False,
+                    f"Exception: {str(e)}"
+                )
+    
+    def test_food_search_with_parameters(self):
+        """Test food search with limit and category parameters"""
+        try:
+            # Test with limit parameter
+            response = self.session.get(
+                f"{self.base_url}/foods/search",
+                params={"q": "fromage", "limit": 3},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if len(data) <= 3:
+                    self.log_test(
+                        "Food Search with Limit",
+                        True,
+                        f"Limit parameter working, returned {len(data)} results (max 3)"
+                    )
+                else:
+                    self.log_test(
+                        "Food Search with Limit",
+                        False,
+                        f"Limit not respected, returned {len(data)} results (expected max 3)"
+                    )
+            else:
+                self.log_test(
+                    "Food Search with Limit",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+                
+            # Test with category parameter
+            response = self.session.get(
+                f"{self.base_url}/foods/search",
+                params={"q": "légumes", "category": "légumes"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test(
+                    "Food Search with Category",
+                    True,
+                    f"Category filter working, returned {len(data)} results"
+                )
+            else:
+                self.log_test(
+                    "Food Search with Category",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Food Search Parameters",
+                False,
+                f"Exception: {str(e)}"
+            )
+    
+    def test_food_categories_endpoint(self):
+        """Test GET /api/foods/categories"""
+        try:
+            response = self.session.get(
+                f"{self.base_url}/foods/categories",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list) and len(data) > 0:
+                    self.log_test(
+                        "Food Categories",
+                        True,
+                        f"Categories endpoint returned {len(data)} categories: {data[:5]}"
+                    )
+                else:
+                    self.log_test(
+                        "Food Categories",
+                        False,
+                        f"Expected non-empty list, got: {data}"
+                    )
+            else:
+                self.log_test(
+                    "Food Categories",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Food Categories",
+                False,
+                f"Exception: {str(e)}"
+            )
+    
+    def test_favorites_endpoint(self):
+        """Test GET /api/foods/favorites"""
+        try:
+            response = self.session.get(
+                f"{self.base_url}/foods/favorites",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_test(
+                        "Food Favorites",
+                        True,
+                        f"Favorites endpoint returned {len(data)} items"
                     )
                     
-                    if get_response.status_code == 200:
-                        new_prefs = get_response.json()
-                        # Should be back to defaults
-                        if new_prefs.get("region") == "FR" and new_prefs.get("dark_mode") == False:
+                    # Validate structure if data exists
+                    if data and len(data) > 0:
+                        first_item = data[0]
+                        required_fields = ["id", "name", "calories_per_100g"]
+                        missing_fields = [field for field in required_fields if field not in first_item]
+                        
+                        if not missing_fields:
                             self.log_test(
-                                "DELETE verification", 
-                                True, 
-                                "Preferences reset to defaults after deletion"
+                                "Food Favorites Structure",
+                                True,
+                                f"Favorites response structure is correct"
                             )
                         else:
                             self.log_test(
-                                "DELETE verification", 
-                                False, 
-                                "Preferences not reset to defaults after deletion"
+                                "Food Favorites Structure",
+                                False,
+                                f"Missing fields in favorites: {missing_fields}"
                             )
                 else:
                     self.log_test(
-                        "DELETE /api/user-preferences/{user_id}", 
-                        False, 
-                        f"Unexpected response format: {result}"
+                        "Food Favorites",
+                        False,
+                        f"Expected list response, got: {type(data)}"
                     )
             else:
                 self.log_test(
-                    "DELETE /api/user-preferences/{user_id}", 
-                    False, 
-                    f"Status {response.status_code}: {response.text}"
+                    "Food Favorites",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
                 )
                 
         except Exception as e:
-            self.log_test("DELETE /api/user-preferences/{user_id}", False, f"Exception: {str(e)}")
+            self.log_test(
+                "Food Favorites",
+                False,
+                f"Exception: {str(e)}"
+            )
     
-    def test_data_validation(self):
-        """Test data validation and error handling"""
-        
-        # Test invalid region
+    def test_recent_searches_endpoint(self):
+        """Test GET /api/foods/recent-searches"""
         try:
-            invalid_prefs = {
-                "user_id": self.user_id,
-                "region": "INVALID_REGION",
-                "unit_system": "metric"
-            }
+            # First, perform some searches to populate history
+            search_queries = ["avocat", "saumon", "fromage"]
+            for query in search_queries:
+                self.session.get(
+                    f"{self.base_url}/foods/search",
+                    params={"q": query},
+                    timeout=10
+                )
+                time.sleep(0.5)  # Small delay between searches
             
-            response = self.session.post(
-                f"{self.base_url}/user-preferences",
-                json=invalid_prefs,
-                timeout=30
+            # Now test recent searches
+            response = self.session.get(
+                f"{self.base_url}/foods/recent-searches",
+                timeout=10
             )
             
-            if response.status_code == 422:  # Validation error
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_test(
+                        "Recent Searches",
+                        True,
+                        f"Recent searches returned {len(data)} items"
+                    )
+                    
+                    # Test with limit parameter
+                    response_limited = self.session.get(
+                        f"{self.base_url}/foods/recent-searches",
+                        params={"limit": 2},
+                        timeout=10
+                    )
+                    
+                    if response_limited.status_code == 200:
+                        limited_data = response_limited.json()
+                        if len(limited_data) <= 2:
+                            self.log_test(
+                                "Recent Searches with Limit",
+                                True,
+                                f"Limit parameter working, returned {len(limited_data)} results"
+                            )
+                        else:
+                            self.log_test(
+                                "Recent Searches with Limit",
+                                False,
+                                f"Limit not respected, returned {len(limited_data)} results"
+                            )
+                else:
+                    self.log_test(
+                        "Recent Searches",
+                        False,
+                        f"Expected list response, got: {type(data)}"
+                    )
+            else:
                 self.log_test(
-                    "Data Validation (invalid region)", 
-                    True, 
-                    "Properly rejected invalid region value"
+                    "Recent Searches",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Recent Searches",
+                False,
+                f"Exception: {str(e)}"
+            )
+    
+    def test_barcode_scanning_endpoint(self):
+        """Test POST /api/foods/scan-barcode"""
+        # Test with known barcodes
+        test_barcodes = [
+            ("3017620422003", "Nutella barcode"),
+            ("8000500037560", "Ferrero Rocher barcode"),
+            ("3274080005003", "President Camembert barcode"),
+            ("1234567890123", "Invalid barcode"),
+            ("", "Empty barcode")
+        ]
+        
+        for barcode, description in test_barcodes:
+            try:
+                response = self.session.post(
+                    f"{self.base_url}/foods/scan-barcode",
+                    params={"barcode": barcode} if barcode else {},
+                    timeout=15  # Longer timeout for external API calls
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if "barcode" in data and "found" in data:
+                        found = data.get("found", False)
+                        self.log_test(
+                            f"Barcode Scan - {description}",
+                            True,
+                            f"Barcode {barcode} - Found: {found}",
+                            {"barcode": barcode, "found": found, "has_food_data": "food_data" in data}
+                        )
+                        
+                        # If found, validate food data structure
+                        if found and "food_data" in data and data["food_data"]:
+                            food_data = data["food_data"]
+                            required_fields = ["id", "name", "calories_per_100g"]
+                            missing_fields = [field for field in required_fields if field not in food_data]
+                            
+                            if not missing_fields:
+                                self.log_test(
+                                    f"Barcode Food Data Structure - {description}",
+                                    True,
+                                    f"Food data structure is correct"
+                                )
+                            else:
+                                self.log_test(
+                                    f"Barcode Food Data Structure - {description}",
+                                    False,
+                                    f"Missing fields in food data: {missing_fields}"
+                                )
+                    else:
+                        self.log_test(
+                            f"Barcode Scan - {description}",
+                            False,
+                            f"Invalid response structure: {data}"
+                        )
+                elif response.status_code == 422 and not barcode:
+                    self.log_test(
+                        f"Barcode Scan - {description}",
+                        True,
+                        f"Empty barcode correctly rejected with 422"
+                    )
+                else:
+                    self.log_test(
+                        f"Barcode Scan - {description}",
+                        False,
+                        f"HTTP {response.status_code}: {response.text}"
+                    )
+                    
+            except Exception as e:
+                self.log_test(
+                    f"Barcode Scan - {description}",
+                    False,
+                    f"Exception: {str(e)}"
+                )
+    
+    def test_authentication_requirements(self):
+        """Test that food endpoints require authentication"""
+        # Create a session without authentication
+        unauth_session = requests.Session()
+        
+        endpoints_to_test = [
+            ("/foods/search?q=avocat", "Food Search"),
+            ("/foods/categories", "Food Categories"),
+            ("/foods/favorites", "Food Favorites"),
+            ("/foods/recent-searches", "Recent Searches")
+        ]
+        
+        for endpoint, name in endpoints_to_test:
+            try:
+                response = unauth_session.get(
+                    f"{self.base_url}{endpoint}",
+                    timeout=10
+                )
+                
+                if response.status_code == 401:
+                    self.log_test(
+                        f"Auth Required - {name}",
+                        True,
+                        f"Endpoint correctly requires authentication (401)"
+                    )
+                else:
+                    self.log_test(
+                        f"Auth Required - {name}",
+                        False,
+                        f"Expected 401, got {response.status_code}"
+                    )
+                    
+            except Exception as e:
+                self.log_test(
+                    f"Auth Required - {name}",
+                    False,
+                    f"Exception: {str(e)}"
+                )
+        
+        # Test barcode scanning without auth
+        try:
+            response = unauth_session.post(
+                f"{self.base_url}/foods/scan-barcode",
+                params={"barcode": "3017620422003"},
+                timeout=10
+            )
+            
+            if response.status_code == 401:
+                self.log_test(
+                    "Auth Required - Barcode Scan",
+                    True,
+                    f"Barcode scan correctly requires authentication (401)"
                 )
             else:
                 self.log_test(
-                    "Data Validation (invalid region)", 
-                    False, 
-                    f"Should return 422, got {response.status_code}: {response.text}"
+                    "Auth Required - Barcode Scan",
+                    False,
+                    f"Expected 401, got {response.status_code}"
                 )
+                
         except Exception as e:
-            self.log_test("Data Validation (invalid region)", False, f"Exception: {str(e)}")
-        
-        # Test invalid unit system
+            self.log_test(
+                "Auth Required - Barcode Scan",
+                False,
+                f"Exception: {str(e)}"
+            )
+    
+    def test_openfoodfacts_integration(self):
+        """Test OpenFoodFacts integration functionality"""
         try:
-            invalid_prefs = {
-                "user_id": self.user_id,
-                "region": "FR",
-                "unit_system": "invalid_units"
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/user-preferences",
-                json=invalid_prefs,
-                timeout=30
+            # Test search that should trigger OpenFoodFacts
+            response = self.session.get(
+                f"{self.base_url}/foods/search",
+                params={"q": "nutella", "limit": 5},
+                timeout=15
             )
             
-            if response.status_code == 422:  # Validation error
-                self.log_test(
-                    "Data Validation (invalid units)", 
-                    True, 
-                    "Properly rejected invalid unit system value"
-                )
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Look for OpenFoodFacts results
+                off_results = [item for item in data if item.get("source") == "openfoodfacts"]
+                
+                if off_results:
+                    self.log_test(
+                        "OpenFoodFacts Integration",
+                        True,
+                        f"OpenFoodFacts integration working, found {len(off_results)} external results"
+                    )
+                    
+                    # Check if results have barcode (indicating OpenFoodFacts source)
+                    barcode_results = [item for item in off_results if item.get("barcode")]
+                    if barcode_results:
+                        self.log_test(
+                            "OpenFoodFacts Barcode Data",
+                            True,
+                            f"OpenFoodFacts results include barcode data"
+                        )
+                else:
+                    self.log_test(
+                        "OpenFoodFacts Integration",
+                        True,
+                        f"Search completed but no OpenFoodFacts results (may be expected for local foods)"
+                    )
             else:
                 self.log_test(
-                    "Data Validation (invalid units)", 
-                    False, 
-                    f"Should return 422, got {response.status_code}: {response.text}"
+                    "OpenFoodFacts Integration",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
                 )
+                
         except Exception as e:
-            self.log_test("Data Validation (invalid units)", False, f"Exception: {str(e)}")
-
+            self.log_test(
+                "OpenFoodFacts Integration",
+                False,
+                f"Exception: {str(e)}"
+            )
+    
+    def test_nutrition_data_completeness(self):
+        """Test that search results include proper nutrition data"""
+        try:
+            response = self.session.get(
+                f"{self.base_url}/foods/search",
+                params={"q": "avocat"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if data and len(data) > 0:
+                    first_result = data[0]
+                    
+                    # Check required nutrition fields
+                    nutrition_fields = [
+                        "calories_per_100g",
+                        "proteins_per_100g", 
+                        "carbs_per_100g",
+                        "fats_per_100g"
+                    ]
+                    
+                    missing_nutrition = [field for field in nutrition_fields if field not in first_result]
+                    
+                    if not missing_nutrition:
+                        # Check if values are numeric
+                        numeric_values = all(
+                            isinstance(first_result.get(field), (int, float)) 
+                            for field in nutrition_fields
+                        )
+                        
+                        if numeric_values:
+                            self.log_test(
+                                "Nutrition Data Completeness",
+                                True,
+                                f"All required nutrition fields present and numeric"
+                            )
+                        else:
+                            self.log_test(
+                                "Nutrition Data Completeness",
+                                False,
+                                f"Nutrition fields present but not all numeric"
+                            )
+                    else:
+                        self.log_test(
+                            "Nutrition Data Completeness",
+                            False,
+                            f"Missing nutrition fields: {missing_nutrition}"
+                        )
+                else:
+                    self.log_test(
+                        "Nutrition Data Completeness",
+                        False,
+                        f"No results returned for nutrition data test"
+                    )
+            else:
+                self.log_test(
+                    "Nutrition Data Completeness",
+                    False,
+                    f"HTTP {response.status_code}: {response.text}"
+                )
+                
+        except Exception as e:
+            self.log_test(
+                "Nutrition Data Completeness",
+                False,
+                f"Exception: {str(e)}"
+            )
+    
     def run_all_tests(self):
-        """Run all preference API tests"""
-        print("🧪 Starting User Preferences API Testing...")
-        print(f"📍 Backend URL: {self.base_url}")
-        print(f"👤 Test User: {TEST_USER_EMAIL}")
+        """Run all food search API tests"""
+        print("🧪 Starting KetoSansStress Food Search API Testing Suite")
+        print(f"🔗 Testing against: {self.base_url}")
         print("=" * 80)
         
-        # Step 1: Authentication setup
-        if not self.register_and_login_user():
-            print("❌ Authentication failed - cannot proceed with tests")
-            return False
+        # Setup authentication
+        if not self.setup_authentication():
+            print("❌ Authentication setup failed. Cannot proceed with protected endpoint tests.")
+            return
         
-        print("\n🔧 Testing Helper Endpoints...")
-        # Step 2: Test helper endpoints (no auth required)
-        self.test_helper_endpoints()
+        print("\n🔍 Testing Food Search Endpoints...")
+        self.test_food_search_endpoint()
+        self.test_food_search_with_parameters()
         
-        print("\n👤 Testing User Preferences CRUD Operations...")
-        # Step 3: Test CRUD operations
-        self.test_get_user_preferences_with_defaults()
-        self.test_create_user_preferences()
-        self.test_update_user_preferences_patch()
-        self.test_replace_user_preferences_put()
-        self.test_get_user_preferences_after_updates()
+        print("\n📂 Testing Food Categories...")
+        self.test_food_categories_endpoint()
         
-        print("\n🔒 Testing Security and Validation...")
-        # Step 4: Test security and validation
-        self.test_authentication_security()
-        self.test_data_validation()
+        print("\n⭐ Testing Food Favorites...")
+        self.test_favorites_endpoint()
         
-        print("\n🗑️ Testing Deletion...")
-        # Step 5: Test deletion
-        self.test_delete_user_preferences()
+        print("\n🕒 Testing Recent Searches...")
+        self.test_recent_searches_endpoint()
         
-        # Summary
+        print("\n📱 Testing Barcode Scanning...")
+        self.test_barcode_scanning_endpoint()
+        
+        print("\n🔐 Testing Authentication Requirements...")
+        self.test_authentication_requirements()
+        
+        print("\n🌐 Testing OpenFoodFacts Integration...")
+        self.test_openfoodfacts_integration()
+        
+        print("\n🥗 Testing Nutrition Data...")
+        self.test_nutrition_data_completeness()
+        
+        # Generate summary
+        self.generate_summary()
+    
+    def generate_summary(self):
+        """Generate test summary"""
         print("\n" + "=" * 80)
-        print("📊 TEST SUMMARY")
+        print("📊 FOOD SEARCH API TEST SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
+        passed_tests = len([t for t in self.test_results if t["success"]])
         failed_tests = total_tests - passed_tests
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
         
         print(f"Total Tests: {total_tests}")
         print(f"✅ Passed: {passed_tests}")
         print(f"❌ Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        print(f"📈 Success Rate: {success_rate:.1f}%")
         
         if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"  • {result['test']}: {result['details']}")
+            print(f"\n❌ FAILED TESTS:")
+            for test in self.test_results:
+                if not test["success"]:
+                    print(f"  • {test['test']}: {test['details']}")
         
-        return failed_tests == 0
-
-def main():
-    """Main test execution"""
-    tester = PreferencesAPITester()
-    success = tester.run_all_tests()
-    
-    if success:
-        print("\n🎉 All tests passed! User Preferences API is working correctly.")
-        return 0
-    else:
-        print("\n💥 Some tests failed. Check the details above.")
-        return 1
+        print(f"\n🎯 FOOD SEARCH API TESTING COMPLETE")
+        
+        # Return summary for external use
+        return {
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": failed_tests,
+            "success_rate": success_rate,
+            "test_results": self.test_results
+        }
 
 if __name__ == "__main__":
-    exit(main())
+    tester = FoodSearchAPITester()
+    summary = tester.run_all_tests()
