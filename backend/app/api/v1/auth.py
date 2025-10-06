@@ -50,6 +50,46 @@ class PasswordReset(BaseModel):
 class PasswordUpdate(BaseModel):
     password: str
 
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=8)
+    
+    @field_validator('new_password')
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        """Validate password strength"""
+        import re
+        
+        if len(v) < 8:
+            raise ValueError('Le mot de passe doit contenir au moins 8 caractères')
+        
+        # Check for lowercase
+        if not re.search(r'[a-z]', v):
+            raise ValueError('Le mot de passe doit contenir au moins une lettre minuscule')
+            
+        # Check for uppercase  
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Le mot de passe doit contenir au moins une lettre majuscule')
+            
+        # Check for digit
+        if not re.search(r'\d', v):
+            raise ValueError('Le mot de passe doit contenir au moins un chiffre')
+            
+        # Check for special character
+        if not re.search(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]', v):
+            raise ValueError('Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*)')
+            
+        return v
+
+class ProfileUpdateRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, max_length=100)
+    age: int = Field(..., ge=13, le=120)
+    gender: str = Field(..., regex="^(male|female|other)$")
+    height: float = Field(..., ge=100, le=250)
+    weight: float = Field(..., ge=30, le=300)
+    activity_level: str = Field(default="moderately_active")
+    goal: str = Field(default="maintenance")
+
 class EmailConfirmationRequest(BaseModel):
     token: str
 
