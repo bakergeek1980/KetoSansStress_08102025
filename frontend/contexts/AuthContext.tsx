@@ -146,7 +146,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         return true;
       } else {
-        Alert.alert('Erreur de connexion', data.detail || 'Identifiants invalides');
+        // Gestion spéciale pour email non confirmé
+        if (response.status === 403 && data.detail && data.detail.includes('Email not confirmed')) {
+          // Rediriger vers la page de confirmation d'email
+          Alert.alert(
+            'Email non confirmé',
+            'Vous devez confirmer votre adresse email avant de pouvoir vous connecter. Vérifiez votre boîte mail.',
+            [
+              { text: 'Annuler', style: 'cancel' },
+              { 
+                text: 'Ouvrir la page de confirmation', 
+                onPress: () => {
+                  // Utiliser router pour rediriger (doit être passé en paramètre ou récupéré autrement)
+                  // Pour l'instant, on utilise l'alert simple
+                }
+              }
+            ]
+          );
+        } else {
+          Alert.alert('Erreur de connexion', data.detail || 'Identifiants invalides');
+        }
         return false;
       }
     } catch (error) {
