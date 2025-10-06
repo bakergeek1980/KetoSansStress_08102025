@@ -113,16 +113,20 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
               outline: 'none',
               backgroundColor: 'transparent',
               fontFamily: 'System',
+              width: '100%',
+              height: '100%',
             }}
             type={isPassword && !isPasswordVisible ? 'password' : (textInputProps.keyboardType === 'email-address' ? 'email' : 'text')}
             value={value || ''}
-            onChange={(e) => onChangeText(e.target.value)}
+            onInput={(e) => handleChangeText(e.target.value)}
+            onChange={(e) => handleChangeText(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder={textInputProps.placeholder}
             disabled={false}
             readOnly={false}
             autoComplete="off"
+            spellCheck={false}
           />
         ) : (
           // Version MOBILE avec TextInput React Native
