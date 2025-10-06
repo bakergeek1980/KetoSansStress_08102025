@@ -210,42 +210,44 @@ class BackendTester:
 
     def test_existing_user_login(self):
         """Test login with potentially existing confirmed user"""
-        # Try with a demo user that might exist and be confirmed
-        demo_login_data = {
-            "email": "demo@ketosansstress.com",
-            "password": "DemoPass123!"
-        }
+        # Try with demo credentials mentioned in test results
+        demo_credentials = [
+            {"email": "demo@ketosansstress.com", "password": "password123"},
+            {"email": "demo@keto.fr", "password": "password123"},
+            {"email": "demo@ketosansstress.com", "password": "DemoPass123!"}
+        ]
         
-        try:
-            response = self.session.post(
-                f"{BACKEND_URL}/auth/login",
-                json=demo_login_data,
-                headers={"Content-Type": "application/json"}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.auth_token = data.get("access_token")
-                
-                self.log_test(
-                    "Demo User Login", 
-                    True, 
-                    f"Demo user login successful. Token received: {bool(self.auth_token)}",
-                    {"user_id": data.get("user", {}).get("id"), "expires_in": data.get("expires_in")}
+        for creds in demo_credentials:
+            try:
+                response = self.session.post(
+                    f"{BACKEND_URL}/auth/login",
+                    json=creds,
+                    headers={"Content-Type": "application/json"}
                 )
-                return True
-            else:
-                self.log_test(
-                    "Demo User Login", 
-                    False, 
-                    f"Demo user login failed: HTTP {response.status_code}",
-                    response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
-                )
-                return False
                 
-        except Exception as e:
-            self.log_test("Demo User Login", False, f"Exception: {str(e)}")
-            return False
+                if response.status_code == 200:
+                    data = response.json()
+                    self.auth_token = data.get("access_token")
+                    
+                    self.log_test(
+                        "Demo User Login", 
+                        True, 
+                        f"Demo user login successful with {creds['email']}. Token received: {bool(self.auth_token)}",
+                        {"user_id": data.get("user", {}).get("id"), "expires_in": data.get("expires_in")}
+                    )
+                    return True
+                    
+            except Exception as e:
+                continue
+        
+        # If all demo credentials fail
+        self.log_test(
+            "Demo User Login", 
+            False, 
+            "All demo user login attempts failed - no confirmed users available for testing",
+            "Tried: demo@ketosansstress.com, demo@keto.fr with various passwords"
+        )
+        return False
 
     def test_get_current_user(self):
         """Test GET /api/auth/me endpoint"""
