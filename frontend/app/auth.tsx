@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { loginSchema, registerSchema } from '../validation/schemas';
 import ValidatedInput from '../components/forms/ValidatedInput';
+import SimpleInput from '../components/forms/SimpleInput';
 import LoadingButton from '../components/forms/LoadingButton';
 import Select from '../components/forms/Select';
 
