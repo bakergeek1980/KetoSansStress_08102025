@@ -9,7 +9,7 @@ import base64
 from jose import jwt
 
 # Get a token first
-BACKEND_URL = "https://ketometrics.preview.emergentagent.com/api"
+BACKEND_URL = "https://ketolite.preview.emergentagent.com/api"
 DEMO_EMAIL = "demo@keto.fr"
 DEMO_PASSWORD = "demo123456"
 
