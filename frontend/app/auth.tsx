@@ -106,8 +106,17 @@ export default function AuthScreen() {
     mode: 'onChange',
   });
 
-  const onLoginSubmit = async (data: LoginFormData) => {
-    const result = await login(data.email, data.password);
+  // ✅ Nouvelle fonction de connexion avec état local
+  const handleLoginSubmit = async () => {
+    console.log('🎯 Login submit avec état local:', loginData);
+    
+    // Validation simple
+    if (!loginData.email || !loginData.password) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      return;
+    }
+
+    const result = await login(loginData.email, loginData.password);
     
     if (result.success) {
       router.replace('/(tabs)');
@@ -120,7 +129,7 @@ export default function AuthScreen() {
           { 
             text: 'Confirmer mon email', 
             onPress: () => {
-              router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}`);
+              router.push(`/email-confirmation?email=${encodeURIComponent(loginData.email)}`);
             }
           }
         ]
