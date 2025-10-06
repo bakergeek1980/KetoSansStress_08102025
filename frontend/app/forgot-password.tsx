@@ -56,33 +56,9 @@ export default function ForgotPasswordScreen() {
   });
 
   const handleForgotPassword = async (data: ForgotPasswordData) => {
-    try {
-      setLoading(true);
-      
-      // TODO: Appeler l'API Supabase pour reset password
-      // const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-      //   redirectTo: 'https://ketosansstress.app/reset-password'
-      // });
-
-      // Simulation d'un appel API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+    const success = await requestPasswordReset(data.email);
+    if (success) {
       setEmailSent(true);
-      Alert.alert(
-        'Email envoyé !',
-        '📩 Un lien de réinitialisation vous a été envoyé à votre adresse email.',
-        [{ text: 'OK' }]
-      );
-
-    } catch (error) {
-      console.error('Forgot password error:', error);
-      Alert.alert(
-        'Erreur',
-        'Impossible d\'envoyer l\'email de réinitialisation. Veuillez réessayer.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setLoading(false);
     }
   };
 
