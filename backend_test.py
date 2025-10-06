@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for KetoSansStress User Profile Management System
-Tests the newly implemented user profile management endpoints
+Backend Testing Suite for KetoSansStress Email Confirmation System
+Tests the complete integrated email confirmation workflow
 """
 
 import requests
 import json
 import time
+import os
+from datetime import datetime
 from typing import Dict, Any, Optional
-import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Configuration
+BACKEND_URL = "https://ketometrics.preview.emergentagent.com/api"
+TEST_EMAIL = "test.confirmation@ketosansstress.com"
+TEST_PASSWORD = "TestConfirm123!"
 
-class KetoSansStressAPITester:
+class EmailConfirmationTester:
     def __init__(self):
         # Use the production URL from frontend .env
         self.base_url = "https://ketometrics.preview.emergentagent.com/api"
