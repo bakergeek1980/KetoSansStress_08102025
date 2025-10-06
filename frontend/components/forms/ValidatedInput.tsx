@@ -106,6 +106,10 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
           editable={true}
           selectTextOnFocus={true}
           autoComplete="off"
+          readOnly={false}
+          disabled={false}
+          tabIndex={0}
+          aria-hidden={false}
           {...textInputProps}
         />
 
