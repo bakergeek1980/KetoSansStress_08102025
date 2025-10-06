@@ -50,6 +50,12 @@ class PasswordReset(BaseModel):
 class PasswordUpdate(BaseModel):
     password: str
 
+class EmailConfirmationRequest(BaseModel):
+    token: str
+
+class ResendConfirmationRequest(BaseModel):
+    email: EmailStr
+
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserRegistration,
