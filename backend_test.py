@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-KetoSansStress Backend Testing Suite - Food Search API Focus
-Comprehensive testing of the newly implemented Food Search API endpoints
+KetoSansStress Authentication System Testing
+Comprehensive testing of enhanced registration and login functionality
 """
 
 import requests
 import json
 import time
+import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, Any, Optional
 
-# Configuration
+# Test Configuration
 BASE_URL = "https://ketotrackerapp-1.preview.emergentagent.com/api"
-TEST_USER_EMAIL = "foodtest@ketosansstress.com"
-TEST_USER_PASSWORD = "FoodTest123!"
+TEST_EMAIL = "test.user@ketosansstress.com"
+TEST_PASSWORD = "KetoTest123!"
+DUPLICATE_TEST_EMAIL = "duplicate.test@ketosansstress.com"
 
 class FoodSearchAPITester:
     def __init__(self):
