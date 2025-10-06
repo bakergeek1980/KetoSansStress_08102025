@@ -33,23 +33,7 @@ const COLORS = {
   border: '#E0E0E0',
 };
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-interface RegisterFormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  full_name: string;
-  age: number;
-  gender: 'male' | 'female' | 'other';
-  height: number;
-  weight: number;
-  activity_level: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active';
-  goal: 'weight_loss' | 'weight_gain' | 'maintenance' | 'muscle_gain' | 'fat_loss';
-}
+// Interfaces supprimées - maintenant utilisation d'état local
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(false);
