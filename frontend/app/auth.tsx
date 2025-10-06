@@ -342,10 +342,14 @@ export default function AuthScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.logoContainer}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>K</Text>
+          <View style={styles.logoWrapper}>
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoText}>K</Text>
+            </View>
+            <View style={styles.logoRing}></View>
           </View>
           <Text style={styles.appName}>KetoSansStress</Text>
+          <Text style={styles.appTagline}>Votre compagnon cétogène au quotidien</Text>
         </View>
 
         {isLogin ? renderLoginForm() : renderRegisterForm()}
