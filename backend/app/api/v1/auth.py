@@ -130,8 +130,24 @@ async def register_user(
         })
 
         if auth_response.user:
-            # Forcer la confirmation d'email (toujours activée)
-            needs_email_confirmation = True
+            # Vérifier si l'email est confirmé ou pas
+            needs_email_confirmation = not auth_response.user.email_confirmed_at
+            
+            # Si l'email n'est pas confirmé, envoyer l'email de confirmation
+            if needs_email_confirmation:
+                try:
+                    # Envoyer explicitement l'email de confirmation
+                    resend_response = supabase.auth.resend({
+                        "type": "signup",
+                        "email": user_data.email,
+                        "options": {
+                            "email_redirect_to": "https://ketosansstress.app/confirm"
+                        }
+                    })
+                    logger.info(f"Email de confirmation envoyé à {user_data.email}")
+                except Exception as e:
+                    logger.error(f"Erreur envoi email de confirmation: {e}")
+                    # Continue même si l'envoi d'email échoue
             
             # Si pas de confirmation nécessaire, créer le profil immédiatement
             if not needs_email_confirmation:
