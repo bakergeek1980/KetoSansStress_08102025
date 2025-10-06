@@ -395,6 +395,12 @@ export default function HomeScreen() {
         visible={settingsModalVisible}
         onClose={() => setSettingsModalVisible(false)}
       />
+
+      {/* Modal de profil utilisateur */}
+      <UserProfileModal
+        visible={userProfileModalVisible}
+        onClose={() => setUserProfileModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
