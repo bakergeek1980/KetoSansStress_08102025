@@ -611,6 +611,13 @@ export default function FoodSearchModal({
               </LoadingButton>
             </View>
           )}
+
+          {/* Scanner Modal */}
+          <BarcodeScannerModal
+            visible={scannerVisible}
+            onClose={() => setScannerVisible(false)}
+            onFoodFound={handleScannedFoodFound}
+          />
         </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
