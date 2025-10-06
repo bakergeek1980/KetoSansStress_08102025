@@ -7,7 +7,7 @@ import requests
 import logging
 from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(prefix="/foods", tags=["Foods"])
 
 # Configuration des logs
 logging.basicConfig(level=logging.INFO)
