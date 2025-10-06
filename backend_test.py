@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://ketosansstress.preview.emergentagent.com/api"
+BACKEND_URL = "http://localhost:8001/api"
 
 # Standard test data for all registrations
 STANDARD_TEST_DATA = {
