@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; needsEmailConfirmation?: boolean; email?: string }> => {
     try {
       setLoading(true);
       
@@ -144,34 +144,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setToken(access_token);
         setUser(userData);
         
-        return true;
+        return { success: true };
       } else {
         // Gestion spéciale pour email non confirmé
         if (response.status === 403 && data.detail && data.detail.includes('Email not confirmed')) {
-          // Rediriger vers la page de confirmation d'email
-          Alert.alert(
-            'Email non confirmé',
-            'Vous devez confirmer votre adresse email avant de pouvoir vous connecter. Vérifiez votre boîte mail.',
-            [
-              { text: 'Annuler', style: 'cancel' },
-              { 
-                text: 'Ouvrir la page de confirmation', 
-                onPress: () => {
-                  // Utiliser router pour rediriger (doit être passé en paramètre ou récupéré autrement)
-                  // Pour l'instant, on utilise l'alert simple
-                }
-              }
-            ]
-          );
+          return { 
+            success: false, 
+            needsEmailConfirmation: true, 
+            email: email 
+          };
         } else {
           Alert.alert('Erreur de connexion', data.detail || 'Identifiants invalides');
+          return { success: false };
         }
-        return false;
       }
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Erreur', 'Problème de connexion au serveur');
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
     }
