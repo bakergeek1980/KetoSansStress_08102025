@@ -247,6 +247,30 @@ const styles = StyleSheet.create({
   inputWithRightIcon: {
     paddingRight: 0,
   },
+  webInput: Platform.select({
+    web: {
+      // Styles spécifiques pour React Native Web
+      outlineStyle: 'none',
+      outlineWidth: 0,
+      borderStyle: 'none',
+      borderWidth: 0,
+      userSelect: 'text',
+      WebkitUserSelect: 'text',
+      MozUserSelect: 'text',
+      msUserSelect: 'text',
+      // Forcer l'interactivité sur web
+      WebkitAppearance: 'none',
+      MozAppearance: 'textfield',
+      appearance: 'none',
+      // Support des navigateurs
+      WebkitTapHighlightColor: 'transparent',
+      WebkitTouchCallout: 'none',
+      WebkitBoxShadow: 'none',
+      boxShadow: 'none',
+      resize: 'none',
+    },
+    default: {},
+  }),
   helperText: {
     fontSize: 12,
     color: '#8E8E93',
