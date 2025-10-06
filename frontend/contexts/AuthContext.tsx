@@ -169,17 +169,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (userData: RegisterData): Promise<{ success: boolean; needsEmailConfirmation?: boolean }> => {
     try {
-      console.log('🔧 AuthContext: Début registration');
       setLoading(true);
       
       const requestBody = {
         ...userData,
         timezone: userData.timezone || 'Europe/Paris',
-        confirm_email: true // Activer la confirmation par email
       };
-      
-      console.log('📤 AuthContext: Envoi requête vers', `${API_BASE_URL}/api/auth/register`);
-      console.log('📦 AuthContext: Corps de la requête:', requestBody);
       
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
@@ -189,18 +184,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('📡 AuthContext: Statut réponse:', response.status);
       const data = await response.json();
-      console.log('📄 AuthContext: Données reçues:', data);
 
       if (response.ok) {
         // Si l'inscription nécessite une confirmation email
         if (data.needs_email_confirmation) {
-          console.log('✉️ AuthContext: Confirmation email requise');
           return { success: true, needsEmailConfirmation: true };
         }
         
-        console.log('✅ AuthContext: Inscription directe réussie');
         // Inscription classique sans confirmation email
         Alert.alert(
           'Inscription réussie', 
@@ -208,12 +199,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         );
         return { success: true, needsEmailConfirmation: false };
       } else {
-        console.log('❌ AuthContext: Erreur inscription:', data);
         Alert.alert('Erreur d\'inscription', data.detail || 'Erreur lors de la création du compte');
         return { success: false };
       }
     } catch (error) {
-      console.error('❌ AuthContext: Registration error:', error);
+      console.error('Registration error:', error);
       Alert.alert('Erreur', 'Problème de connexion au serveur');
       return { success: false };
     } finally {
