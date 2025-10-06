@@ -216,6 +216,7 @@ export default function AuthScreen() {
     </ScrollView>
   );
 
+  // ✅ Formulaire d'inscription avec état local (sans React Hook Form)
   const renderRegisterForm = () => (
     <ScrollView style={styles.formContainer}>
       <View style={styles.header}>
@@ -225,149 +226,104 @@ export default function AuthScreen() {
         </Text>
       </View>
 
-      <Controller
-        control={registerControl}
-        name="email"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Email"
-            value={value}
-            onChangeText={onChange}
-            error={registerErrors.email?.message}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            leftIcon="mail"
-            placeholder="votre@email.com"
-            required
-            editable={true}
-          />
-        )}
+      <SimpleInput
+        label="Email"
+        value={registerData.email}
+        onChangeText={(text) => {
+          console.log('🎯 Register Email changé:', text);
+          setRegisterData(prev => ({ ...prev, email: text }));
+        }}
+        keyboardType="email-address"
+        leftIcon="mail"
+        placeholder="votre@email.com"
       />
 
-      <Controller
-        control={registerControl}
-        name="password"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Mot de passe"
-            value={value}
-            onChangeText={onChange}
-            error={registerErrors.password?.message}
-            isPassword
-            leftIcon="lock-closed"
-            placeholder="••••••••"
-            required
-            helperText="Au moins 8 caractères avec majuscule, minuscule, chiffre et caractère spécial"
-            editable={true}
-          />
-        )}
+      <SimpleInput
+        label="Mot de passe"
+        value={registerData.password}
+        onChangeText={(text) => {
+          console.log('🎯 Register Password changé:', text);
+          setRegisterData(prev => ({ ...prev, password: text }));
+        }}
+        isPassword
+        leftIcon="lock-closed"
+        placeholder="••••••••"
       />
 
-      <Controller
-        control={registerControl}
-        name="confirmPassword"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Confirmation mot de passe"
-            value={value}
-            onChangeText={onChange}
-            error={registerErrors.confirmPassword?.message}
-            isPassword
-            leftIcon="lock-closed"
-            placeholder="••••••••"
-            required
-            editable={true}
-          />
-        )}
+      <SimpleInput
+        label="Confirmation mot de passe"
+        value={registerData.confirmPassword}
+        onChangeText={(text) => {
+          console.log('🎯 Register Confirm Password changé:', text);
+          setRegisterData(prev => ({ ...prev, confirmPassword: text }));
+        }}
+        isPassword
+        leftIcon="lock-closed"
+        placeholder="••••••••"
       />
 
-      <Controller
-        control={registerControl}
-        name="full_name"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Nom complet"
-            value={value}
-            onChangeText={onChange}
-            error={registerErrors.full_name?.message}
-            leftIcon="person"
-            placeholder="Prénom Nom"
-            required
-          />
-        )}
+      <SimpleInput
+        label="Nom complet"
+        value={registerData.full_name}
+        onChangeText={(text) => {
+          console.log('🎯 Register Full Name changé:', text);
+          setRegisterData(prev => ({ ...prev, full_name: text }));
+        }}
+        leftIcon="person"
+        placeholder="Prénom Nom"
       />
 
-      <Controller
-        control={registerControl}
-        name="age"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Âge (années)"
-            value={value ? value.toString() : ''}
-            onChangeText={(text) => onChange(text ? parseInt(text) || 0 : 0)}
-            error={registerErrors.age?.message}
-            keyboardType="numeric"
-            placeholder="Ex: 25"
-            required
-          />
-        )}
+      <SimpleInput
+        label="Âge (années)"
+        value={registerData.age}
+        onChangeText={(text) => {
+          console.log('🎯 Register Age changé:', text);
+          setRegisterData(prev => ({ ...prev, age: text }));
+        }}
+        keyboardType="numeric"
+        placeholder="Ex: 25"
       />
 
-      <Controller
-        control={registerControl}
-        name="gender"
-        render={({ field: { onChange, value } }) => (
-          <Select
-            label="Genre"
-            value={value}
-            options={[
-              { label: 'Femme', value: 'female' },
-              { label: 'Homme', value: 'male' },
-              { label: 'Autre', value: 'other' },
-            ]}
-            onSelect={onChange}
-            error={registerErrors.gender?.message}
-            placeholder="Sélectionner votre genre"
-            required
-          />
-        )}
+      <Select
+        label="Genre"
+        value={registerData.gender}
+        options={[
+          { label: 'Femme', value: 'female' },
+          { label: 'Homme', value: 'male' },
+          { label: 'Autre', value: 'other' },
+        ]}
+        onSelect={(value) => {
+          console.log('🎯 Register Gender changé:', value);
+          setRegisterData(prev => ({ ...prev, gender: value as 'male' | 'female' | 'other' }));
+        }}
+        placeholder="Sélectionner votre genre"
       />
 
-      <Controller
-        control={registerControl}
-        name="height"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Taille (cm)"
-            value={value ? value.toString() : ''}
-            onChangeText={(text) => onChange(text ? parseInt(text) || 0 : 0)}
-            error={registerErrors.height?.message}
-            keyboardType="numeric"
-            placeholder="Ex: 170"
-            required
-          />
-        )}
+      <SimpleInput
+        label="Taille (cm)"
+        value={registerData.height}
+        onChangeText={(text) => {
+          console.log('🎯 Register Height changé:', text);
+          setRegisterData(prev => ({ ...prev, height: text }));
+        }}
+        keyboardType="numeric"
+        placeholder="Ex: 170"
       />
 
-      <Controller
-        control={registerControl}
-        name="weight"
-        render={({ field: { onChange, value } }) => (
-          <ValidatedInput
-            label="Poids (kg)"
-            value={value ? value.toString() : ''}
-            onChangeText={(text) => onChange(text ? parseFloat(text) || 0 : 0)}
-            error={registerErrors.weight?.message}
-            keyboardType="decimal-pad"
-            placeholder="Ex: 70.5"
-            required
-          />
-        )}
+      <SimpleInput
+        label="Poids (kg)"
+        value={registerData.weight}
+        onChangeText={(text) => {
+          console.log('🎯 Register Weight changé:', text);
+          setRegisterData(prev => ({ ...prev, weight: text }));
+        }}
+        keyboardType="decimal-pad"
+        placeholder="Ex: 70.5"
       />
 
       <LoadingButton
         title="S'inscrire"
-        onPress={handleRegisterSubmit(onRegisterSubmit)}
+        onPress={handleRegisterSubmit}
         loading={registerLoading}
         style={styles.submitButton}
       />
@@ -380,8 +336,6 @@ export default function AuthScreen() {
           Déjà un compte ? <Text style={styles.switchButtonLink}>Se connecter</Text>
         </Text>
       </TouchableOpacity>
-
-      {/* Test debug supprimé */}
     </ScrollView>
   );
 
