@@ -43,7 +43,13 @@ class FoodSearchAPITester:
             register_data = {
                 "email": TEST_USER_EMAIL,
                 "password": TEST_USER_PASSWORD,
-                "name": "Food Test User"
+                "full_name": "Food Test User",
+                "age": 28,
+                "gender": "female",
+                "height": 165.0,
+                "weight": 65.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss"
             }
             
             register_response = self.session.post(
