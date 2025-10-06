@@ -219,7 +219,7 @@ export default function AuthScreen() {
         control={loginControl}
         name="password"
         render={({ field: { onChange, value } }) => (
-          <ValidatedInput
+          <SimpleInput
             label="Mot de passe"
             value={value}
             onChangeText={onChange}
@@ -227,7 +227,6 @@ export default function AuthScreen() {
             isPassword
             leftIcon="lock-closed"
             placeholder="••••••••"
-            editable={true}
           />
         )}
       />
