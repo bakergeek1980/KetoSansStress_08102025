@@ -224,7 +224,8 @@ export default function AuthScreen() {
             leftIcon="lock"
             placeholder="••••••••"
             required
-            helperText="Au moins 8 caractères avec majuscule, minuscule et chiffre"
+            helperText="Au moins 8 caractères avec majuscule, minuscule, chiffre et caractère spécial"
+            textInputProps={{ editable: true }}
           />
         )}
       />
