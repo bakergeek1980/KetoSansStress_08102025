@@ -11,11 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
-import { loginSchema, registerSchema } from '../validation/schemas';
 import ValidatedInput from '../components/forms/ValidatedInput';
 import SimpleInput from '../components/forms/SimpleInput';
 import LoadingButton from '../components/forms/LoadingButton';
