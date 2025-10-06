@@ -130,8 +130,8 @@ async def register_user(
         })
 
         if auth_response.user:
-            # Vérifier si l'email nécessite une confirmation
-            needs_email_confirmation = not auth_response.user.email_confirmed_at and confirm_email
+            # Forcer la confirmation d'email (toujours activée)
+            needs_email_confirmation = True
             
             # Si pas de confirmation nécessaire, créer le profil immédiatement
             if not needs_email_confirmation:
