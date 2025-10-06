@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for KetoSansStress Multi-Domain Email Registration
-Tests that the application accepts ALL valid email formats, not just @ketosansstress.com
+Backend API Testing for KetoSansStress Authentication System
+Testing the authentication endpoints after frontend changes from React Hook Form to useState
+Focus on login, register, profile endpoints and email confirmation flow
 """
 
 import requests
 import json
 import time
-from typing import Dict, Any, List
+import uuid
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-# Configuration
-BACKEND_URL = "http://localhost:8001/api"
+# Configuration - Using production URL from frontend .env
+BACKEND_URL = "https://ketolite.preview.emergentagent.com/api"
 
 # Standard test data for all registrations
 STANDARD_TEST_DATA = {
