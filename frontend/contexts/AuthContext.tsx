@@ -288,6 +288,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     logout,
     updateUser,
+    confirmEmail,
+    resendConfirmationEmail,
   };
 
   return (
