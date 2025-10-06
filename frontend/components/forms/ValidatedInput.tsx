@@ -105,7 +105,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
             inputStyle,
           ]}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={handleChangeText}
           onFocus={handleFocus}
           onBlur={handleBlur}
           secureTextEntry={isPassword && !isPasswordVisible}
