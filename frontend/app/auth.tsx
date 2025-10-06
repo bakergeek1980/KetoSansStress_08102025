@@ -75,33 +75,7 @@ export default function AuthScreen() {
     goal: 'weight_loss' as 'weight_loss' | 'weight_gain' | 'maintenance' | 'muscle_gain' | 'fat_loss',
   });
 
-  // Login form
-  const { control: loginControl, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors } } = useForm<LoginFormData>({
-    resolver: yupResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-    mode: 'onChange',
-  });
-
-  // Register form
-  const { control: registerControl, handleSubmit: handleRegisterSubmit, formState: { errors: registerErrors } } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      confirmPassword: '',
-      full_name: '',
-      age: 0,
-      gender: 'male' as 'male' | 'female' | 'other',
-      height: 0,
-      weight: 0,
-      activity_level: 'moderately_active',
-      goal: 'weight_loss',
-    },
-    mode: 'onChange',
-  });
+  // Formulaires supprimés - maintenant utilisation d'état local
 
   // ✅ Nouvelle fonction de connexion avec état local
   const handleLoginSubmit = async () => {
