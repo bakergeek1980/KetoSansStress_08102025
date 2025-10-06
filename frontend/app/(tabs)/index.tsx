@@ -448,7 +448,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textTransform: 'capitalize',
   },
-  profileButton: {
+  logoButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
@@ -458,16 +462,19 @@ const styles = StyleSheet.create({
     shadowColor: COLORS.primary,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 3,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
   },
-  profileText: {
-    color: COLORS.surface,
+  logoText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: 'bold',
+    color: COLORS.surface,
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   widgetContainer: {
     marginHorizontal: 16,
