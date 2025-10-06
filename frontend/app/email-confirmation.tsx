@@ -49,8 +49,9 @@ export default function EmailConfirmationScreen() {
   const [emailSent, setEmailSent] = useState(false);
   const [sendCount, setSendCount] = useState(0);
 
-  // Get email from params if coming from registration
+  // Get email and name from params if coming from registration
   const initialEmail = params.email as string || '';
+  const userName = params.name as string || '';
 
   const { control, handleSubmit, formState: { errors }, watch } = useForm<ResendEmailData>({
     resolver: yupResolver(emailSchema),
