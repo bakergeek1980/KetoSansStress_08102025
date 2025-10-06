@@ -124,11 +124,27 @@ async def register_user(
             auth_options["email_redirect_to"] = "https://ketosansstress.app/confirm"
 
         # Register user with Supabase Auth
-        auth_response = supabase.auth.sign_up({
-            "email": user_data.email,
-            "password": user_data.password,
-            "options": auth_options
-        })
+        try:
+            auth_response = supabase.auth.sign_up({
+                "email": user_data.email,
+                "password": user_data.password,
+                "options": auth_options
+            })
+        except Exception as signup_error:
+            # Si l'erreur est liée à l'envoi d'email, essayer sans confirmation
+            if "Error sending confirmation email" in str(signup_error):
+                logger.warning(f"Email sending failed, trying without confirmation: {signup_error}")
+                try:
+                    # Essayer sans les options de confirmation
+                    auth_response = supabase.auth.sign_up({
+                        "email": user_data.email,
+                        "password": user_data.password,
+                    })
+                except Exception as second_error:
+                    logger.error(f"Second signup attempt failed: {second_error}")
+                    raise second_error
+            else:
+                raise signup_error
 
         if auth_response.user:
             # Vérifier si l'email est confirmé ou pas
