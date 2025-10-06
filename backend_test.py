@@ -36,613 +36,423 @@ class KetoSansStressAPITester:
             "success": success,
             "details": details
         })
-
-    def test_health_check(self):
-        """Test basic health check"""
+    
+    def make_request(self, method: str, endpoint: str, data: Dict = None, headers: Dict = None) -> requests.Response:
+        """Make HTTP request with proper error handling"""
+        url = f"{self.base_url}{endpoint}"
+        
+        # Add authorization header if token exists
+        if self.access_token and headers is None:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+        elif self.access_token and headers:
+            headers["Authorization"] = f"Bearer {self.access_token}"
+        
         try:
-            response = self.session.get(f"{BASE_URL}/health")
+            if method.upper() == "GET":
+                response = self.session.get(url, headers=headers)
+            elif method.upper() == "POST":
+                response = self.session.post(url, json=data, headers=headers)
+            elif method.upper() == "PATCH":
+                response = self.session.patch(url, json=data, headers=headers)
+            elif method.upper() == "DELETE":
+                response = self.session.delete(url, headers=headers)
+            else:
+                raise ValueError(f"Unsupported HTTP method: {method}")
+            
+            logger.info(f"{method.upper()} {url} -> {response.status_code}")
+            return response
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request failed: {e}")
+            raise
+    
+    def setup_test_user(self) -> bool:
+        """Register and authenticate test user"""
+        logger.info("=== SETTING UP TEST USER ===")
+        
+        # Try to register test user
+        registration_data = {
+            "email": self.test_user_email,
+            "password": self.test_user_password,
+            "full_name": "Marie Testeur",
+            "age": 25,
+            "gender": "female",
+            "height": 165.0,
+            "weight": 60.0,
+            "activity_level": "moderately_active",
+            "goal": "weight_loss",
+            "timezone": "Europe/Paris"
+        }
+        
+        try:
+            # Try registration
+            response = self.make_request("POST", "/auth/register", registration_data, headers={})
+            
+            if response.status_code == 201:
+                self.log_test_result("User Registration", True, "New test user registered successfully")
+            elif response.status_code == 409:
+                self.log_test_result("User Registration", True, "Test user already exists (expected)")
+            else:
+                self.log_test_result("User Registration", False, f"Unexpected status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("User Registration", False, f"Registration error: {str(e)}")
+            # Continue anyway, user might already exist
+        
+        # Login to get access token
+        login_data = {
+            "email": self.test_user_email,
+            "password": self.test_user_password
+        }
+        
+        try:
+            response = self.make_request("POST", "/auth/login", login_data, headers={})
+            
             if response.status_code == 200:
                 data = response.json()
-                self.log_test(
-                    "Health Check",
-                    True,
-                    f"Service healthy: {data.get('service', 'Unknown')}, Supabase: {data.get('supabase', 'Unknown')}"
-                )
-                return True
-            else:
-                self.log_test("Health Check", False, f"HTTP {response.status_code}", response.json())
-                return False
-        except Exception as e:
-            self.log_test("Health Check", False, f"Exception: {str(e)}")
-            return False
-
-    def test_registration_with_email_confirmation(self):
-        """Test registration with email confirmation enabled"""
-        try:
-            # Test with confirm_email=true
-            response = self.session.post(
-                f"{BASE_URL}/auth/register?confirm_email=true",
-                json=TEST_USER_DATA
-            )
-            
-            if response.status_code == 201:
-                data = response.json()
-                needs_confirmation = data.get('needs_email_confirmation', False)
-                
-                if needs_confirmation:
-                    self.log_test(
-                        "Registration with Email Confirmation",
-                        True,
-                        f"Registration successful, needs email confirmation: {needs_confirmation}",
-                        data
-                    )
-                    self.user_id = data.get('user_id')
+                self.access_token = data.get("access_token")
+                if self.access_token:
+                    self.log_test_result("User Login", True, "Authentication successful")
                     return True
                 else:
-                    self.log_test(
-                        "Registration with Email Confirmation",
-                        False,
-                        "Registration successful but needs_email_confirmation is False",
-                        data
-                    )
+                    self.log_test_result("User Login", False, "No access token in response")
                     return False
             else:
-                self.log_test(
-                    "Registration with Email Confirmation",
-                    False,
-                    f"HTTP {response.status_code}",
-                    response.json()
-                )
+                self.log_test_result("User Login", False, f"Login failed: {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_test("Registration with Email Confirmation", False, f"Exception: {str(e)}")
+            self.log_test_result("User Login", False, f"Login error: {str(e)}")
             return False
-
-    def test_registration_without_email_confirmation(self):
-        """Test registration without email confirmation"""
+    
+    def test_profile_update(self):
+        """Test PATCH /api/auth/profile endpoint"""
+        logger.info("=== TESTING PROFILE UPDATE ===")
+        
+        # Test 1: Valid profile update with all fields
+        update_data = {
+            "full_name": "Marie Testeur Updated",
+            "age": 26,
+            "gender": "female",
+            "height": 170.0,
+            "weight": 65.0,
+            "activity_level": "very_active",
+            "goal": "maintenance"
+        }
+        
         try:
-            # Use different email for this test
-            test_data = TEST_USER_DATA.copy()
-            test_data["email"] = f"no.confirm.{uuid.uuid4().hex[:8]}@ketosansstress.com"
+            response = self.make_request("PATCH", "/auth/profile", update_data)
             
-            response = self.session.post(
-                f"{BASE_URL}/auth/register?confirm_email=false",
-                json=test_data
-            )
-            
-            if response.status_code == 201:
+            if response.status_code == 200:
                 data = response.json()
-                needs_confirmation = data.get('needs_email_confirmation', True)
-                
-                if not needs_confirmation:
-                    self.log_test(
-                        "Registration without Email Confirmation",
-                        True,
-                        f"Registration successful, no email confirmation needed: {needs_confirmation}",
-                        data
-                    )
-                    return True
+                if "message" in data and "user" in data:
+                    self.log_test_result("Profile Update - Valid Data", True, "Profile updated successfully")
                 else:
-                    self.log_test(
-                        "Registration without Email Confirmation",
-                        False,
-                        "Registration successful but needs_email_confirmation is True",
-                        data
-                    )
-                    return False
+                    self.log_test_result("Profile Update - Valid Data", False, "Invalid response format")
             else:
-                self.log_test(
-                    "Registration without Email Confirmation",
-                    False,
-                    f"HTTP {response.status_code}",
-                    response.json()
-                )
-                return False
+                self.log_test_result("Profile Update - Valid Data", False, f"Status: {response.status_code}, Response: {response.text}")
                 
         except Exception as e:
-            self.log_test("Registration without Email Confirmation", False, f"Exception: {str(e)}")
-            return False
-
-    def test_login_before_email_confirmation(self):
-        """Test that unconfirmed users cannot login"""
+            self.log_test_result("Profile Update - Valid Data", False, f"Error: {str(e)}")
+        
+        # Test 2: Invalid age (below minimum)
+        invalid_age_data = {
+            "full_name": "Marie Test",
+            "age": 10,  # Below minimum of 13
+            "gender": "female",
+            "height": 165.0,
+            "weight": 60.0
+        }
+        
         try:
-            login_data = {
-                "email": TEST_EMAIL,
-                "password": TEST_PASSWORD
-            }
+            response = self.make_request("PATCH", "/auth/profile", invalid_age_data)
             
-            response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
+            if response.status_code == 422:
+                self.log_test_result("Profile Update - Invalid Age", True, "Age validation working correctly")
+            else:
+                self.log_test_result("Profile Update - Invalid Age", False, f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Profile Update - Invalid Age", False, f"Error: {str(e)}")
+        
+        # Test 3: Invalid gender
+        invalid_gender_data = {
+            "full_name": "Marie Test",
+            "age": 25,
+            "gender": "invalid_gender",
+            "height": 165.0,
+            "weight": 60.0
+        }
+        
+        try:
+            response = self.make_request("PATCH", "/auth/profile", invalid_gender_data)
+            
+            if response.status_code == 422:
+                self.log_test_result("Profile Update - Invalid Gender", True, "Gender validation working correctly")
+            else:
+                self.log_test_result("Profile Update - Invalid Gender", False, f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Profile Update - Invalid Gender", False, f"Error: {str(e)}")
+        
+        # Test 4: Missing required fields
+        incomplete_data = {
+            "age": 25
+            # Missing required fields
+        }
+        
+        try:
+            response = self.make_request("PATCH", "/auth/profile", incomplete_data)
+            
+            if response.status_code == 422:
+                self.log_test_result("Profile Update - Missing Fields", True, "Required field validation working")
+            else:
+                self.log_test_result("Profile Update - Missing Fields", False, f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Profile Update - Missing Fields", False, f"Error: {str(e)}")
+        
+        # Test 5: Unauthorized access (no token)
+        try:
+            response = self.make_request("PATCH", "/auth/profile", update_data, headers={})
             
             if response.status_code == 401:
-                self.log_test(
-                    "Login Before Email Confirmation",
-                    True,
-                    "Login correctly rejected for unconfirmed email",
-                    response.json()
-                )
-                return True
-            elif response.status_code == 200:
-                # This might be acceptable if email confirmation is disabled
-                data = response.json()
-                user_data = data.get('user', {})
-                email_confirmed = user_data.get('email_confirmed_at')
-                
-                if not email_confirmed:
-                    self.log_test(
-                        "Login Before Email Confirmation",
-                        False,
-                        "Login allowed for unconfirmed email - security issue",
-                        data
-                    )
-                    return False
-                else:
-                    self.log_test(
-                        "Login Before Email Confirmation",
-                        True,
-                        "Login successful - email was auto-confirmed",
-                        data
-                    )
-                    self.access_token = data.get('access_token')
-                    return True
+                self.log_test_result("Profile Update - No Auth", True, "Authentication required correctly")
             else:
-                self.log_test(
-                    "Login Before Email Confirmation",
-                    False,
-                    f"Unexpected HTTP {response.status_code}",
-                    response.json()
-                )
-                return False
+                self.log_test_result("Profile Update - No Auth", False, f"Expected 401, got {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Login Before Email Confirmation", False, f"Exception: {str(e)}")
-            return False
-
-    def test_email_confirmation_with_mock_token(self):
-        """Test email confirmation with mock token"""
+            self.log_test_result("Profile Update - No Auth", False, f"Error: {str(e)}")
+    
+    def test_password_change(self):
+        """Test PATCH /api/auth/change-password endpoint"""
+        logger.info("=== TESTING PASSWORD CHANGE ===")
+        
+        # Test 1: Valid password change
+        password_data = {
+            "current_password": self.test_user_password,
+            "new_password": "NewTestPass123!"
+        }
+        
         try:
-            # Test with invalid token first
-            invalid_token_data = {"token": "invalid_mock_token_12345"}
-            
-            response = self.session.post(
-                f"{BASE_URL}/auth/confirm-email",
-                json=invalid_token_data
-            )
-            
-            if response.status_code == 400:
-                self.log_test(
-                    "Email Confirmation - Invalid Token",
-                    True,
-                    "Invalid token correctly rejected",
-                    response.json()
-                )
-            else:
-                self.log_test(
-                    "Email Confirmation - Invalid Token",
-                    False,
-                    f"Invalid token not rejected properly: HTTP {response.status_code}",
-                    response.json()
-                )
-                
-            # Test with mock valid token (this will likely fail in real scenario)
-            valid_token_data = {"token": "mock_valid_confirmation_token"}
-            
-            response = self.session.post(
-                f"{BASE_URL}/auth/confirm-email",
-                json=valid_token_data
-            )
-            
-            if response.status_code == 400:
-                self.log_test(
-                    "Email Confirmation - Mock Valid Token",
-                    True,
-                    "Mock token correctly rejected (expected behavior)",
-                    response.json()
-                )
-                return True
-            elif response.status_code == 200:
-                self.log_test(
-                    "Email Confirmation - Mock Valid Token",
-                    True,
-                    "Mock token accepted (test environment behavior)",
-                    response.json()
-                )
-                return True
-            else:
-                self.log_test(
-                    "Email Confirmation - Mock Valid Token",
-                    False,
-                    f"Unexpected HTTP {response.status_code}",
-                    response.json()
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Email Confirmation with Mock Token", False, f"Exception: {str(e)}")
-            return False
-
-    def test_resend_confirmation_email(self):
-        """Test resend confirmation email functionality"""
-        try:
-            # Test with existing email
-            resend_data = {"email": TEST_EMAIL}
-            
-            response = self.session.post(
-                f"{BASE_URL}/auth/resend-confirmation",
-                json=resend_data
-            )
+            response = self.make_request("PATCH", "/auth/change-password", password_data)
             
             if response.status_code == 200:
                 data = response.json()
-                message = data.get('message', '')
-                
-                # Should return success regardless of email existence for security
-                if 'sent if account exists' in message.lower() or 'sent' in message.lower():
-                    self.log_test(
-                        "Resend Confirmation Email - Existing Email",
-                        True,
-                        f"Resend request handled correctly: {message}",
-                        data
-                    )
+                if "message" in data:
+                    self.log_test_result("Password Change - Valid", True, "Password changed successfully")
+                    # Update password for future tests
+                    self.test_user_password = "NewTestPass123!"
                 else:
-                    self.log_test(
-                        "Resend Confirmation Email - Existing Email",
-                        False,
-                        f"Unexpected message: {message}",
-                        data
-                    )
+                    self.log_test_result("Password Change - Valid", False, "Invalid response format")
             else:
-                self.log_test(
-                    "Resend Confirmation Email - Existing Email",
-                    False,
-                    f"HTTP {response.status_code}",
-                    response.json()
-                )
+                self.log_test_result("Password Change - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
                 
-            # Test with non-existing email (should still return success for security)
-            nonexistent_data = {"email": f"nonexistent.{uuid.uuid4().hex[:8]}@ketosansstress.com"}
+        except Exception as e:
+            self.log_test_result("Password Change - Valid", False, f"Error: {str(e)}")
+        
+        # Test 2: Incorrect current password
+        wrong_password_data = {
+            "current_password": "WrongPassword123!",
+            "new_password": "AnotherNewPass123!"
+        }
+        
+        try:
+            response = self.make_request("PATCH", "/auth/change-password", wrong_password_data)
             
-            response = self.session.post(
-                f"{BASE_URL}/auth/resend-confirmation",
-                json=nonexistent_data
-            )
+            if response.status_code == 400:
+                self.log_test_result("Password Change - Wrong Current", True, "Current password verification working")
+            else:
+                self.log_test_result("Password Change - Wrong Current", False, f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Password Change - Wrong Current", False, f"Error: {str(e)}")
+        
+        # Test 3: Weak new password
+        weak_password_data = {
+            "current_password": self.test_user_password,
+            "new_password": "weak"
+        }
+        
+        try:
+            response = self.make_request("PATCH", "/auth/change-password", weak_password_data)
+            
+            if response.status_code == 422:
+                self.log_test_result("Password Change - Weak Password", True, "Password strength validation working")
+            else:
+                self.log_test_result("Password Change - Weak Password", False, f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Password Change - Weak Password", False, f"Error: {str(e)}")
+        
+        # Test 4: Unauthorized access
+        try:
+            response = self.make_request("PATCH", "/auth/change-password", password_data, headers={})
+            
+            if response.status_code == 401:
+                self.log_test_result("Password Change - No Auth", True, "Authentication required correctly")
+            else:
+                self.log_test_result("Password Change - No Auth", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Password Change - No Auth", False, f"Error: {str(e)}")
+    
+    def test_forgot_password(self):
+        """Test POST /api/auth/password-reset endpoint"""
+        logger.info("=== TESTING FORGOT PASSWORD ===")
+        
+        # Test 1: Valid email address
+        reset_data = {
+            "email": self.test_user_email
+        }
+        
+        try:
+            response = self.make_request("POST", "/auth/password-reset", reset_data, headers={})
             
             if response.status_code == 200:
                 data = response.json()
-                message = data.get('message', '')
-                
-                if 'sent if account exists' in message.lower() or 'sent' in message.lower():
-                    self.log_test(
-                        "Resend Confirmation Email - Non-existing Email",
-                        True,
-                        f"Security maintained - no information leak: {message}",
-                        data
-                    )
-                    return True
+                if "message" in data:
+                    self.log_test_result("Forgot Password - Valid Email", True, "Password reset email sent")
                 else:
-                    self.log_test(
-                        "Resend Confirmation Email - Non-existing Email",
-                        False,
-                        f"Potential information leak: {message}",
-                        data
-                    )
-                    return False
+                    self.log_test_result("Forgot Password - Valid Email", False, "Invalid response format")
             else:
-                self.log_test(
-                    "Resend Confirmation Email - Non-existing Email",
-                    False,
-                    f"HTTP {response.status_code}",
-                    response.json()
-                )
-                return False
+                self.log_test_result("Forgot Password - Valid Email", False, f"Status: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Resend Confirmation Email", False, f"Exception: {str(e)}")
-            return False
-
-    def test_user_profile_creation_after_confirmation(self):
-        """Test that user profile is created after email confirmation"""
+            self.log_test_result("Forgot Password - Valid Email", False, f"Error: {str(e)}")
+        
+        # Test 2: Non-existent email (should still return success for security)
+        nonexistent_data = {
+            "email": "nonexistent@example.com"
+        }
+        
         try:
-            # First, try to create a user without email confirmation
-            test_data = TEST_USER_DATA.copy()
-            test_data["email"] = f"profile.test.{uuid.uuid4().hex[:8]}@ketosansstress.com"
+            response = self.make_request("POST", "/auth/password-reset", nonexistent_data, headers={})
             
-            response = self.session.post(
-                f"{BASE_URL}/auth/register?confirm_email=false",
-                json=test_data
-            )
+            if response.status_code == 200:
+                self.log_test_result("Forgot Password - Nonexistent Email", True, "Security behavior correct (no info leakage)")
+            else:
+                self.log_test_result("Forgot Password - Nonexistent Email", False, f"Expected 200, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Forgot Password - Nonexistent Email", False, f"Error: {str(e)}")
+        
+        # Test 3: Invalid email format
+        invalid_email_data = {
+            "email": "invalid-email-format"
+        }
+        
+        try:
+            response = self.make_request("POST", "/auth/password-reset", invalid_email_data, headers={})
             
-            if response.status_code == 201:
+            if response.status_code == 422:
+                self.log_test_result("Forgot Password - Invalid Email Format", True, "Email validation working")
+            else:
+                self.log_test_result("Forgot Password - Invalid Email Format", False, f"Expected 422, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Forgot Password - Invalid Email Format", False, f"Error: {str(e)}")
+    
+    def test_account_deletion(self):
+        """Test DELETE /api/auth/account endpoint"""
+        logger.info("=== TESTING ACCOUNT DELETION ===")
+        
+        # Test 1: Unauthorized access (no token)
+        try:
+            response = self.make_request("DELETE", "/auth/account", headers={})
+            
+            if response.status_code == 401:
+                self.log_test_result("Account Deletion - No Auth", True, "Authentication required correctly")
+            else:
+                self.log_test_result("Account Deletion - No Auth", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test_result("Account Deletion - No Auth", False, f"Error: {str(e)}")
+        
+        # Test 2: Valid account deletion (this should be last test)
+        try:
+            response = self.make_request("DELETE", "/auth/account")
+            
+            if response.status_code == 200:
                 data = response.json()
-                user_id = data.get('user_id')
-                
-                # Try to login to get access token
-                login_response = self.session.post(
-                    f"{BASE_URL}/auth/login",
-                    json={"email": test_data["email"], "password": test_data["password"]}
-                )
-                
-                if login_response.status_code == 200:
-                    login_data = login_response.json()
-                    access_token = login_data.get('access_token')
-                    
-                    # Test protected endpoint to verify profile exists
-                    headers = {"Authorization": f"Bearer {access_token}"}
-                    me_response = self.session.get(f"{BASE_URL}/auth/me", headers=headers)
-                    
-                    if me_response.status_code == 200:
-                        profile_data = me_response.json()
-                        self.log_test(
-                            "User Profile Creation After Registration",
-                            True,
-                            f"User profile accessible: {profile_data.get('full_name', 'Unknown')}",
-                            profile_data
-                        )
-                        return True
-                    else:
-                        self.log_test(
-                            "User Profile Creation After Registration",
-                            False,
-                            f"Profile not accessible: HTTP {me_response.status_code}",
-                            me_response.json()
-                        )
-                        return False
+                if "message" in data:
+                    self.log_test_result("Account Deletion - Valid", True, "Account deleted successfully")
+                    # Clear token since account is deleted
+                    self.access_token = None
                 else:
-                    self.log_test(
-                        "User Profile Creation After Registration",
-                        False,
-                        f"Login failed: HTTP {login_response.status_code}",
-                        login_response.json()
-                    )
-                    return False
+                    self.log_test_result("Account Deletion - Valid", False, "Invalid response format")
             else:
-                self.log_test(
-                    "User Profile Creation After Registration",
-                    False,
-                    f"Registration failed: HTTP {response.status_code}",
-                    response.json()
-                )
-                return False
+                self.log_test_result("Account Deletion - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
                 
         except Exception as e:
-            self.log_test("User Profile Creation After Registration", False, f"Exception: {str(e)}")
-            return False
-
-    def test_jwt_token_generation_and_validation(self):
-        """Test JWT token generation and validation"""
+            self.log_test_result("Account Deletion - Valid", False, f"Error: {str(e)}")
+        
+        # Test 3: Verify account is actually deleted (try to login)
+        login_data = {
+            "email": self.test_user_email,
+            "password": self.test_user_password
+        }
+        
         try:
-            # Create a new user for this test
-            test_data = TEST_USER_DATA.copy()
-            test_data["email"] = f"jwt.test.{uuid.uuid4().hex[:8]}@ketosansstress.com"
+            response = self.make_request("POST", "/auth/login", login_data, headers={})
             
-            # Register user
-            register_response = self.session.post(
-                f"{BASE_URL}/auth/register?confirm_email=false",
-                json=test_data
-            )
-            
-            if register_response.status_code != 201:
-                self.log_test(
-                    "JWT Token Generation and Validation",
-                    False,
-                    f"Registration failed: HTTP {register_response.status_code}",
-                    register_response.json()
-                )
-                return False
-            
-            # Login to get JWT token
-            login_response = self.session.post(
-                f"{BASE_URL}/auth/login",
-                json={"email": test_data["email"], "password": test_data["password"]}
-            )
-            
-            if login_response.status_code == 200:
-                login_data = login_response.json()
-                access_token = login_data.get('access_token')
-                refresh_token = login_data.get('refresh_token')
-                expires_in = login_data.get('expires_in')
-                
-                if access_token and refresh_token:
-                    self.log_test(
-                        "JWT Token Generation",
-                        True,
-                        f"Tokens generated successfully, expires in: {expires_in}s"
-                    )
-                    
-                    # Test token validation with protected endpoint
-                    headers = {"Authorization": f"Bearer {access_token}"}
-                    me_response = self.session.get(f"{BASE_URL}/auth/me", headers=headers)
-                    
-                    if me_response.status_code == 200:
-                        user_data = me_response.json()
-                        self.log_test(
-                            "JWT Token Validation",
-                            True,
-                            f"Token validation successful for user: {user_data.get('email')}",
-                            user_data
-                        )
-                        
-                        # Test invalid token
-                        invalid_headers = {"Authorization": "Bearer invalid_token_12345"}
-                        invalid_response = self.session.get(f"{BASE_URL}/auth/me", headers=invalid_headers)
-                        
-                        if invalid_response.status_code == 401:
-                            self.log_test(
-                                "JWT Token Validation - Invalid Token",
-                                True,
-                                "Invalid token correctly rejected"
-                            )
-                            return True
-                        else:
-                            self.log_test(
-                                "JWT Token Validation - Invalid Token",
-                                False,
-                                f"Invalid token not rejected: HTTP {invalid_response.status_code}",
-                                invalid_response.json()
-                            )
-                            return False
-                    else:
-                        self.log_test(
-                            "JWT Token Validation",
-                            False,
-                            f"Token validation failed: HTTP {me_response.status_code}",
-                            me_response.json()
-                        )
-                        return False
-                else:
-                    self.log_test(
-                        "JWT Token Generation",
-                        False,
-                        "Tokens not generated properly",
-                        login_data
-                    )
-                    return False
+            if response.status_code == 401:
+                self.log_test_result("Account Deletion - Verification", True, "Account properly deleted (login fails)")
             else:
-                self.log_test(
-                    "JWT Token Generation and Validation",
-                    False,
-                    f"Login failed: HTTP {login_response.status_code}",
-                    login_response.json()
-                )
-                return False
+                self.log_test_result("Account Deletion - Verification", False, f"Account still exists, login status: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("JWT Token Generation and Validation", False, f"Exception: {str(e)}")
-            return False
-
-    def test_protected_endpoints_access(self):
-        """Test access to protected endpoints with and without authentication"""
-        try:
-            # Test without authentication
-            no_auth_response = self.session.get(f"{BASE_URL}/auth/me")
-            
-            if no_auth_response.status_code == 401:
-                self.log_test(
-                    "Protected Endpoint - No Auth",
-                    True,
-                    "Correctly rejected request without authentication"
-                )
-            else:
-                self.log_test(
-                    "Protected Endpoint - No Auth",
-                    False,
-                    f"Should reject unauthenticated request: HTTP {no_auth_response.status_code}",
-                    no_auth_response.json()
-                )
-                
-            # Create authenticated user for testing
-            test_data = TEST_USER_DATA.copy()
-            test_data["email"] = f"protected.test.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-            
-            # Register and login
-            self.session.post(f"{BASE_URL}/auth/register?confirm_email=false", json=test_data)
-            login_response = self.session.post(
-                f"{BASE_URL}/auth/login",
-                json={"email": test_data["email"], "password": test_data["password"]}
-            )
-            
-            if login_response.status_code == 200:
-                access_token = login_response.json().get('access_token')
-                headers = {"Authorization": f"Bearer {access_token}"}
-                
-                # Test authenticated access
-                auth_response = self.session.get(f"{BASE_URL}/auth/me", headers=headers)
-                
-                if auth_response.status_code == 200:
-                    self.log_test(
-                        "Protected Endpoint - With Auth",
-                        True,
-                        "Correctly allowed authenticated request",
-                        auth_response.json()
-                    )
-                    return True
-                else:
-                    self.log_test(
-                        "Protected Endpoint - With Auth",
-                        False,
-                        f"Should allow authenticated request: HTTP {auth_response.status_code}",
-                        auth_response.json()
-                    )
-                    return False
-            else:
-                self.log_test(
-                    "Protected Endpoints Access",
-                    False,
-                    f"Login failed for test: HTTP {login_response.status_code}",
-                    login_response.json()
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Protected Endpoints Access", False, f"Exception: {str(e)}")
-            return False
-
+            self.log_test_result("Account Deletion - Verification", False, f"Error: {str(e)}")
+    
     def run_all_tests(self):
-        """Run all email confirmation system tests"""
-        print("🧪 STARTING EMAIL CONFIRMATION SYSTEM TESTING")
-        print("=" * 60)
-        print()
+        """Run all user profile management tests"""
+        logger.info("🧪 STARTING USER PROFILE MANAGEMENT BACKEND TESTING")
+        logger.info(f"Testing against: {self.base_url}")
         
-        tests = [
-            self.test_health_check,
-            self.test_registration_with_email_confirmation,
-            self.test_registration_without_email_confirmation,
-            self.test_login_before_email_confirmation,
-            self.test_email_confirmation_with_mock_token,
-            self.test_resend_confirmation_email,
-            self.test_user_profile_creation_after_confirmation,
-            self.test_jwt_token_generation_and_validation,
-            self.test_protected_endpoints_access
-        ]
+        # Setup test user
+        if not self.setup_test_user():
+            logger.error("❌ Failed to setup test user. Aborting tests.")
+            return
         
-        passed = 0
-        total = len(tests)
+        # Run all tests
+        self.test_profile_update()
+        self.test_password_change()
+        self.test_forgot_password()
+        self.test_account_deletion()  # This should be last as it deletes the user
         
-        for test in tests:
-            try:
-                if test():
-                    passed += 1
-            except Exception as e:
-                print(f"❌ CRITICAL ERROR in {test.__name__}: {str(e)}")
+        # Print summary
+        self.print_test_summary()
+    
+    def print_test_summary(self):
+        """Print test results summary"""
+        logger.info("\n" + "="*60)
+        logger.info("🧪 USER PROFILE MANAGEMENT TESTING SUMMARY")
+        logger.info("="*60)
         
-        print("=" * 60)
-        print(f"📊 EMAIL CONFIRMATION SYSTEM TEST RESULTS")
-        print(f"✅ Passed: {passed}/{total} ({(passed/total)*100:.1f}%)")
-        print(f"❌ Failed: {total-passed}/{total}")
-        print()
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
         
-        # Summary of critical findings
-        critical_issues = []
-        working_features = []
+        logger.info(f"Total Tests: {total_tests}")
+        logger.info(f"Passed: {passed_tests} ✅")
+        logger.info(f"Failed: {failed_tests} ❌")
+        logger.info(f"Success Rate: {success_rate:.1f}%")
         
+        if failed_tests > 0:
+            logger.info("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    logger.info(f"  - {result['test']}: {result['details']}")
+        
+        logger.info("\n✅ PASSED TESTS:")
         for result in self.test_results:
-            if result['success']:
-                working_features.append(result['test'])
-            else:
-                critical_issues.append(f"{result['test']}: {result['details']}")
+            if result["success"]:
+                logger.info(f"  - {result['test']}")
         
-        if critical_issues:
-            print("🚨 CRITICAL ISSUES FOUND:")
-            for issue in critical_issues:
-                print(f"   • {issue}")
-            print()
-        
-        if working_features:
-            print("✅ WORKING FEATURES:")
-            for feature in working_features:
-                print(f"   • {feature}")
-            print()
-        
-        return passed, total, critical_issues
+        logger.info("="*60)
 
 if __name__ == "__main__":
-    tester = EmailConfirmationTester()
-    passed, total, issues = tester.run_all_tests()
-    
-    # Exit with appropriate code
-    if passed == total:
-        print("🎉 ALL TESTS PASSED - EMAIL CONFIRMATION SYSTEM IS WORKING!")
-        exit(0)
-    else:
-        print(f"⚠️  {total-passed} TESTS FAILED - EMAIL CONFIRMATION SYSTEM NEEDS ATTENTION")
-        exit(1)
+    tester = KetoSansStressAPITester()
+    tester.run_all_tests()
