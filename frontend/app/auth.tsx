@@ -261,46 +261,41 @@ export default function AuthScreen() {
         )}
       />
 
-      <View style={styles.row}>
-        <View style={[styles.col, { marginRight: 8 }]}>
-          <Controller
-            control={registerControl}
-            name="age"
-            render={({ field: { onChange, value } }) => (
-              <ValidatedInput
-                label="Âge"
-                value={value.toString()}
-                onChangeText={(text) => onChange(parseInt(text) || 0)}
-                error={registerErrors.age?.message}
-                keyboardType="numeric"
-                placeholder="25"
-                required
-              />
-            )}
+      <Controller
+        control={registerControl}
+        name="age"
+        render={({ field: { onChange, value } }) => (
+          <ValidatedInput
+            label="Âge (années)"
+            value={value ? value.toString() : ''}
+            onChangeText={(text) => onChange(text ? parseInt(text) || '' : '')}
+            error={registerErrors.age?.message}
+            keyboardType="numeric"
+            placeholder="Ex: 25"
+            required
           />
-        </View>
-        <View style={[styles.col, { marginLeft: 8 }]}>
-          <Controller
-            control={registerControl}
-            name="gender"
-            render={({ field: { onChange, value } }) => (
-              <Select
-                label="Genre"
-                value={value}
-                options={[
-                  { label: 'Femme', value: 'female' },
-                  { label: 'Homme', value: 'male' },
-                  { label: 'Autre', value: 'other' },
-                ]}
-                onSelect={onChange}
-                error={registerErrors.gender?.message}
-                placeholder="Sélectionner..."
-                required
-              />
-            )}
+        )}
+      />
+
+      <Controller
+        control={registerControl}
+        name="gender"
+        render={({ field: { onChange, value } }) => (
+          <Select
+            label="Genre"
+            value={value}
+            options={[
+              { label: 'Femme', value: 'female' },
+              { label: 'Homme', value: 'male' },
+              { label: 'Autre', value: 'other' },
+            ]}
+            onSelect={onChange}
+            error={registerErrors.gender?.message}
+            placeholder="Sélectionner votre genre"
+            required
           />
-        </View>
-      </View>
+        )}
+      />
 
       <View style={styles.row}>
         <View style={[styles.col, { marginRight: 8 }]}>
