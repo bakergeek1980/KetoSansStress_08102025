@@ -93,11 +93,32 @@ export default function AuthScreen() {
   };
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
-    // Remove confirmPassword from data before sending to API
-    const { confirmPassword, ...registerData } = data;
-    const success = await register(registerData);
-    if (success) {
-      setIsLogin(true);
+    try {
+      // Remove confirmPassword from data before sending to API
+      const { confirmPassword, ...registerData } = data;
+      const success = await register(registerData);
+      if (success) {
+        // Automatically log in after successful registration
+        const loginSuccess = await login(data.email, data.password);
+        if (loginSuccess) {
+          router.replace('/(tabs)');
+        } else {
+          // If auto-login fails, show login form with success message
+          setIsLogin(true);
+          Alert.alert(
+            'Inscription réussie !',
+            'Votre compte a été créé avec succès. Veuillez vous connecter.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error);
+      Alert.alert(
+        'Erreur d\'inscription',
+        'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.',
+        [{ text: 'OK' }]
+      );
     }
   };
 
