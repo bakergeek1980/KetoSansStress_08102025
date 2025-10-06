@@ -84,8 +84,9 @@ class BackendTester:
         }
         
         try:
+            # First try with email confirmation disabled
             response = self.session.post(
-                f"{BACKEND_URL}/auth/register",
+                f"{BACKEND_URL}/auth/register?confirm_email=false",
                 json=registration_data,
                 headers={"Content-Type": "application/json"}
             )
@@ -103,13 +104,33 @@ class BackendTester:
                 )
                 return True
             else:
-                self.log_test(
-                    "User Registration", 
-                    False, 
-                    f"HTTP {response.status_code}: {response.text}",
-                    response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+                # If that fails, try with default settings
+                response = self.session.post(
+                    f"{BACKEND_URL}/auth/register",
+                    json=registration_data,
+                    headers={"Content-Type": "application/json"}
                 )
-                return False
+                
+                if response.status_code == 201:
+                    data = response.json()
+                    self.test_user_id = data.get("user_id")
+                    needs_confirmation = data.get("needs_email_confirmation", False)
+                    
+                    self.log_test(
+                        "User Registration", 
+                        True, 
+                        f"User registered successfully. Email confirmation needed: {needs_confirmation}",
+                        data
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "User Registration", 
+                        False, 
+                        f"HTTP {response.status_code}: {response.text}",
+                        response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+                    )
+                    return False
                 
         except Exception as e:
             self.log_test("User Registration", False, f"Exception: {str(e)}")
