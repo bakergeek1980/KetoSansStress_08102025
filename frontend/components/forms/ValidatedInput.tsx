@@ -56,9 +56,9 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
   }, [label]);
 
   const handleChangeText = useCallback((text: string) => {
-    console.log('🎯 ValidatedInput Text changé:', label, text);
+    console.log('🎯 ValidatedInput Text changé:', label, 'Ancien:', value, 'Nouveau:', text);
     onChangeText(text);
-  }, [label, onChangeText]);
+  }, [label, onChangeText, value]);
 
   const togglePasswordVisibility = useCallback(() => {
     setIsPasswordVisible(prev => !prev);
