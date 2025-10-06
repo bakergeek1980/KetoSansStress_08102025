@@ -312,6 +312,54 @@ backend:
         agent: "testing"
         comment: "🎉 FOOD SEARCH API COMPREHENSIVE TESTING COMPLETE! SUCCESS RATE: 92.5% (37/40 tests passed) ✅ FOOD SEARCH: All search queries working (avocat, saumon, œufs, fromage, poulet, brocoli) with proper response structure ✅ SEARCH PARAMETERS: Limit and category filtering working correctly ✅ FOOD CATEGORIES: Returns 7 categories (fruits, légumes, noix, poisson, produits laitiers, protéines, viande) ✅ FOOD FAVORITES: Returns 4 favorite items with correct structure ✅ BARCODE SCANNING: OpenFoodFacts integration working - successfully scanned Nutella, Ferrero Rocher, President Camembert barcodes ✅ AUTHENTICATION: Properly requires JWT tokens for protected endpoints ✅ OPENFOODFACTS INTEGRATION: External API working, returns products with barcode data ✅ NUTRITION DATA: All required fields present (calories, proteins, carbs, fats per 100g). Minor issues: Recent searches fallback to default list (search_history table issue), categories endpoint intentionally public. Food search system is production-ready!"
 
+  - task: "User Profile Update Backend API"
+    implemented: true
+    working: "NA"
+    file: "backend/app/api/v1/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Added PATCH /api/auth/profile endpoint for updating user profile information (full_name, age, gender, height, weight, activity_level, goal). Includes proper validation using Pydantic with field constraints matching frontend validation. Backend restarted successfully."
+
+  - task: "Password Change Backend API"
+    implemented: true
+    working: "NA"
+    file: "backend/app/api/v1/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Added PATCH /api/auth/change-password endpoint for changing user passwords. Includes current password verification and strong password validation with same rules as registration. Uses Supabase Auth update_user method. Backend restarted successfully."
+
+  - task: "Account Deletion Backend API"
+    implemented: true
+    working: "NA"
+    file: "backend/app/api/v1/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Added DELETE /api/auth/account endpoint for account deletion. Cleans up user profile data, associated meals, and handles Supabase Auth user deletion. Includes proper error handling and security considerations. Backend restarted successfully."
+
+  - task: "Forgot Password Backend API"
+    implemented: true
+    working: "NA"
+    file: "backend/app/api/v1/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Password reset endpoint POST /api/auth/password-reset already exists and uses Supabase reset_password_email method. Includes security measures to prevent email enumeration. Updated forgot-password.tsx to use AuthContext integration. Backend functionality ready for testing."
+
   - task: "OpenFoodFacts Keto-Friendly Foods API"
     implemented: true
     working: true
