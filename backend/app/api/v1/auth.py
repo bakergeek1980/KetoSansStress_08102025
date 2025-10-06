@@ -180,6 +180,55 @@ async def logout_user(
         logger.error(f"Logout error: {e}")
         return {"message": "Logout completed"}  # Always return success for logout
 
+@router.post("/confirm-email")
+async def confirm_email(
+    request: EmailConfirmationRequest,
+    supabase: Client = Depends(get_supabase_client)
+):
+    """Confirm user email with token."""
+    try:
+        # Vérifier le token avec Supabase
+        result = supabase.auth.verify_otp({
+            'token_hash': request.token,
+            'type': 'email'
+        })
+        
+        if result.user:
+            return {"message": "Email confirmed successfully", "user_id": result.user.id}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired confirmation token"
+            )
+    except Exception as e:
+        logger.error(f"Email confirmation error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired confirmation token"
+        )
+
+@router.post("/resend-confirmation")
+async def resend_confirmation_email(
+    request: ResendConfirmationRequest,
+    supabase: Client = Depends(get_supabase_client)
+):
+    """Resend email confirmation."""
+    try:
+        # Utiliser Supabase pour renvoyer l'email de confirmation
+        result = supabase.auth.resend({
+            'type': 'signup',
+            'email': request.email,
+            'options': {
+                'redirect_to': 'https://ketosansstress.app/confirm'
+            }
+        })
+        
+        return {"message": "Confirmation email sent if account exists"}
+    except Exception as e:
+        logger.error(f"Resend confirmation error: {e}")
+        # Ne pas révéler si l'email existe ou non pour des raisons de sécurité
+        return {"message": "Confirmation email sent if account exists"}
+
 @router.post("/password-reset")
 async def request_password_reset(
     reset_data: PasswordReset,
