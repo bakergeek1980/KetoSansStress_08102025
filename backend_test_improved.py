@@ -463,7 +463,7 @@ class ImprovedKetoAPITester:
         logger.info(f"Success Rate: {success_rate:.1f}%")
         
         if failed_tests > 0:
-            logger.info("\\n❌ FAILED TESTS:")
+            logger.info("\n❌ FAILED TESTS:")
             for result in self.test_results:
                 if not result["success"]:
                     logger.info(f"  - {result['test']}: {result['details']}")
