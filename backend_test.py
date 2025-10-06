@@ -18,13 +18,10 @@ TEST_PASSWORD = "TestConfirm123!"
 
 class EmailConfirmationTester:
     def __init__(self):
-        # Use the production URL from frontend .env
-        self.base_url = "https://ketometrics.preview.emergentagent.com/api"
         self.session = requests.Session()
-        self.access_token = None
-        self.test_user_email = "test.profile@ketosansstress.com"
-        self.test_user_password = "TestPass123!"
         self.test_results = []
+        self.test_user_id = None
+        self.access_token = None
         
     def log_test_result(self, test_name: str, success: bool, details: str = ""):
         """Log test result"""
