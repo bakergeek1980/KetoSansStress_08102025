@@ -59,6 +59,25 @@ export default function AuthScreen() {
   const { login, register, loginLoading, registerLoading } = useAuth();
   const router = useRouter();
 
+  // ✅ États locaux pour les formulaires (sans React Hook Form)
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const [registerData, setRegisterData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    full_name: '',
+    age: '',
+    gender: 'male' as 'male' | 'female' | 'other',
+    height: '',
+    weight: '',
+    activity_level: 'moderately_active' as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active',
+    goal: 'weight_loss' as 'weight_loss' | 'weight_gain' | 'maintenance' | 'muscle_gain' | 'fat_loss',
+  });
+
   // Login form
   const { control: loginControl, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors } } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
