@@ -315,6 +315,7 @@ export default function AuthScreen() {
             leftIcon="lock"
             placeholder="••••••••"
             required
+            editable={true}
           />
         )}
       />
