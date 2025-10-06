@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for KetoSansStress Email Confirmation System
-Tests the complete integrated email confirmation workflow
+Test complet du nouveau protocole d'inscription personnalisé avec nom d'utilisateur pour KetoSansStress
+Tests backend pour vérifier l'inscription avec nom personnalisé et confirmation email
 """
 
 import requests
 import json
 import time
-import os
+import uuid
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
-# Configuration
-BACKEND_URL = "https://ketometrics.preview.emergentagent.com/api"
-TEST_EMAIL = "test.confirmation@ketosansstress.com"
-TEST_PASSWORD = "TestConfirm123!"
+# Configuration des URLs
+BACKEND_URL = "https://ketosansstress.preview.emergentagent.com/api"
 
 class EmailConfirmationTester:
     def __init__(self):
