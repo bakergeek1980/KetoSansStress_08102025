@@ -112,7 +112,7 @@ export default function EmailConfirmationScreen() {
               <Text style={styles.successTitle}>Email renvoyé !</Text>
               
               <Text style={styles.successDescription}>
-                Un nouvel email de confirmation a été envoyé à{' '}
+                {userName ? `Bonjour ${userName} ! ` : ''}Un nouvel email de confirmation a été envoyé à{' '}
                 <Text style={styles.emailText}>{email}</Text>
               </Text>
 
