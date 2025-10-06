@@ -45,10 +45,10 @@ interface RegisterFormData {
   password: string;
   confirmPassword: string;
   full_name: string;
-  age: number | string;
+  age: number;
   gender: 'male' | 'female' | 'other' | '';
-  height: number | string;
-  weight: number | string;
+  height: number;
+  weight: number;
   activity_level: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active';
   goal: 'weight_loss' | 'weight_gain' | 'maintenance' | 'muscle_gain' | 'fat_loss';
 }
