@@ -240,10 +240,13 @@ export default function HomeScreen() {
             <Text style={styles.appName}>KetoSansStress</Text>
             <Text style={styles.dateText}>{getCurrentDate()}</Text>
           </View>
-          <TouchableOpacity style={styles.profileButton}>
-            <Text style={styles.profileText}>
-              {user?.name?.charAt(0).toUpperCase() || 'K'}
-            </Text>
+          <TouchableOpacity 
+            style={styles.logoButton}
+            onPress={() => setUserProfileModalVisible(true)}
+          >
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoText}>K</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
