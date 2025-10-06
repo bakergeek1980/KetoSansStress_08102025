@@ -1,143 +1,245 @@
 {
   "test_summary": {
     "total_tests": 13,
-    "successful_tests": 0,
-    "success_rate": 0.0,
+    "successful_tests": 11,
+    "success_rate": 84.6,
     "valid_domains_tested": 10,
-    "valid_email_successes": 0,
+    "valid_email_successes": 8,
     "consistent_email_confirmation": true,
-    "test_duration": "0:00:06.843343"
+    "test_duration": "0:00:20.909608"
   },
   "detailed_results": {
     "mainstream_providers": [
       {
         "email": "testeur.gmail@gmail.com",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "272ee63f-ba33-4b0e-ab3b-c0ea1b16789b",
+          "email": "testeur.gmail@gmail.com",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       },
       {
         "email": "testeur.yahoo@yahoo.fr",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "0948b6b2-ca55-44a5-a98f-e683b2e48d1a",
+          "email": "testeur.yahoo@yahoo.fr",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       },
       {
         "email": "testeur.outlook@hotmail.com",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "765bb9d0-424f-4376-9fcf-66920f34619b",
+          "email": "testeur.outlook@hotmail.com",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       },
       {
         "email": "testeur.orange@orange.fr",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "e9a4b700-7b76-455f-9a3b-16c596eb1cf7",
+          "email": "testeur.orange@orange.fr",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       }
     ],
     "professional_domains": [
       {
         "email": "marie.pro@entreprise.com",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "f38ccbac-7f2a-4ab1-bef0-46576c072554",
+          "email": "marie.pro@entreprise.com",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       },
       {
         "email": "etudiant@universite.edu",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "f9489173-c7de-4607-975b-f5439a8dd960",
+          "email": "etudiant@universite.edu",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       }
     ],
     "special_formats": [
       {
         "email": "user+test@domain.net",
-        "status_code": 404,
+        "status_code": 500,
         "expected_status": 201,
         "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
+        "response_data": {
+          "detail": "Registration failed"
+        },
+        "error": "Expected 201, got 500 - {'detail': 'Registration failed'}",
         "needs_email_confirmation": null
       },
       {
         "email": "jean-marie@mon-domaine.org",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "bef27ca2-cf31-4692-b6ed-10f8824e3001",
+          "email": "jean-marie@mon-domaine.org",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       },
       {
         "email": "usuario@dominio.es",
-        "status_code": 404,
+        "status_code": 201,
         "expected_status": 201,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
-        "needs_email_confirmation": null
+        "success": true,
+        "response_data": {
+          "message": "Registration successful - email confirmation required",
+          "user_id": "3030b51d-c365-499e-be47-fa4a09afd108",
+          "email": "usuario@dominio.es",
+          "needs_email_confirmation": true
+        },
+        "error": null,
+        "needs_email_confirmation": true
       },
       {
         "email": "test@ai",
-        "status_code": 404,
+        "status_code": 422,
         "expected_status": 201,
         "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 201, got 404 - 404 page not found\n",
+        "response_data": {
+          "detail": [
+            {
+              "type": "value_error",
+              "loc": [
+                "body",
+                "email"
+              ],
+              "msg": "value is not a valid email address: The part after the @-sign is not valid. It should have a period.",
+              "input": "test@ai",
+              "ctx": {
+                "reason": "The part after the @-sign is not valid. It should have a period."
+              }
+            }
+          ]
+        },
+        "error": "Expected 201, got 422 - {'detail': [{'type': 'value_error', 'loc': ['body', 'email'], 'msg': 'value is not a valid email address: The part after the @-sign is not valid. It should have a period.', 'input': 'test@ai', 'ctx': {'reason': 'The part after the @-sign is not valid. It should have a period.'}}]}",
         "needs_email_confirmation": null
       }
     ],
     "invalid_emails": [
       {
         "email": "emailsansarobase",
-        "status_code": 404,
+        "status_code": 422,
         "expected_status": 422,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 422, got 404 - 404 page not found\n",
+        "success": true,
+        "response_data": {
+          "detail": [
+            {
+              "type": "value_error",
+              "loc": [
+                "body",
+                "email"
+              ],
+              "msg": "value is not a valid email address: An email address must have an @-sign.",
+              "input": "emailsansarobase",
+              "ctx": {
+                "reason": "An email address must have an @-sign."
+              }
+            }
+          ]
+        },
+        "error": null,
         "needs_email_confirmation": null
       },
       {
         "email": "test@",
-        "status_code": 404,
+        "status_code": 422,
         "expected_status": 422,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 422, got 404 - 404 page not found\n",
+        "success": true,
+        "response_data": {
+          "detail": [
+            {
+              "type": "value_error",
+              "loc": [
+                "body",
+                "email"
+              ],
+              "msg": "value is not a valid email address: There must be something after the @-sign.",
+              "input": "test@",
+              "ctx": {
+                "reason": "There must be something after the @-sign."
+              }
+            }
+          ]
+        },
+        "error": null,
         "needs_email_confirmation": null
       },
       {
         "email": "",
-        "status_code": 404,
+        "status_code": 422,
         "expected_status": 422,
-        "success": false,
-        "response_data": "404 page not found\n",
-        "error": "Expected 422, got 404 - 404 page not found\n",
+        "success": true,
+        "response_data": {
+          "detail": [
+            {
+              "type": "value_error",
+              "loc": [
+                "body",
+                "email"
+              ],
+              "msg": "value is not a valid email address: An email address must have an @-sign.",
+              "input": "",
+              "ctx": {
+                "reason": "An email address must have an @-sign."
+              }
+            }
+          ]
+        },
+        "error": null,
         "needs_email_confirmation": null
       }
     ]
   },
   "validation_criteria": {
-    "accepts_all_valid_domains": false,
-    "rejects_invalid_emails": false,
+    "accepts_all_valid_domains": true,
+    "rejects_invalid_emails": true,
     "universal_email_confirmation": true,
     "no_domain_restrictions": true
   }
