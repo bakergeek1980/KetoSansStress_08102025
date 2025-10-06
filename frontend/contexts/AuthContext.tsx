@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import Constants from 'expo-constants';
+
+// Configuration de l'API
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'https://ketosansstress.preview.emergentagent.com';
 
 interface User {
   id: string;
