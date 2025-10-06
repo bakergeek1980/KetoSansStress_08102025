@@ -448,7 +448,7 @@ class ImprovedKetoAPITester:
     
     def print_test_summary(self):
         """Print test results summary"""
-        logger.info("\\n" + "="*60)
+        logger.info("\n" + "="*60)
         logger.info("🧪 IMPROVED USER PROFILE MANAGEMENT TESTING SUMMARY")
         logger.info("="*60)
         
