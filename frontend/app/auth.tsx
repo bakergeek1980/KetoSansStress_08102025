@@ -477,6 +477,16 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 16,
   },
+  forgotPasswordButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '500',
+  },
   switchButton: {
     alignItems: 'center',
     paddingVertical: 16,
