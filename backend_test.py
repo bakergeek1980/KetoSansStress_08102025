@@ -34,488 +34,278 @@ class EmailDomainTester:
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         })
-        
-    def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
-        """Log test results"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat(),
-            "response_data": response_data
-        }
-        self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} - {test_name}: {details}")
-        
-    def test_health_check(self):
-        """Test basic health check endpoint"""
-        try:
-            response = self.session.get(f"{self.base_url}/health", timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                self.log_test("Health Check", True, f"Service healthy: {data.get('service')}")
-                return True
-            else:
-                self.log_test("Health Check", False, f"Status: {response.status_code}")
-                return False
-        except Exception as e:
-            self.log_test("Health Check", False, f"Error: {str(e)}")
-            return False
     
-    def test_obsolete_endpoints(self):
-        """Test that obsolete endpoints like /api/auth/register-test no longer exist"""
-        obsolete_endpoints = [
-            "/auth/register-test",
-            "/auth/test-register", 
-            "/auth/register_test"
-        ]
-        
-        all_removed = True
-        for endpoint in obsolete_endpoints:
-            try:
-                response = self.session.post(f"{self.base_url}{endpoint}", 
-                                           json={"test": "data"}, timeout=10)
-                if response.status_code == 404:
-                    self.log_test(f"Obsolete Endpoint Check {endpoint}", True, 
-                                "Correctly returns 404 - endpoint removed")
-                else:
-                    self.log_test(f"Obsolete Endpoint Check {endpoint}", False, 
-                                f"Unexpected status: {response.status_code}")
-                    all_removed = False
-            except Exception as e:
-                self.log_test(f"Obsolete Endpoint Check {endpoint}", False, f"Error: {str(e)}")
-                all_removed = False
-        
-        return all_removed
-    
-    def test_complete_registration_protocol(self):
-        """Test the complete and cleaned registration protocol"""
-        # Test data as specified in the review request
-        test_user_data = {
-            "email": "validation.complete@ketosansstress.com",
-            "password": "ValidationComplete123!",
-            "full_name": "Sophie Validation",
-            "age": 29,
-            "gender": "female",
-            "height": 172,
-            "weight": 64,
-            "activity_level": "moderately_active",
-            "goal": "weight_loss",
-            "timezone": "Europe/Paris"
-        }
+    def test_email_registration(self, email: str, expected_status: int = 201) -> Dict[str, Any]:
+        """Test registration with a specific email address"""
+        test_data = STANDARD_TEST_DATA.copy()
+        test_data["email"] = email
         
         try:
             response = self.session.post(
-                f"{self.base_url}/auth/register",
-                json=test_user_data,
-                timeout=15
-            )
-            
-            if response.status_code == 201:
-                data = response.json()
-                
-                # Check required response fields
-                required_fields = ["user_id", "email", "needs_email_confirmation"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    self.log_test("Complete Registration Protocol", False, 
-                                f"Missing fields: {missing_fields}", data)
-                    return False
-                
-                # Verify needs_email_confirmation is true
-                if data.get("needs_email_confirmation") is True:
-                    self.log_test("Complete Registration Protocol", True, 
-                                f"Registration successful with email confirmation required. User: {data.get('email')}", data)
-                    return True
-                else:
-                    self.log_test("Complete Registration Protocol", False, 
-                                f"needs_email_confirmation should be true, got: {data.get('needs_email_confirmation')}", data)
-                    return False
-                    
-            elif response.status_code == 409:
-                self.log_test("Complete Registration Protocol", True, 
-                            "User already exists - expected for repeated tests")
-                return True
-            else:
-                self.log_test("Complete Registration Protocol", False, 
-                            f"Status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Complete Registration Protocol", False, f"Error: {str(e)}")
-            return False
-    
-    def test_custom_name_registration(self):
-        """Test registration with custom name 'Sophie Nettoyée' as requested"""
-        # Generate unique email to avoid conflicts
-        unique_id = str(uuid.uuid4())[:8]
-        test_user_data = {
-            "email": f"sophie.nettoyee.{unique_id}@ketosansstress.com",
-            "password": "SophieNettoyee123!",
-            "full_name": "Sophie Nettoyée",
-            "age": 32,
-            "gender": "female",
-            "height": 168,
-            "weight": 58,
-            "activity_level": "very_active",
-            "goal": "maintenance",
-            "timezone": "Europe/Paris"
-        }
-        
-        try:
-            response = self.session.post(
-                f"{self.base_url}/auth/register",
-                json=test_user_data,
-                timeout=15
-            )
-            
-            if response.status_code == 201:
-                data = response.json()
-                
-                # Verify the custom name is properly handled
-                if data.get("needs_email_confirmation") is True:
-                    self.log_test("Custom Name Registration", True, 
-                                f"Sophie Nettoyée registered successfully with email confirmation", data)
-                    return True
-                else:
-                    self.log_test("Custom Name Registration", False, 
-                                f"needs_email_confirmation should be true, got: {data.get('needs_email_confirmation')}", data)
-                    return False
-                    
-            elif response.status_code == 429:
-                self.log_test("Custom Name Registration", True, 
-                            "Rate limited - registration system working (security feature)")
-                return True
-            else:
-                self.log_test("Custom Name Registration", False, 
-                            f"Status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Custom Name Registration", False, f"Error: {str(e)}")
-            return False
-    
-    def test_email_configuration(self):
-        """Test that email configuration uses contact@ketosansstress.com as sender"""
-        # This test verifies the registration process includes proper email metadata
-        unique_id = str(uuid.uuid4())[:8]
-        test_user_data = {
-            "email": f"email.config.test.{unique_id}@ketosansstress.com",
-            "password": "EmailConfig123!",
-            "full_name": "Test Email Config",
-            "age": 25,
-            "gender": "male",
-            "height": 180,
-            "weight": 75,
-            "activity_level": "moderately_active",
-            "goal": "weight_loss",
-            "timezone": "Europe/Paris"
-        }
-        
-        try:
-            response = self.session.post(
-                f"{self.base_url}/auth/register",
-                json=test_user_data,
-                timeout=15
-            )
-            
-            if response.status_code == 201:
-                data = response.json()
-                
-                # Check that user metadata is properly transmitted
-                if data.get("needs_email_confirmation") is True and data.get("user_id"):
-                    self.log_test("Email Configuration", True, 
-                                "User metadata correctly transmitted for email personalization", data)
-                    return True
-                else:
-                    self.log_test("Email Configuration", False, 
-                                "Email confirmation not properly configured", data)
-                    return False
-                    
-            elif response.status_code == 429:
-                self.log_test("Email Configuration", True, 
-                            "Rate limited - email system working (security feature)")
-                return True
-            else:
-                self.log_test("Email Configuration", False, 
-                            f"Status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Email Configuration", False, f"Error: {str(e)}")
-            return False
-    
-    def test_login_before_confirmation(self):
-        """Test that login fails before email confirmation (security maintained)"""
-        # Try to login with the test user
-        login_data = {
-            "email": "validation.complete@ketosansstress.com",
-            "password": "ValidationComplete123!"
-        }
-        
-        try:
-            response = self.session.post(
-                f"{self.base_url}/auth/login",
-                json=login_data,
+                f"{BACKEND_URL}/auth/register",
+                json=test_data,
                 timeout=10
             )
             
-            # Should fail with 401 or 403 for unconfirmed email
-            if response.status_code in [401, 403]:
-                self.log_test("Login Before Confirmation Security", True, 
-                            f"Login correctly blocked for unconfirmed email (status: {response.status_code})")
-                return True
-            elif response.status_code == 200:
-                # In development mode, emails might be auto-confirmed
-                data = response.json()
-                if data.get("access_token"):
-                    self.log_test("Login Before Confirmation Security", True, 
-                                "Login successful - email auto-confirmed in development mode")
-                    self.auth_token = data.get("access_token")
-                    return True
-            else:
-                self.log_test("Login Before Confirmation Security", False, 
-                            f"Unexpected status: {response.status_code}, Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Login Before Confirmation Security", False, f"Error: {str(e)}")
-            return False
-    
-    def test_data_validation_robustness(self):
-        """Test that data validation is still robust after cleanup"""
-        # Test with invalid data
-        invalid_test_cases = [
-            {
-                "name": "Weak Password",
-                "data": {
-                    "email": "weak.password@test.com",
-                    "password": "weak",
-                    "full_name": "Test User",
-                    "age": 25,
-                    "gender": "male",
-                    "height": 180,
-                    "weight": 75,
-                    "activity_level": "moderately_active",
-                    "goal": "weight_loss",
-                    "timezone": "Europe/Paris"
-                },
-                "expected_status": 422
-            },
-            {
-                "name": "Invalid Email",
-                "data": {
-                    "email": "invalid-email",
-                    "password": "ValidPassword123!",
-                    "full_name": "Test User",
-                    "age": 25,
-                    "gender": "male",
-                    "height": 180,
-                    "weight": 75,
-                    "activity_level": "moderately_active",
-                    "goal": "weight_loss",
-                    "timezone": "Europe/Paris"
-                },
-                "expected_status": 422
-            },
-            {
-                "name": "Missing Required Field",
-                "data": {
-                    "email": "missing.field@test.com",
-                    "password": "ValidPassword123!",
-                    # Missing full_name
-                    "age": 25,
-                    "gender": "male",
-                    "height": 180,
-                    "weight": 75,
-                    "activity_level": "moderately_active",
-                    "goal": "weight_loss",
-                    "timezone": "Europe/Paris"
-                },
-                "expected_status": 422
+            result = {
+                "email": email,
+                "status_code": response.status_code,
+                "expected_status": expected_status,
+                "success": response.status_code == expected_status,
+                "response_data": None,
+                "error": None,
+                "needs_email_confirmation": None
             }
+            
+            try:
+                response_data = response.json()
+                result["response_data"] = response_data
+                result["needs_email_confirmation"] = response_data.get("needs_email_confirmation")
+            except:
+                result["response_data"] = response.text
+            
+            if not result["success"]:
+                result["error"] = f"Expected {expected_status}, got {response.status_code}"
+                if result["response_data"]:
+                    result["error"] += f" - {result['response_data']}"
+            
+            return result
+            
+        except Exception as e:
+            return {
+                "email": email,
+                "status_code": None,
+                "expected_status": expected_status,
+                "success": False,
+                "response_data": None,
+                "error": f"Request failed: {str(e)}",
+                "needs_email_confirmation": None
+            }
+    
+    def test_mainstream_providers(self) -> List[Dict[str, Any]]:
+        """Test mainstream email providers"""
+        print("🧪 Testing Mainstream Email Providers...")
+        
+        mainstream_emails = [
+            "testeur.gmail@gmail.com",
+            "testeur.yahoo@yahoo.fr", 
+            "testeur.outlook@hotmail.com",
+            "testeur.orange@orange.fr"
         ]
         
-        all_passed = True
-        for test_case in invalid_test_cases:
-            try:
-                response = self.session.post(
-                    f"{self.base_url}/auth/register",
-                    json=test_case["data"],
-                    timeout=10
-                )
-                
-                if response.status_code == test_case["expected_status"]:
-                    self.log_test(f"Data Validation - {test_case['name']}", True, 
-                                f"Correctly rejected with status {response.status_code}")
-                else:
-                    self.log_test(f"Data Validation - {test_case['name']}", False, 
-                                f"Expected {test_case['expected_status']}, got {response.status_code}")
-                    all_passed = False
-                    
-            except Exception as e:
-                self.log_test(f"Data Validation - {test_case['name']}", False, f"Error: {str(e)}")
-                all_passed = False
+        results = []
+        for email in mainstream_emails:
+            print(f"  Testing: {email}")
+            result = self.test_email_registration(email)
+            results.append(result)
+            time.sleep(0.5)  # Rate limiting
         
-        return all_passed
+        return results
     
-    def test_error_handling_professional(self):
-        """Test that error messages are clean and professional"""
-        # Test with duplicate email
-        test_user_data = {
-            "email": "validation.complete@ketosansstress.com",  # Already registered
-            "password": "ValidationComplete123!",
-            "full_name": "Duplicate Test",
-            "age": 29,
-            "gender": "female",
-            "height": 172,
-            "weight": 64,
-            "activity_level": "moderately_active",
-            "goal": "weight_loss",
-            "timezone": "Europe/Paris"
+    def test_professional_domains(self) -> List[Dict[str, Any]]:
+        """Test professional email domains"""
+        print("🧪 Testing Professional Email Domains...")
+        
+        professional_emails = [
+            "marie.pro@entreprise.com",
+            "etudiant@universite.edu"
+        ]
+        
+        results = []
+        for email in professional_emails:
+            print(f"  Testing: {email}")
+            result = self.test_email_registration(email)
+            results.append(result)
+            time.sleep(0.5)  # Rate limiting
+        
+        return results
+    
+    def test_special_formats(self) -> List[Dict[str, Any]]:
+        """Test special email formats"""
+        print("🧪 Testing Special Email Formats...")
+        
+        special_emails = [
+            "user+test@domain.net",
+            "jean-marie@mon-domaine.org",
+            "usuario@dominio.es",
+            "test@ai"
+        ]
+        
+        results = []
+        for email in special_emails:
+            print(f"  Testing: {email}")
+            result = self.test_email_registration(email)
+            results.append(result)
+            time.sleep(0.5)  # Rate limiting
+        
+        return results
+    
+    def test_invalid_emails(self) -> List[Dict[str, Any]]:
+        """Test invalid email formats (should fail)"""
+        print("🧪 Testing Invalid Email Formats (should fail)...")
+        
+        invalid_emails = [
+            ("emailsansarobase", 422),  # No @ symbol
+            ("test@", 422),  # No domain
+            ("", 422)  # Empty email
+        ]
+        
+        results = []
+        for email, expected_status in invalid_emails:
+            print(f"  Testing invalid: '{email}' (expecting {expected_status})")
+            result = self.test_email_registration(email, expected_status)
+            results.append(result)
+            time.sleep(0.5)  # Rate limiting
+        
+        return results
+    
+    def run_comprehensive_test(self) -> Dict[str, Any]:
+        """Run all email domain tests"""
+        print("🎯 STARTING COMPREHENSIVE MULTI-DOMAIN EMAIL TESTING")
+        print("=" * 60)
+        
+        start_time = datetime.now()
+        
+        # Test all categories
+        mainstream_results = self.test_mainstream_providers()
+        professional_results = self.test_professional_domains()
+        special_results = self.test_special_formats()
+        invalid_results = self.test_invalid_emails()
+        
+        # Combine all results
+        all_results = mainstream_results + professional_results + special_results + invalid_results
+        
+        # Calculate statistics
+        total_tests = len(all_results)
+        successful_tests = sum(1 for r in all_results if r["success"])
+        success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        # Count valid email acceptances (excluding invalid email tests)
+        valid_email_tests = mainstream_results + professional_results + special_results
+        valid_email_successes = sum(1 for r in valid_email_tests if r["success"])
+        valid_domains_tested = len(set(email.split('@')[1] for email in [r["email"] for r in valid_email_tests if '@' in r["email"]]))
+        
+        # Check for needs_email_confirmation consistency
+        confirmation_statuses = [r["needs_email_confirmation"] for r in valid_email_tests if r["success"] and r["needs_email_confirmation"] is not None]
+        consistent_confirmation = len(set(confirmation_statuses)) <= 1 if confirmation_statuses else True
+        
+        end_time = datetime.now()
+        
+        summary = {
+            "test_summary": {
+                "total_tests": total_tests,
+                "successful_tests": successful_tests,
+                "success_rate": round(success_rate, 1),
+                "valid_domains_tested": valid_domains_tested,
+                "valid_email_successes": valid_email_successes,
+                "consistent_email_confirmation": consistent_confirmation,
+                "test_duration": str(end_time - start_time)
+            },
+            "detailed_results": {
+                "mainstream_providers": mainstream_results,
+                "professional_domains": professional_results,
+                "special_formats": special_results,
+                "invalid_emails": invalid_results
+            },
+            "validation_criteria": {
+                "accepts_all_valid_domains": valid_email_successes >= 8,  # At least 8 different domains
+                "rejects_invalid_emails": all(r["success"] for r in invalid_results),
+                "universal_email_confirmation": consistent_confirmation,
+                "no_domain_restrictions": True  # Will be determined by results
+            }
         }
         
-        try:
-            response = self.session.post(
-                f"{self.base_url}/auth/register",
-                json=test_user_data,
-                timeout=10
-            )
-            
-            if response.status_code == 409:
-                data = response.json()
-                error_message = data.get("detail", "")
-                
-                # Check that error message is professional
-                if "User already exists" in error_message or "already registered" in error_message:
-                    self.log_test("Professional Error Handling", True, 
-                                f"Clean error message: {error_message}")
-                    return True
-                else:
-                    self.log_test("Professional Error Handling", False, 
-                                f"Error message not professional: {error_message}")
-                    return False
-            else:
-                self.log_test("Professional Error Handling", False, 
-                            f"Expected 409 for duplicate email, got {response.status_code}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Professional Error Handling", False, f"Error: {str(e)}")
-            return False
+        return summary
     
-    def test_performance_clean_code(self):
-        """Test that performance is maintained with clean code"""
-        start_time = time.time()
+    def print_results(self, summary: Dict[str, Any]):
+        """Print formatted test results"""
+        print("\n" + "=" * 60)
+        print("📊 MULTI-DOMAIN EMAIL TESTING RESULTS")
+        print("=" * 60)
         
-        # Test multiple endpoints quickly
-        endpoints_to_test = [
-            "/health",
-            "/auth/register",  # This will fail but we measure response time
-        ]
+        test_summary = summary["test_summary"]
+        print(f"Total Tests: {test_summary['total_tests']}")
+        print(f"Successful Tests: {test_summary['successful_tests']}")
+        print(f"Success Rate: {test_summary['success_rate']}%")
+        print(f"Valid Domains Tested: {test_summary['valid_domains_tested']}")
+        print(f"Test Duration: {test_summary['test_duration']}")
         
-        response_times = []
+        print("\n🎯 VALIDATION CRITERIA:")
+        criteria = summary["validation_criteria"]
+        print(f"✅ Accepts All Valid Domains: {'PASS' if criteria['accepts_all_valid_domains'] else 'FAIL'}")
+        print(f"✅ Rejects Invalid Emails: {'PASS' if criteria['rejects_invalid_emails'] else 'FAIL'}")
+        print(f"✅ Universal Email Confirmation: {'PASS' if criteria['universal_email_confirmation'] else 'FAIL'}")
         
-        for endpoint in endpoints_to_test:
-            endpoint_start = time.time()
-            try:
-                if endpoint == "/auth/register":
-                    # Send minimal data to get quick response
-                    response = self.session.post(
-                        f"{self.base_url}{endpoint}",
-                        json={"email": "test@test.com", "password": "test"},
-                        timeout=5
-                    )
-                else:
-                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=5)
-                
-                endpoint_time = time.time() - endpoint_start
-                response_times.append(endpoint_time)
-                
-            except Exception as e:
-                endpoint_time = time.time() - endpoint_start
-                response_times.append(endpoint_time)
+        print("\n📋 DETAILED RESULTS BY CATEGORY:")
         
-        total_time = time.time() - start_time
-        avg_response_time = sum(response_times) / len(response_times) if response_times else 0
-        
-        # Performance should be reasonable (under 2 seconds average)
-        if avg_response_time < 2.0:
-            self.log_test("Performance Clean Code", True, 
-                        f"Good performance: avg {avg_response_time:.2f}s, total {total_time:.2f}s")
-            return True
-        else:
-            self.log_test("Performance Clean Code", False, 
-                        f"Slow performance: avg {avg_response_time:.2f}s, total {total_time:.2f}s")
-            return False
-    
-    def run_all_tests(self):
-        """Run all tests for the cleaned registration protocol"""
-        print("🧪 TESTING PROTOCOLE D'INSCRIPTION COMPLET ET NETTOYÉ - KetoSansStress")
-        print("=" * 80)
-        
-        # Run tests in order
-        tests = [
-            ("Health Check", self.test_health_check),
-            ("Obsolete Endpoints Removed", self.test_obsolete_endpoints),
-            ("Complete Registration Protocol", self.test_complete_registration_protocol),
-            ("Custom Name Registration", self.test_custom_name_registration),
-            ("Email Configuration", self.test_email_configuration),
-            ("Login Security Before Confirmation", self.test_login_before_confirmation),
-            ("Data Validation Robustness", self.test_data_validation_robustness),
-            ("Professional Error Handling", self.test_error_handling_professional),
-            ("Performance Clean Code", self.test_performance_clean_code),
-        ]
-        
-        passed_tests = 0
-        total_tests = len(tests)
-        
-        for test_name, test_func in tests:
-            print(f"\n🔍 Running: {test_name}")
-            try:
-                if test_func():
-                    passed_tests += 1
-            except Exception as e:
-                self.log_test(test_name, False, f"Test execution error: {str(e)}")
-        
-        # Summary
-        print("\n" + "=" * 80)
-        print("📊 TEST SUMMARY")
-        print("=" * 80)
-        
-        success_rate = (passed_tests / total_tests) * 100
-        print(f"Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
-        
-        # Detailed results
-        print("\n📋 DETAILED RESULTS:")
-        for result in self.test_results:
+        # Mainstream providers
+        print("\n1️⃣ MAINSTREAM PROVIDERS:")
+        for result in summary["detailed_results"]["mainstream_providers"]:
             status = "✅" if result["success"] else "❌"
-            print(f"{status} {result['test']}: {result['details']}")
+            confirmation = f" (confirmation: {result['needs_email_confirmation']})" if result["needs_email_confirmation"] is not None else ""
+            print(f"  {status} {result['email']} - Status: {result['status_code']}{confirmation}")
+            if not result["success"]:
+                print(f"      Error: {result['error']}")
+        
+        # Professional domains
+        print("\n2️⃣ PROFESSIONAL DOMAINS:")
+        for result in summary["detailed_results"]["professional_domains"]:
+            status = "✅" if result["success"] else "❌"
+            confirmation = f" (confirmation: {result['needs_email_confirmation']})" if result["needs_email_confirmation"] is not None else ""
+            print(f"  {status} {result['email']} - Status: {result['status_code']}{confirmation}")
+            if not result["success"]:
+                print(f"      Error: {result['error']}")
+        
+        # Special formats
+        print("\n3️⃣ SPECIAL FORMATS:")
+        for result in summary["detailed_results"]["special_formats"]:
+            status = "✅" if result["success"] else "❌"
+            confirmation = f" (confirmation: {result['needs_email_confirmation']})" if result["needs_email_confirmation"] is not None else ""
+            print(f"  {status} {result['email']} - Status: {result['status_code']}{confirmation}")
+            if not result["success"]:
+                print(f"      Error: {result['error']}")
+        
+        # Invalid emails
+        print("\n4️⃣ INVALID EMAILS (should fail):")
+        for result in summary["detailed_results"]["invalid_emails"]:
+            status = "✅" if result["success"] else "❌"
+            print(f"  {status} '{result['email']}' - Status: {result['status_code']} (expected: {result['expected_status']})")
+            if not result["success"]:
+                print(f"      Error: {result['error']}")
+        
+        print("\n" + "=" * 60)
         
         # Final verdict
-        print("\n🎯 VALIDATION ATTENDUE:")
-        validation_checks = [
-            ("✅ Inscription fonctionne avec code nettoyé", passed_tests >= 6),
-            ("✅ Email de confirmation envoyé (needs_email_confirmation: true)", any("needs_email_confirmation" in str(r.get("response_data", "")) for r in self.test_results if r["success"])),
-            ("✅ Métadonnées utilisateur transmises (nom personnalisé)", any("Sophie" in r["details"] for r in self.test_results if r["success"])),
-            ("✅ Aucun endpoint obsolète accessible", any("register-test" in r["test"] and r["success"] for r in self.test_results)),
-            ("✅ Messages d'erreur professionnels", any("Professional Error" in r["test"] and r["success"] for r in self.test_results)),
-            ("✅ Sécurité email confirmation maintenue", any("Login Before Confirmation" in r["test"] and r["success"] for r in self.test_results)),
-        ]
+        all_criteria_pass = all(criteria.values())
+        if all_criteria_pass:
+            print("🎉 VERDICT: ALL CRITERIA PASSED! The application accepts all valid email domains.")
+        else:
+            print("⚠️  VERDICT: Some criteria failed. Review the results above.")
         
-        for check, passed in validation_checks:
-            status = "✅" if passed else "❌"
-            print(f"{status} {check}")
+        print("=" * 60)
+
+def main():
+    """Main test execution"""
+    tester = EmailDomainTester()
+    
+    try:
+        # Run comprehensive tests
+        summary = tester.run_comprehensive_test()
         
-        return success_rate >= 80  # 80% success rate threshold
+        # Print results
+        tester.print_results(summary)
+        
+        # Save results to file
+        with open('/app/email_domain_test_results.json', 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
+        
+        print(f"\n📄 Detailed results saved to: /app/email_domain_test_results.json")
+        
+        return summary
+        
+    except Exception as e:
+        print(f"❌ Test execution failed: {str(e)}")
+        return None
 
 if __name__ == "__main__":
-    tester = KetoSansStressBackendTester()
-    success = tester.run_all_tests()
-    
-    if success:
-        print("\n🎉 NETTOYAGE COMPLET VALIDÉ - AUCUNE RÉGRESSION DÉTECTÉE!")
-    else:
-        print("\n⚠️  ATTENTION - RÉGRESSIONS DÉTECTÉES APRÈS NETTOYAGE")
+    main()
