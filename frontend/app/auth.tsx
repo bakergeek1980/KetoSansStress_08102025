@@ -110,15 +110,23 @@ export default function AuthScreen() {
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
     try {
+      console.log('🚀 Début inscription:', data.email);
+      
       // Remove confirmPassword from data before sending to API
       const { confirmPassword, ...registerData } = data;
+      console.log('📤 Données envoyées:', registerData);
+      
       const result = await register(registerData);
+      console.log('📥 Résultat inscription:', result);
       
       if (result.success) {
+        console.log('✅ Inscription réussie');
         if (result.needsEmailConfirmation) {
+          console.log('📧 Email de confirmation requis');
           // Redirection vers la page de confirmation d'email
           router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}`);
         } else {
+          console.log('🔑 Tentative de connexion automatique');
           // Inscription classique, tentative de connexion automatique
           const loginResult = await login(data.email, data.password);
           if (loginResult.success) {
