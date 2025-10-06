@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { loginSchema, registerSchema } from '../validation/schemas';
 import ValidatedInput from '../components/forms/ValidatedInput';
 import LoadingButton from '../components/forms/LoadingButton';
+import Select from '../components/forms/Select';
 
 const COLORS = {
   primary: '#4CAF50',
