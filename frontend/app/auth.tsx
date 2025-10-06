@@ -223,7 +223,7 @@ export default function AuthScreen() {
             onChangeText={onChange}
             error={loginErrors.password?.message}
             isPassword
-            leftIcon="lock"
+            leftIcon="lock-closed"
             placeholder="••••••••"
             editable={true}
           />
@@ -293,7 +293,7 @@ export default function AuthScreen() {
             onChangeText={onChange}
             error={registerErrors.password?.message}
             isPassword
-            leftIcon="lock"
+            leftIcon="lock-closed"
             placeholder="••••••••"
             required
             helperText="Au moins 8 caractères avec majuscule, minuscule, chiffre et caractère spécial"
@@ -312,7 +312,7 @@ export default function AuthScreen() {
             onChangeText={onChange}
             error={registerErrors.confirmPassword?.message}
             isPassword
-            leftIcon="lock"
+            leftIcon="lock-closed"
             placeholder="••••••••"
             required
             editable={true}
