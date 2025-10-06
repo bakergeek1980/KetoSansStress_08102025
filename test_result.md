@@ -314,15 +314,18 @@ backend:
 
   - task: "User Profile Update Backend API"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/app/api/v1/auth.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "IMPLEMENTED: Added PATCH /api/auth/profile endpoint for updating user profile information (full_name, age, gender, height, weight, activity_level, goal). Includes proper validation using Pydantic with field constraints matching frontend validation. Backend restarted successfully."
+      - working: true
+        agent: "testing"
+        comment: "✅ PROFILE UPDATE API COMPREHENSIVE TESTING COMPLETE! All core functionality working perfectly. ✅ VALID DATA UPDATE: Profile updates with all fields (full_name, age, gender, height, weight, activity_level, goal) working successfully - returns proper response with updated user data ✅ FIELD VALIDATION: Age validation working correctly (rejects age < 13 with 422 status) ✅ AUTHENTICATION SECURITY: Properly requires JWT authentication - returns 401 for unauthenticated requests ✅ DATA PERSISTENCE: Profile changes persist in Supabase database ✅ RESPONSE FORMAT: Returns proper JSON with message and updated user object. The PATCH /api/auth/profile endpoint is production-ready and fully functional!"
 
   - task: "Password Change Backend API"
     implemented: true
