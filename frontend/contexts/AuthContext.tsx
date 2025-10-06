@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         timezone: userData.timezone || 'Europe/Paris',
       };
       
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register-test`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
