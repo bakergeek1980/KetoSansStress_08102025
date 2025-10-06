@@ -4,7 +4,17 @@ import { Alert } from 'react-native';
 import Constants from 'expo-constants';
 
 // Configuration de l'API
-const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'https://ketosansstress.preview.emergentagent.com';
+const getApiBaseUrl = () => {
+  // En mode web (développement), utiliser une URL relative qui sera proxifiée
+  if (typeof window !== 'undefined') {
+    // Mode web
+    return window.location.origin;
+  }
+  // Mode mobile (Expo Go)
+  return Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'https://ketosansstress.preview.emergentagent.com';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 interface User {
   id: string;
