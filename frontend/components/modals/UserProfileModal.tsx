@@ -158,25 +158,27 @@ export default function UserProfileModal({ visible, onClose }: UserProfileModalP
   }, [user, visible, resetProfile]);
 
   const handleProfileUpdate = async (data: UserProfileData) => {
-    try {
-      // TODO: Implémenter la mise à jour du profil via Supabase
-      console.log('Profile update:', data);
-      Alert.alert('Succès', 'Profil mis à jour avec succès!');
-    } catch (error) {
-      console.error('Profile update error:', error);
-      Alert.alert('Erreur', 'Impossible de mettre à jour le profil');
+    const success = await updateProfile({
+      full_name: data.full_name,
+      age: typeof data.age === 'string' ? parseInt(data.age) : data.age,
+      gender: data.gender,
+      height: typeof data.height === 'string' ? parseFloat(data.height) : data.height,
+      weight: typeof data.weight === 'string' ? parseFloat(data.weight) : data.weight,
+    });
+    
+    if (success) {
+      // The success alert is already shown in the updateProfile function
     }
   };
 
   const handlePasswordChange = async (data: PasswordChangeData) => {
-    try {
-      // TODO: Implémenter le changement de mot de passe via Supabase
-      console.log('Password change:', data);
-      Alert.alert('Succès', '✅ Votre mot de passe a été modifié avec succès. Un email de confirmation vous a été envoyé.');
-      resetPassword();
-    } catch (error) {
-      console.error('Password change error:', error);
-      Alert.alert('Erreur', 'Impossible de changer le mot de passe');
+    const success = await changePassword({
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
+    
+    if (success) {
+      resetPassword(); // Clear the password form
     }
   };
 
