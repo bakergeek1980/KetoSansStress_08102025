@@ -47,6 +47,21 @@ interface RegisterData {
   timezone?: string;
 }
 
+interface ProfileUpdateData {
+  full_name: string;
+  age: number;
+  gender: 'male' | 'female' | 'other';
+  height: number;
+  weight: number;
+  activity_level?: string;
+  goal?: string;
+}
+
+interface PasswordChangeData {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8001';
