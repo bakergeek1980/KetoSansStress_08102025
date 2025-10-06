@@ -117,10 +117,11 @@ export default function AuthScreen() {
       
       if (result.success) {
         if (result.needsEmailConfirmation) {
-          // Afficher immédiatement la box de succès avec les instructions
+          // Afficher immédiatement la box de succès avec les instructions personnalisées
           Alert.alert(
             '✅ Inscription réussie !',
-            '📩 Un email de confirmation vous a été envoyé à l\'adresse : ' + data.email + '\n\n' +
+            `🎉 Bonjour ${data.full_name} !\n\n` +
+            `📩 Un email de confirmation vous a été envoyé à l'adresse :\n${data.email}\n\n` +
             'Prochaines étapes :\n' +
             '1. Ouvrez votre boîte email\n' +
             '2. Cherchez un email de contact@ketosansstress.com\n' +
@@ -130,7 +131,7 @@ export default function AuthScreen() {
             [
               { text: 'OK', onPress: () => {
                 // Redirection vers la page de confirmation d'email
-                router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}`);
+                router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}&name=${encodeURIComponent(data.full_name)}`);
               }}
             ]
           );
