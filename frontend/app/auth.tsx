@@ -46,7 +46,7 @@ interface RegisterFormData {
   confirmPassword: string;
   full_name: string;
   age: number;
-  gender: 'male' | 'female' | 'other' | '';
+  gender: 'male' | 'female' | 'other';
   height: number;
   weight: number;
   activity_level: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active';
