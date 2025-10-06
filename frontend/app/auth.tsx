@@ -408,7 +408,7 @@ export default function AuthScreen() {
       <LoadingButton
         title="S'inscrire"
         onPress={handleRegisterSubmit(onRegisterSubmit)}
-        loading={loading}
+        loading={registerLoading}
         style={styles.submitButton}
       />
 
