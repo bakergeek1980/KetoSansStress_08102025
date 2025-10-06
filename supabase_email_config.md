@@ -24,14 +24,64 @@ Dans **Authentication > Email Templates** :
 
 #### Template "Confirm signup"
 ```html
-<h2>Bienvenue sur KetoSansStress !</h2>
-<p>Merci de vous être inscrit(e) à KetoSansStress, votre compagnon cétogène au quotidien.</p>
-<p>Pour activer votre compte, cliquez sur le lien ci-dessous :</p>
-<p><a href="{{ .ConfirmationURL }}">Confirmer mon adresse email</a></p>
-<p>Ce lien expire dans 24 heures.</p>
-<hr>
-<p>Si vous n'avez pas créé de compte KetoSansStress, vous pouvez ignorer cet email.</p>
-<p>L'équipe KetoSansStress<br>contact@ketosansstress.com</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmez votre inscription - KetoSansStress</title>
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #fafafa;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        
+        <!-- Header avec logo -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 70px; height: 70px; background: #4CAF50; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: white;">K</div>
+            <h1 style="color: #4CAF50; margin: 0; font-size: 24px;">KetoSansStress</h1>
+            <p style="color: #757575; margin: 5px 0 0; font-size: 14px;">Votre compagnon cétogène au quotidien</p>
+        </div>
+
+        <!-- Contenu personnalisé -->
+        <h2 style="color: #212121; margin-bottom: 20px;">🎉 Bonjour {{ .UserMetaData.full_name }} !</h2>
+        
+        <p>Merci de vous être inscrit(e) à KetoSansStress ! Nous sommes ravis de vous accompagner dans votre parcours cétogène.</p>
+        
+        <p>Pour activer votre compte et commencer à utiliser l'application, cliquez sur le bouton ci-dessous :</p>
+
+        <!-- Bouton de confirmation -->
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ .ConfirmationURL }}" style="display: inline-block; background: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">✅ Confirmer mon inscription</a>
+        </div>
+
+        <!-- Instructions -->
+        <div style="background: #f0f9f0; padding: 20px; border-radius: 8px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Prochaines étapes :</h3>
+            <ol style="color: #555; margin: 0; padding-left: 20px;">
+                <li>Cliquez sur le bouton de confirmation ci-dessus</li>
+                <li>Vous serez redirigé(e) vers l'application</li>
+                <li>Connectez-vous avec vos identifiants</li>
+                <li>Commencez votre parcours cétogène personnalisé !</li>
+            </ol>
+        </div>
+
+        <!-- Note de sécurité -->
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeaa7; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #856404;">
+                🔒 <strong>Important :</strong> Ce lien expire dans 24 heures. Si vous n'avez pas créé de compte KetoSansStress, vous pouvez ignorer cet email en toute sécurité.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="border-top: 1px solid #e0e0e0; padding-top: 20px; margin-top: 30px; text-align: center; color: #757575; font-size: 14px;">
+            <p>Besoin d'aide ? Contactez-nous à <a href="mailto:contact@ketosansstress.com" style="color: #4CAF50;">contact@ketosansstress.com</a></p>
+            <p style="margin: 10px 0 0;">
+                L'équipe KetoSansStress<br>
+                <strong>contact@ketosansstress.com</strong>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
 ```
 
 #### Template "Reset Password"
