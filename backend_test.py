@@ -59,20 +59,20 @@ class EmailConfirmationTester:
     def test_health_check(self):
         """Test basic health check"""
         try:
-            response = self.session.get(f"{API_BASE}/health")
+            response = self.session.get(f"{BASE_URL}/health")
             if response.status_code == 200:
                 data = response.json()
                 self.log_test(
-                    "Health Check", 
-                    True, 
-                    f"Service: {data.get('service', 'Unknown')}, Supabase: {data.get('supabase', 'Unknown')}"
+                    "Health Check",
+                    True,
+                    f"Service healthy: {data.get('service', 'Unknown')}, Supabase: {data.get('supabase', 'Unknown')}"
                 )
                 return True
             else:
-                self.log_test("Health Check", False, f"Status: {response.status_code}")
+                self.log_test("Health Check", False, f"HTTP {response.status_code}", response.json())
                 return False
         except Exception as e:
-            self.log_test("Health Check", False, f"Error: {str(e)}")
+            self.log_test("Health Check", False, f"Exception: {str(e)}")
             return False
 
     def test_enhanced_password_validation(self):
