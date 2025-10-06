@@ -190,6 +190,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         timezone: userData.timezone || 'Europe/Paris',
       };
       
+      console.log('📡 API URL utilisée:', `${API_BASE_URL}/api/auth/register`);
+      
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
