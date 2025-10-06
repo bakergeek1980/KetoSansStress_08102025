@@ -317,11 +317,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = async (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      AsyncStorage.setItem('user_data', JSON.stringify(updatedUser));
+      await AsyncStorage.setItem('user_data', JSON.stringify(updatedUser));
     }
   };
 
