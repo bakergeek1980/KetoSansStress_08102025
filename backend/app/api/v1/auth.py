@@ -84,7 +84,7 @@ class PasswordChangeRequest(BaseModel):
 class ProfileUpdateRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     age: int = Field(..., ge=13, le=120)
-    gender: str = Field(..., regex="^(male|female|other)$")
+    gender: str = Field(..., pattern="^(male|female|other)$")
     height: float = Field(..., ge=100, le=250)
     weight: float = Field(..., ge=30, le=300)
     activity_level: str = Field(default="moderately_active")
