@@ -213,6 +213,14 @@ const styles = StyleSheet.create({
     border: 'none', // Supprime la bordure par défaut du navigateur
     backgroundColor: 'transparent', // Fond transparent
     pointerEvents: 'auto', // Force l'interactivité
+    // FORCER L'INTERACTIVITÉ - Solution overlay invisible
+    position: 'relative',
+    zIndex: 99999,
+    opacity: 1,
+    visibility: 'visible',
+    userSelect: 'text',
+    // Forcer le focus
+    cursor: 'text',
   },
   inputWithLeftIcon: {
     paddingLeft: 0,
