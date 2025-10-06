@@ -23,7 +23,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: RegisterData) => Promise<boolean>;
+  register: (userData: RegisterData) => Promise<{ success: boolean; needsEmailConfirmation?: boolean }>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
   confirmEmail: (token: string) => Promise<boolean>;
