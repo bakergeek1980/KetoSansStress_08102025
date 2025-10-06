@@ -99,7 +99,7 @@ class ResendConfirmationRequest(BaseModel):
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserRegistration,
-    confirm_email: bool = False,
+    confirm_email: bool = True,  # Forcer la confirmation d'email
     supabase: Client = Depends(get_supabase_client)
 ) -> Dict[str, Any]:
     """Register a new user with Supabase Auth."""
