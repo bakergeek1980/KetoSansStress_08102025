@@ -363,13 +363,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Barre de navigation inférieure */}
-      <BottomNavigationBar
-        onReportsPress={handleReportsPress}
-        onSettingsPress={handleSettingsPress}
-        onAddMealPress={handleQuickAddMeal}
-      />
-
       {/* Modal pour ajouter un repas */}
       <AddMealModal
         visible={addMealModalVisible}
