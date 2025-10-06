@@ -34,8 +34,10 @@ const SimpleInput: React.FC<SimpleInputProps> = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChangeText = (text: string) => {
-    console.log(`🎯 SimpleInput [${label}]: "${text}"`);
+    console.log(`🎯 SimpleInput [${label}]: Input reçu: "${text}"`);
+    console.log(`🎯 SimpleInput [${label}]: Valeur actuelle avant: "${value}"`);
     onChangeText(text);
+    console.log(`🎯 SimpleInput [${label}]: Appel onChangeText terminé`);
   };
 
   return (
