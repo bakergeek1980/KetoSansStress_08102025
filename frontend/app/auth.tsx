@@ -121,7 +121,7 @@ export default function AuthScreen() {
         Alert.alert(
           'Champs manquants ❌',
           `Veuillez remplir TOUS les champs suivants:\n\n${missingFields.map(f => {
-            const labels = {
+            const labels: Record<string, string> = {
               email: '📧 Email',
               password: '🔒 Mot de passe', 
               confirmPassword: '🔒 Confirmation mot de passe',
