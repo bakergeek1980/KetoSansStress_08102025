@@ -148,7 +148,9 @@ export default function EmailConfirmationScreen() {
                 <Mail color={COLORS.primary} size={64} />
               </View>
 
-              <Text style={styles.title}>Confirmez votre adresse email</Text>
+              <Text style={styles.title}>
+                {userName ? `Bonjour ${userName} !` : 'Confirmez votre adresse email'}
+              </Text>
               
               <Text style={styles.description}>
                 📩 Un email de confirmation vous a été envoyé à l'adresse indiquée lors de votre inscription.
