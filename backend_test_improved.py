@@ -360,7 +360,7 @@ class ImprovedKetoAPITester:
     
     def test_account_deletion(self):
         """Test DELETE /api/auth/account endpoint"""
-        logger.info("=== TESTING ACCOUNT DELETION ===\")
+        logger.info("=== TESTING ACCOUNT DELETION ===")
         
         # Create a separate user for deletion test
         delete_test_email = "test.delete@ketosansstress.com"
