@@ -118,9 +118,10 @@ async def register_user(
             }
         }
         
-        # Configuration pour confirmation email (toujours activée)
-        auth_options["redirect_to"] = "https://ketosansstress.app/confirm"
-        auth_options["email_redirect_to"] = "https://ketosansstress.app/confirm"
+        # Configuration pour confirmation email (optionnelle selon confirm_email)
+        if confirm_email:
+            auth_options["redirect_to"] = "https://ketosansstress.app/confirm"
+            auth_options["email_redirect_to"] = "https://ketosansstress.app/confirm"
 
         # Register user with Supabase Auth
         auth_response = supabase.auth.sign_up({
