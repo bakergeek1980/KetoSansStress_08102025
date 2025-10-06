@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; needsEmailConfirmation?: boolean; email?: string }> => {
     try {
-      setLoading(true);
+      setLoginLoading(true);
       
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
