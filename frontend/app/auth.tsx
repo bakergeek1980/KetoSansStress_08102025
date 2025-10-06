@@ -77,7 +77,7 @@ export default function AuthScreen() {
       confirmPassword: '',
       full_name: '',
       age: 0,
-      gender: '',
+      gender: 'male' as 'male' | 'female' | 'other',
       height: 0,
       weight: 0,
       activity_level: 'moderately_active',
