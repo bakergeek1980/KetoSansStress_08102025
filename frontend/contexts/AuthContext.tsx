@@ -299,6 +299,138 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateProfile = async (profileData: ProfileUpdateData): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update local user state with new profile data
+        updateUser(data.user);
+        Alert.alert('Succès', 'Profil mis à jour avec succès!');
+        return true;
+      } else {
+        Alert.alert('Erreur', data.detail || 'Impossible de mettre à jour le profil');
+        return false;
+      }
+    } catch (error) {
+      console.error('Profile update error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changePassword = async (passwordData: PasswordChangeData): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          current_password: passwordData.currentPassword,
+          new_password: passwordData.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Succès', 'Mot de passe modifié avec succès!');
+        return true;
+      } else {
+        Alert.alert('Erreur', data.detail || 'Impossible de changer le mot de passe');
+        return false;
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteAccount = async (): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/account`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Logout and clear all data
+        await logout();
+        Alert.alert('Compte supprimé', 'Votre compte a été supprimé avec succès');
+        return true;
+      } else {
+        Alert.alert('Erreur', data.detail || 'Impossible de supprimer le compte');
+        return false;
+      }
+    } catch (error) {
+      console.error('Account deletion error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const requestPasswordReset = async (email: string): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/password-reset`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          'Email envoyé', 
+          'Si ce compte existe, un email de réinitialisation a été envoyé.'
+        );
+        return true;
+      } else {
+        Alert.alert('Erreur', data.detail || 'Impossible d\'envoyer l\'email de réinitialisation');
+        return false;
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
