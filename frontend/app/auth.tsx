@@ -343,7 +343,7 @@ export default function AuthScreen() {
           <ValidatedInput
             label="Âge (années)"
             value={value ? value.toString() : ''}
-            onChangeText={(text) => onChange(text ? parseInt(text) || '' : '')}
+            onChangeText={(text) => onChange(text ? parseInt(text) || 0 : 0)}
             error={registerErrors.age?.message}
             keyboardType="numeric"
             placeholder="Ex: 25"
