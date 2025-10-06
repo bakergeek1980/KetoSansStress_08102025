@@ -119,9 +119,10 @@ async def register_user_test(
         logger.info(f"Test inscription créée pour {user_data.email}, user_id: {user_id}")
         
         return {
-            "message": "Inscription de test réussie - email de confirmation envoyé",
+            "message": f"Inscription réussie ! Bonjour {user_data.full_name}, un email de confirmation vous a été envoyé à {user_data.email}",
             "user_id": user_id,
             "email": user_data.email,
+            "full_name": user_data.full_name,
             "needs_email_confirmation": True  # Simuler qu'un email de confirmation est nécessaire
         }
 
