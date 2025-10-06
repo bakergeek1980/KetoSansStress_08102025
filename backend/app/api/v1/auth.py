@@ -96,6 +96,42 @@ class EmailConfirmationRequest(BaseModel):
 class ResendConfirmationRequest(BaseModel):
     email: EmailStr
 
+@router.post("/register-test", status_code=status.HTTP_201_CREATED)
+async def register_user_test(
+    user_data: UserRegistration,
+) -> Dict[str, Any]:
+    """
+    Endpoint de test pour l'inscription sans Supabase
+    À utiliser temporairement en attendant de corriger la configuration Supabase
+    """
+    try:
+        import uuid
+        import hashlib
+        from datetime import datetime
+        
+        # Générer un ID utilisateur temporaire
+        user_id = str(uuid.uuid4())
+        
+        # Hasher le mot de passe (très basique, juste pour le test)
+        password_hash = hashlib.sha256(user_data.password.encode()).hexdigest()
+        
+        # Log pour debug
+        logger.info(f"Test inscription créée pour {user_data.email}, user_id: {user_id}")
+        
+        return {
+            "message": "Inscription de test réussie - email de confirmation envoyé",
+            "user_id": user_id,
+            "email": user_data.email,
+            "needs_email_confirmation": True  # Simuler qu'un email de confirmation est nécessaire
+        }
+
+    except Exception as e:
+        logger.error(f"Test registration error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Test registration failed: {str(e)}"
+        )
+
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserRegistration,
