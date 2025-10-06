@@ -17,6 +17,7 @@ import * as Yup from 'yup';
 import { ArrowLeft, Mail, Send } from 'lucide-react-native';
 import ValidatedInput from '../components/forms/ValidatedInput';
 import LoadingButton from '../components/forms/LoadingButton';
+import { useAuth } from '../hooks/useAuth';
 
 const COLORS = {
   primary: '#4CAF50',
