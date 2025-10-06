@@ -114,7 +114,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
               backgroundColor: 'transparent',
               fontFamily: 'System',
             }}
-            type={isPassword ? 'password' : (textInputProps.keyboardType === 'email-address' ? 'email' : 'text')}
+            type={isPassword && !isPasswordVisible ? 'password' : (textInputProps.keyboardType === 'email-address' ? 'email' : 'text')}
             value={value || ''}
             onChange={(e) => onChangeText(e.target.value)}
             onFocus={handleFocus}
