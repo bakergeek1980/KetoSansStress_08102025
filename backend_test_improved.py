@@ -304,7 +304,7 @@ class ImprovedKetoAPITester:
     
     def test_forgot_password(self):
         """Test POST /api/auth/password-reset endpoint"""
-        logger.info("=== TESTING FORGOT PASSWORD ===\")
+        logger.info("=== TESTING FORGOT PASSWORD ===")
         
         # Test 1: Valid email address
         reset_data = {
