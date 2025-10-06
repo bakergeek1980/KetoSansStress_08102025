@@ -208,6 +208,7 @@ export default function AuthScreen() {
             autoCapitalize="none"
             leftIcon="mail"
             placeholder="votre@email.com"
+            editable={true}
           />
         )}
       />
