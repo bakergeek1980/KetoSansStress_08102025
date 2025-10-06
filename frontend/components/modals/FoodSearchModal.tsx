@@ -171,6 +171,7 @@ export default function FoodSearchModal({
   const [foods, setFoods] = useState<Food[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [scannerVisible, setScannerVisible] = useState(false);
   
   // Configuration de l'API
   const API_BASE_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
