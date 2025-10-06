@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://ketotrackerapp-1.preview.emergentagent.com/api"
+BASE_URL = "https://ketometrics.preview.emergentagent.com/api"
 TEST_EMAIL = "test.confirm@ketosansstress.com"
 TEST_PASSWORD = "SecureTest123!"
 TEST_USER_DATA = {
