@@ -1,32 +1,18 @@
 #!/usr/bin/env python3
 """
-KetoSansStress Backend Testing Suite - Email Confirmation System
-Comprehensive testing of the new email validation workflow
+Backend API Testing for KetoSansStress User Profile Management System
+Tests the newly implemented user profile management endpoints
 """
 
 import requests
 import json
 import time
-import uuid
-from datetime import datetime
 from typing import Dict, Any, Optional
+import logging
 
-# Configuration
-BASE_URL = "https://ketometrics.preview.emergentagent.com/api"
-TEST_EMAIL = "test.confirm@ketosansstress.com"
-TEST_PASSWORD = "SecureTest123!"
-TEST_USER_DATA = {
-    "email": TEST_EMAIL,
-    "password": TEST_PASSWORD,
-    "full_name": "Test Confirmation User",
-    "age": 28,
-    "gender": "female",
-    "height": 165.0,
-    "weight": 60.0,
-    "activity_level": "moderately_active",
-    "goal": "weight_loss",
-    "timezone": "Europe/Paris"
-}
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class EmailConfirmationTester:
     def __init__(self):
