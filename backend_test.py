@@ -17,7 +17,7 @@ TEST_EMAIL = "test.user@ketosansstress.com"
 TEST_PASSWORD = "KetoTest123!"
 DUPLICATE_TEST_EMAIL = "duplicate.test@ketosansstress.com"
 
-class FoodSearchAPITester:
+class AuthenticationTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.session = requests.Session()
