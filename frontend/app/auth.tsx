@@ -397,19 +397,7 @@ export default function AuthScreen() {
         </Text>
       </TouchableOpacity>
 
-      {/* TEST DEBUG SIMPLE */}
-      <View style={{ backgroundColor: '#f0f0f0', padding: 10, margin: 10, borderRadius: 8 }}>
-        <Text style={{ fontSize: 12, fontWeight: 'bold', marginBottom: 5 }}>🐛 Test Debug Simple</Text>
-        <SimpleInput
-          label="Test Sans React Hook Form"
-          value=""
-          onChangeText={(text) => {
-            console.log('🔥 TEST DIRECT:', text);
-            Alert.alert('Debug', `Texte tapé: "${text}"`);
-          }}
-          placeholder="Tapez ici pour tester..."
-        />
-      </View>
+      {/* Test debug supprimé */}
     </ScrollView>
   );
 
