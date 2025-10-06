@@ -87,9 +87,28 @@ export default function AuthScreen() {
   });
 
   const onLoginSubmit = async (data: LoginFormData) => {
-    const success = await login(data.email, data.password);
-    if (success) {
-      router.replace('/(tabs)');
+    try {
+      const success = await login(data.email, data.password);
+      if (success) {
+        router.replace('/(tabs)');
+      }
+    } catch (error: any) {
+      // Si l'email n'est pas confirmé, rediriger vers la page de confirmation
+      if (error?.status === 403 || (error?.message && error.message.includes('Email not confirmed'))) {
+        Alert.alert(
+          'Email non confirmé',
+          'Vous devez confirmer votre adresse email avant de pouvoir vous connecter.',
+          [
+            { text: 'Annuler', style: 'cancel' },
+            { 
+              text: 'Confirmer mon email', 
+              onPress: () => {
+                router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}`);
+              }
+            }
+          ]
+        );
+      }
     }
   };
 
