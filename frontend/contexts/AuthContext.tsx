@@ -26,6 +26,8 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
+  confirmEmail: (token: string) => Promise<boolean>;
+  resendConfirmationEmail: (email: string) => Promise<boolean>;
 }
 
 interface RegisterData {
