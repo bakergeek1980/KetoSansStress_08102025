@@ -97,29 +97,54 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
           </View>
         )}
 
-        {/* Text Input */}
-        <TextInput
-          style={[
-            styles.input,
-            leftIcon && styles.inputWithLeftIcon,
-            (rightIcon || isPassword) && styles.inputWithRightIcon,
-            inputStyle,
-          ]}
-          value={value}
-          onChangeText={onChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          secureTextEntry={isPassword && !isPasswordVisible}
-          placeholderTextColor="#C7C7CC"
-          editable={true}
-          selectTextOnFocus={true}
-          autoComplete="off"
-          readOnly={false}
-          disabled={false}
-          tabIndex={0}
-          aria-hidden={false}
-          {...textInputProps}
-        />
+        {/* Text Input - Version Web vs Mobile */}
+        {Platform.OS === 'web' ? (
+          // Version WEB avec input HTML natif
+          <input
+            style={{
+              flex: 1,
+              fontSize: 16,
+              color: '#1C1C1E',
+              paddingTop: 12,
+              paddingBottom: 12,
+              paddingLeft: leftIcon ? 4 : 12,
+              paddingRight: (rightIcon || isPassword) ? 4 : 12,
+              border: 'none',
+              outline: 'none',
+              backgroundColor: 'transparent',
+              fontFamily: 'System',
+            }}
+            type={isPassword ? 'password' : (textInputProps.keyboardType === 'email-address' ? 'email' : 'text')}
+            value={value || ''}
+            onChange={(e) => onChangeText(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={textInputProps.placeholder}
+            disabled={false}
+            readOnly={false}
+            autoComplete="off"
+          />
+        ) : (
+          // Version MOBILE avec TextInput React Native
+          <TextInput
+            style={[
+              styles.input,
+              leftIcon && styles.inputWithLeftIcon,
+              (rightIcon || isPassword) && styles.inputWithRightIcon,
+              inputStyle,
+            ]}
+            value={value}
+            onChangeText={onChangeText}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            secureTextEntry={isPassword && !isPasswordVisible}
+            placeholderTextColor="#C7C7CC"
+            editable={true}
+            selectTextOnFocus={true}
+            autoComplete="off"
+            {...textInputProps}
+          />
+        )}
 
         {/* Right Icon */}
         {(rightIcon || isPassword) && (
