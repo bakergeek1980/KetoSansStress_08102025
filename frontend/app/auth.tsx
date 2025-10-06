@@ -234,7 +234,7 @@ export default function AuthScreen() {
       <LoadingButton
         title="Se connecter"
         onPress={handleLoginSubmit(onLoginSubmit)}
-        loading={loading}
+        loading={loginLoading}
         style={styles.submitButton}
       />
 
