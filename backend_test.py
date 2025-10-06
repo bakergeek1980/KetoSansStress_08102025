@@ -28,11 +28,12 @@ STANDARD_TEST_DATA = {
 
 class EmailDomainTester:
     def __init__(self):
-        # Use the internal backend URL since external URL is not accessible
-        self.base_url = "http://localhost:8001/api"
+        self.results = []
         self.session = requests.Session()
-        self.test_results = []
-        self.auth_token = None
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        })
         
     def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test results"""
