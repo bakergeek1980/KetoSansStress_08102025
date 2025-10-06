@@ -13,8 +13,8 @@ from typing import Dict, Any, Optional
 
 class KetoSansStressBackendTester:
     def __init__(self):
-        # Use the production URL from frontend/.env
-        self.base_url = "https://ketosansstress.preview.emergentagent.com/api"
+        # Use the internal backend URL since external URL is not accessible
+        self.base_url = "http://localhost:8001/api"
         self.session = requests.Session()
         self.test_results = []
         self.auth_token = None
