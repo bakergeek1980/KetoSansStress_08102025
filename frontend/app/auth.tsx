@@ -13,7 +13,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
-import ValidatedInput from '../components/forms/ValidatedInput';
 import SimpleInput from '../components/forms/SimpleInput';
 import LoadingButton from '../components/forms/LoadingButton';
 import Select from '../components/forms/Select';
