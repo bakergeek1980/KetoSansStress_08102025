@@ -379,7 +379,7 @@ export default function AuthScreen() {
           <ValidatedInput
             label="Taille (cm)"
             value={value ? value.toString() : ''}
-            onChangeText={(text) => onChange(text ? parseInt(text) || '' : '')}
+            onChangeText={(text) => onChange(text ? parseInt(text) || 0 : 0)}
             error={registerErrors.height?.message}
             keyboardType="numeric"
             placeholder="Ex: 170"
