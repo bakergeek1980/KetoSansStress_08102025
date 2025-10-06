@@ -1,17 +1,32 @@
 #!/usr/bin/env python3
 """
-KetoSansStress Backend Testing Suite
-Testing the complete and cleaned registration protocol after code cleanup
+Backend Test Suite for KetoSansStress Multi-Domain Email Registration
+Tests that the application accepts ALL valid email formats, not just @ketosansstress.com
 """
 
 import requests
 import json
 import time
-import uuid
+from typing import Dict, Any, List
 from datetime import datetime
-from typing import Dict, Any, Optional
 
-class KetoSansStressBackendTester:
+# Configuration
+BACKEND_URL = "https://ketosansstress.preview.emergentagent.com/api"
+
+# Standard test data for all registrations
+STANDARD_TEST_DATA = {
+    "password": "TestMultiDomain123!",
+    "full_name": "Testeur MultiDomain",
+    "age": 30,
+    "gender": "female",
+    "height": 170,
+    "weight": 65,
+    "activity_level": "moderately_active", 
+    "goal": "weight_loss",
+    "timezone": "Europe/Paris"
+}
+
+class EmailDomainTester:
     def __init__(self):
         # Use the internal backend URL since external URL is not accessible
         self.base_url = "http://localhost:8001/api"
