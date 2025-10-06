@@ -439,6 +439,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     logout,
     updateUser,
+    updateProfile,
+    changePassword,
+    deleteAccount,
+    requestPasswordReset,
     confirmEmail,
     resendConfirmationEmail,
   };
