@@ -202,6 +202,7 @@ export default function AuthScreen() {
     }
   };
 
+  // ✅ Formulaire de connexion avec état local (sans React Hook Form)
   const renderLoginForm = () => (
     <ScrollView style={styles.formContainer}>
       <View style={styles.header}>
@@ -211,41 +212,33 @@ export default function AuthScreen() {
         </Text>
       </View>
 
-      <Controller
-        control={loginControl}
-        name="email"
-        render={({ field: { onChange, value } }) => (
-          <SimpleInput
-            label="Email"
-            value={value}
-            onChangeText={onChange}
-            error={loginErrors.email?.message}
-            keyboardType="email-address"
-            leftIcon="mail"
-            placeholder="votre@email.com"
-          />
-        )}
+      <SimpleInput
+        label="Email"
+        value={loginData.email}
+        onChangeText={(text) => {
+          console.log('🎯 Login Email changé:', text);
+          setLoginData(prev => ({ ...prev, email: text }));
+        }}
+        keyboardType="email-address"
+        leftIcon="mail"
+        placeholder="votre@email.com"
       />
 
-      <Controller
-        control={loginControl}
-        name="password"
-        render={({ field: { onChange, value } }) => (
-          <SimpleInput
-            label="Mot de passe"
-            value={value}
-            onChangeText={onChange}
-            error={loginErrors.password?.message}
-            isPassword
-            leftIcon="lock-closed"
-            placeholder="••••••••"
-          />
-        )}
+      <SimpleInput
+        label="Mot de passe"
+        value={loginData.password}
+        onChangeText={(text) => {
+          console.log('🎯 Login Password changé:', text);
+          setLoginData(prev => ({ ...prev, password: text }));
+        }}
+        isPassword
+        leftIcon="lock-closed"
+        placeholder="••••••••"
       />
 
       <LoadingButton
         title="Se connecter"
-        onPress={handleLoginSubmit(onLoginSubmit)}
+        onPress={handleLoginSubmit}
         loading={loginLoading}
         style={styles.submitButton}
       />
