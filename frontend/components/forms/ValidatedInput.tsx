@@ -107,23 +107,36 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
           </View>
         )}
 
-        {/* Text Input - Utiliser TextInput pour toutes les plateformes */}
+        {/* Text Input - Version optimisée pour web et mobile */}
         <TextInput
+          key={`${label}-${isFocused}`} // Force re-render pour web
           style={[
             styles.input,
             leftIcon && styles.inputWithLeftIcon,
             (rightIcon || isPassword) && styles.inputWithRightIcon,
             inputStyle,
-            Platform.OS === 'web' && styles.webInput,
           ]}
-          value={value}
-          onChangeText={handleChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          value={value || ''}
+          onChangeText={(text: string) => {
+            console.log(`🎯 [${label}] Text change:`, text);
+            handleChangeText(text);
+          }}
+          onFocus={() => {
+            console.log(`🎯 [${label}] Focus`);
+            handleFocus();
+          }}
+          onBlur={() => {
+            console.log(`🎯 [${label}] Blur`);
+            handleBlur();
+          }}
           secureTextEntry={isPassword && !isPasswordVisible}
           placeholderTextColor="#C7C7CC"
           editable={true}
           selectTextOnFocus={true}
+          autoCorrect={false}
+          autoCapitalize="none"
+          spellCheck={false}
+          textContentType="none"
           autoComplete="off"
           {...textInputProps}
         />
