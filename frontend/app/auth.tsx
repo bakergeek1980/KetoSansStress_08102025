@@ -262,16 +262,17 @@ export default function AuthScreen() {
             control={registerControl}
             name="gender"
             render={({ field: { onChange, value } }) => (
-              <ValidatedInput
+              <Select
                 label="Genre"
-                value={value === 'female' ? 'Femme' : value === 'male' ? 'Homme' : 'Autre'}
-                onChangeText={(text) => {
-                  if (text === 'Femme') onChange('female');
-                  else if (text === 'Homme') onChange('male');
-                  else onChange('other');
-                }}
+                value={value}
+                options={[
+                  { label: 'Femme', value: 'female' },
+                  { label: 'Homme', value: 'male' },
+                  { label: 'Autre', value: 'other' },
+                ]}
+                onSelect={onChange}
                 error={registerErrors.gender?.message}
-                placeholder="Femme"
+                placeholder="Sélectionner..."
                 required
               />
             )}
