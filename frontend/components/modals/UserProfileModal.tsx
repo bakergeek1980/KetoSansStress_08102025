@@ -112,7 +112,7 @@ const passwordSchema = Yup.object({
 });
 
 export default function UserProfileModal({ visible, onClose }: UserProfileModalProps) {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, updateProfile, changePassword, deleteAccount } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'account'>('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
