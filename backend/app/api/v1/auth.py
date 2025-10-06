@@ -194,6 +194,13 @@ async def login_user(
         })
         
         if auth_response.session and auth_response.user:
+            # Vérifier que l'email est confirmé
+            if not auth_response.user.email_confirmed_at:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Email not confirmed. Please check your email and confirm your account before logging in."
+                )
+            
             return {
                 "access_token": auth_response.session.access_token,
                 "refresh_token": auth_response.session.refresh_token,
