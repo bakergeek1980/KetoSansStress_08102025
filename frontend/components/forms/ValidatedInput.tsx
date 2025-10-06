@@ -227,20 +227,9 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
     paddingVertical: 12,
     paddingHorizontal: 12,
-    // Styles spécifiques pour React Native Web
-    outline: 'none', // Supprime l'outline par défaut du navigateur
-    border: 'none', // Supprime la bordure par défaut du navigateur
-    backgroundColor: 'transparent', // Fond transparent
-    pointerEvents: 'auto', // Force l'interactivité
-    // FORCER L'INTERACTIVITÉ - Solution overlay invisible
-    position: 'relative',
-    zIndex: 99999,
-    opacity: 1,
-    visibility: 'visible',
-    userSelect: 'text',
-    // Forcer le focus
-    cursor: 'text',
-  },
+    backgroundColor: 'transparent',
+    // Styles uniquement pour mobile (pas de styles web ici)
+  } as any,
   inputWithLeftIcon: {
     paddingLeft: 0,
   },
