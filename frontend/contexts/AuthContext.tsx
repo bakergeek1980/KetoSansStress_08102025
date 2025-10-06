@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (userData: RegisterData): Promise<boolean> => {
+  const register = async (userData: RegisterData): Promise<{ success: boolean; needsEmailConfirmation?: boolean }> => {
     try {
       setLoading(true);
       
@@ -148,24 +148,99 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
         body: JSON.stringify({
           ...userData,
-          timezone: userData.timezone || 'Europe/Paris'
+          timezone: userData.timezone || 'Europe/Paris',
+          confirm_email: true // Activer la confirmation par email
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        // Si l'inscription nécessite une confirmation email
+        if (data.needs_email_confirmation) {
+          return { success: true, needsEmailConfirmation: true };
+        }
+        
+        // Inscription classique sans confirmation email
         Alert.alert(
           'Inscription réussie', 
           'Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.'
         );
-        return true;
+        return { success: true, needsEmailConfirmation: false };
       } else {
         Alert.alert('Erreur d\'inscription', data.detail || 'Erreur lors de la création du compte');
-        return false;
+        return { success: false };
       }
     } catch (error) {
       console.error('Registration error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Nouvelle fonction pour confirmer l'email
+  const confirmEmail = async (token: string): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/confirm-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          'Email confirmé!', 
+          'Votre adresse email a été confirmée avec succès. Vous pouvez maintenant vous connecter.'
+        );
+        return true;
+      } else {
+        Alert.alert('Erreur de confirmation', data.detail || 'Token de confirmation invalide ou expiré');
+        return false;
+      }
+    } catch (error) {
+      console.error('Email confirmation error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour renvoyer l'email de confirmation
+  const resendConfirmationEmail = async (email: string): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-confirmation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert(
+          'Email envoyé!', 
+          'Un nouvel email de confirmation a été envoyé à votre adresse.'
+        );
+        return true;
+      } else {
+        Alert.alert('Erreur', data.detail || 'Impossible d\'envoyer l\'email de confirmation');
+        return false;
+      }
+    } catch (error) {
+      console.error('Resend confirmation error:', error);
       Alert.alert('Erreur', 'Problème de connexion au serveur');
       return false;
     } finally {
