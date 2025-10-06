@@ -531,10 +531,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User Profile Management Backend API"
-    - "Password Change Backend API"
-    - "Account Deletion Backend API"
-    - "Forgot Password Backend API"
+    - "API Integration and Data Loading"
   stuck_tasks:
     - "API Integration and Data Loading"
   test_all: false
