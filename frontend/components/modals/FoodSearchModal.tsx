@@ -168,31 +168,147 @@ export default function FoodSearchModal({
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [quantity, setQuantity] = useState(100);
   const [foods, setFoods] = useState<Food[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  
+  // Configuration de l'API
+  const API_BASE_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
-  useEffect(() => {
-    // Simulate API call based on active tab
-    switch (activeTab) {
-      case 'search':
-        if (searchQuery.length > 0) {
-          const filtered = mockFoods.filter(food => 
-            food.name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-          setFoods(filtered);
-        } else {
+  // Recherche avec debounce
+  const performSearch = async (query: string, tab: TabType) => {
+    if (!user || !API_BASE_URL) return;
+
+    setIsSearching(true);
+    try {
+      const { token } = user;
+      
+      switch (tab) {
+        case 'search':
+          if (query.length > 0) {
+            const response = await fetch(`${API_BASE_URL}/api/foods/search?q=${encodeURIComponent(query)}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (response.ok) {
+              const results = await response.json();
+              setFoods(results);
+            } else {
+              // Fallback to mock data
+              const filtered = mockFoods.filter(food => 
+                food.name.toLowerCase().includes(query.toLowerCase())
+              );
+              setFoods(filtered);
+            }
+          } else {
+            setFoods(mockFoods);
+          }
+          break;
+          
+        case 'favorites':
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/foods/favorites`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (response.ok) {
+              const results = await response.json();
+              setFoods(results);
+            } else {
+              setFoods(mockFavorites);
+            }
+          } catch (error) {
+            setFoods(mockFavorites);
+          }
+          break;
+          
+        case 'recent':
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/foods/recent-searches`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (response.ok) {
+              const recentSearches = await response.json();
+              // Pour chaque recherche récente, obtenir les aliments correspondants
+              const recentFoods = [];
+              for (const search of recentSearches.slice(0, 5)) {
+                const searchResults = mockFoods.filter(food => 
+                  food.name.toLowerCase().includes(search.query.toLowerCase())
+                );
+                recentFoods.push(...searchResults.slice(0, 2));
+              }
+              setFoods(recentFoods);
+            } else {
+              setFoods(mockRecent);
+            }
+          } catch (error) {
+            setFoods(mockRecent);
+          }
+          break;
+          
+        case 'recipes':
+          // TODO: Implémenter la recherche de recettes
+          setFoods([]);
+          break;
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      // Fallback to mock data
+      switch (tab) {
+        case 'search':
           setFoods(mockFoods);
-        }
-        break;
-      case 'favorites':
-        setFoods(mockFavorites);
-        break;
-      case 'recent':
-        setFoods(mockRecent);
-        break;
-      case 'recipes':
-        setFoods([]); // TODO: Implement recipes
-        break;
+          break;
+        case 'favorites':
+          setFoods(mockFavorites);
+          break;
+        case 'recent':
+          setFoods(mockRecent);
+          break;
+        default:
+          setFoods([]);
+      }
+    } finally {
+      setIsSearching(false);
     }
+  };
+
+  // Effet pour la recherche avec debounce
+  useEffect(() => {
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set new timeout for search
+    const newTimeout = setTimeout(() => {
+      performSearch(searchQuery, activeTab);
+    }, activeTab === 'search' && searchQuery.length > 0 ? 300 : 0); // Debounce de 300ms pour la recherche
+    
+    setSearchTimeout(newTimeout);
+
+    // Cleanup function
+    return () => {
+      if (newTimeout) {
+        clearTimeout(newTimeout);
+      }
+    };
   }, [activeTab, searchQuery]);
+
+  // Initial load for non-search tabs
+  useEffect(() => {
+    if (activeTab !== 'search') {
+      performSearch('', activeTab);
+    }
+  }, [activeTab]);
 
   const calculateNutrition = (food: Food, grams: number) => {
     const factor = grams / 100;
