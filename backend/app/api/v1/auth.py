@@ -142,10 +142,6 @@ async def register_user(
             # Vérifier si l'email est confirmé ou pas
             needs_email_confirmation = not auth_response.user.email_confirmed_at
             
-            # Log pour debug
-            logger.info(f"Inscription créée pour {user_data.email}, email_confirmed_at: {auth_response.user.email_confirmed_at}")
-            logger.info(f"needs_email_confirmation: {needs_email_confirmation}")
-            
             # Supabase envoie automatiquement l'email de confirmation lors du sign_up
             # si email_confirm est activé dans les settings
             
