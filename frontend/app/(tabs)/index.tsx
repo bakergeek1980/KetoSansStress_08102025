@@ -35,6 +35,7 @@ import AddMealModal from '../../components/modals/AddMealModal';
 import FoodSearchModal from '../../components/modals/FoodSearchModal';
 import ReportsModal from '../../components/modals/ReportsModal';
 import SettingsModal from '../../components/modals/SettingsModal';
+import UserProfileModal from '../../components/modals/UserProfileModal';
 import BottomNavigationBar from '../../components/navigation/BottomNavigationBar';
 import ActivityWidget from '../../components/widgets/ActivityWidget';
 import WeightWidget from '../../components/widgets/WeightWidgetNew';
