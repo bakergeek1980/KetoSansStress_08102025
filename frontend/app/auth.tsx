@@ -110,19 +110,27 @@ export default function AuthScreen() {
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
     try {
-      // Debug: Afficher les données du formulaire
-      console.log('📝 Données du formulaire:', data);
-      console.log('❌ Erreurs de validation:', registerErrors);
-      
       // Vérifier si tous les champs obligatoires sont remplis
       const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'age', 'gender', 'height', 'weight'];
       const missingFields = requiredFields.filter(field => !data[field] || data[field] === '');
       
       if (missingFields.length > 0) {
         Alert.alert(
-          'Champs manquants',
-          `Veuillez remplir les champs suivants: ${missingFields.join(', ')}`,
-          [{ text: 'OK' }]
+          'Champs manquants ❌',
+          `Veuillez remplir TOUS les champs suivants:\n\n${missingFields.map(f => {
+            const labels = {
+              email: '📧 Email',
+              password: '🔒 Mot de passe', 
+              confirmPassword: '🔒 Confirmation mot de passe',
+              full_name: '👤 Nom complet',
+              age: '📅 Âge',
+              gender: '⚥ Genre',
+              height: '📏 Taille',
+              weight: '⚖️ Poids'
+            };
+            return labels[field] || field;
+          }).join('\n')}\n\n💡 Assurez-vous de faire défiler vers le HAUT du formulaire pour voir tous les champs !`,
+          [{ text: 'Compris !' }]
         );
         return;
       }
