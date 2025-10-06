@@ -137,84 +137,68 @@ export default function AuthScreen() {
     }
   };
 
-  const onRegisterSubmit = async (data: RegisterFormData) => {
+  // ✅ Nouvelle fonction d'inscription avec état local
+  const handleRegisterSubmit = async () => {
+    console.log('🎯 Register submit avec état local:', registerData);
+    
     try {
-      // Vérifier si tous les champs obligatoires sont remplis
+      // Validation
       const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'age', 'gender', 'height', 'weight'];
       const missingFields = requiredFields.filter(field => {
-        const value = data[field as keyof RegisterFormData];
-        return !value || value === '' || value === 0;
+        const value = registerData[field as keyof typeof registerData];
+        return !value || value === '';
       });
       
       if (missingFields.length > 0) {
-        Alert.alert(
-          'Champs manquants ❌',
-          `Veuillez remplir TOUS les champs suivants:\n\n${missingFields.map(f => {
-            const labels: Record<string, string> = {
-              email: '📧 Email',
-              password: '🔒 Mot de passe', 
-              confirmPassword: '🔒 Confirmation mot de passe',
-              full_name: '👤 Nom complet',
-              age: '📅 Âge',
-              gender: '⚥ Genre',
-              height: '📏 Taille',
-              weight: '⚖️ Poids'
-            };
-            return labels[field] || field;
-          }).join('\n')}\n\n💡 Assurez-vous de faire défiler vers le HAUT du formulaire pour voir tous les champs !`,
-          [{ text: 'Compris !' }]
-        );
+        Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+
+      if (registerData.password !== registerData.confirmPassword) {
+        Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
         return;
       }
       
-      // Remove confirmPassword from data before sending to API
-      const { confirmPassword, ...registerData } = data;
+      // Préparer les données pour l'API
+      const apiData = {
+        email: registerData.email,
+        password: registerData.password,
+        full_name: registerData.full_name,
+        age: parseInt(registerData.age) || 0,
+        gender: registerData.gender,
+        height: parseInt(registerData.height) || 0,
+        weight: parseFloat(registerData.weight) || 0,
+        activity_level: registerData.activity_level,
+        goal: registerData.goal,
+      };
       
-      const result = await register(registerData);
+      const result = await register(apiData);
       
       if (result.success) {
         if (result.needsEmailConfirmation) {
-          // Afficher immédiatement la box de succès avec les instructions personnalisées
           Alert.alert(
             '✅ Inscription réussie !',
-            `🎉 Bonjour ${data.full_name} !\n\n` +
-            `📩 Un email de confirmation vous a été envoyé à l'adresse :\n${data.email}\n\n` +
-            'Prochaines étapes :\n' +
-            '1. Ouvrez votre boîte email\n' +
-            '2. Cherchez un email de contact@ketosansstress.com\n' +
-            '3. Cliquez sur le lien de confirmation\n' +
-            '4. Revenez ici pour vous connecter\n\n' +
-            'Vous ne voyez pas l\'email ? Vérifiez vos spams.',
+            `🎉 Bonjour ${registerData.full_name} !\n\n` +
+            `📩 Un email de confirmation vous a été envoyé à l'adresse :\n${registerData.email}`,
             [
               { text: 'OK', onPress: () => {
-                // Redirection vers la page de confirmation d'email
-                router.push(`/email-confirmation?email=${encodeURIComponent(data.email)}&name=${encodeURIComponent(data.full_name)}`);
+                router.push(`/email-confirmation?email=${encodeURIComponent(registerData.email)}&name=${encodeURIComponent(registerData.full_name)}`);
               }}
             ]
           );
         } else {
-          // Inscription classique, tentative de connexion automatique
-          const loginResult = await login(data.email, data.password);
+          const loginResult = await login(registerData.email, registerData.password);
           if (loginResult.success) {
             router.replace('/(tabs)');
           } else {
-            // Si auto-login échoue, afficher le formulaire de connexion
             setIsLogin(true);
-            Alert.alert(
-              'Inscription réussie !',
-              'Votre compte a été créé avec succès. Veuillez vous connecter.',
-              [{ text: 'OK' }]
-            );
+            Alert.alert('Inscription réussie !', 'Veuillez vous connecter.');
           }
         }
       }
     } catch (error) {
-      console.error('Erreur lors de l\'inscription:', error);
-      Alert.alert(
-        'Erreur d\'inscription',
-        'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.',
-        [{ text: 'OK' }]
-      );
+      console.error('Erreur inscription:', error);
+      Alert.alert('Erreur', 'Erreur lors de la création du compte');
     }
   };
 
