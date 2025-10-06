@@ -375,6 +375,13 @@ export default function FoodSearchModal({
     }
   };
 
+  const handleScannedFoodFound = (scannedFood: Food) => {
+    // Auto-sélectionner l'aliment scanné
+    setSelectedFood(scannedFood);
+    setQuantity(100); // Quantité par défaut
+    setScannerVisible(false);
+  };
+
   const renderTabButton = (tab: TabType, icon: React.ReactNode, label: string) => (
     <TouchableOpacity
       key={tab}
