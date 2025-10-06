@@ -103,6 +103,9 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
           onBlur={handleBlur}
           secureTextEntry={isPassword && !isPasswordVisible}
           placeholderTextColor="#C7C7CC"
+          editable={true}
+          selectTextOnFocus={true}
+          autoComplete="off"
           {...textInputProps}
         />
 
