@@ -137,13 +137,13 @@ async def register_user(
             if needs_email_confirmation:
                 try:
                     # Envoyer explicitement l'email de confirmation
-                    resend_response = supabase.auth.resend({
-                        "type": "signup",
-                        "email": user_data.email,
-                        "options": {
+                    resend_response = supabase.auth.resend(
+                        type="signup",
+                        email=user_data.email,
+                        options={
                             "email_redirect_to": "https://ketosansstress.app/confirm"
                         }
-                    })
+                    )
                     logger.info(f"Email de confirmation envoyé à {user_data.email}")
                 except Exception as e:
                     logger.error(f"Erreur envoi email de confirmation: {e}")
