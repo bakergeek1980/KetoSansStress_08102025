@@ -67,6 +67,16 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
   const hasError = Boolean(error);
   const hasValue = Boolean(value);
 
+  // Debug log pour tracer le problème
+  React.useEffect(() => {
+    console.log(`🔍 ValidatedInput [${label}] - État:`, {
+      value,
+      hasValue,
+      isFocused,
+      platform: Platform.OS
+    });
+  }, [value, hasValue, isFocused, label]);
+
   return (
     <View style={[styles.container, containerStyle]}>
       {/* Label */}
