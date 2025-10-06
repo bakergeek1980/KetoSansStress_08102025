@@ -178,7 +178,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     minHeight: 48,
     // Assurer que les événements passent au TextInput
-    pointerEvents: 'box-none',
+    pointerEvents: 'auto',
+    // Forcer la position et visibilité
+    position: 'relative',
+    zIndex: 1,
+    overflow: 'visible',
   },
   inputContainerFocused: {
     borderColor: '#007AFF',
