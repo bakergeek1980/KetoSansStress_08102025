@@ -173,6 +173,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#FFFFFF',
     minHeight: 48,
+    // Assurer que les événements passent au TextInput
+    pointerEvents: 'box-none',
   },
   inputContainerFocused: {
     borderColor: '#007AFF',
