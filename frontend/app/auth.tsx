@@ -54,7 +54,7 @@ interface RegisterFormData {
 }
 
 export default function AuthScreen() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const { login, register, loading } = useAuth();
   const router = useRouter();
 
