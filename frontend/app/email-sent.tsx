@@ -29,17 +29,15 @@ const COLORS = {
 
 export default function EmailSentScreen() {
   const { email } = useLocalSearchParams<{ email: string }>();
-  const { resendConfirmationEmail, loading } = useAuth();
-  const [emailResent, setEmailResent] = useState(false);
-
-  const handleResendEmail = async () => {
-    if (!email) return;
-    
-    const success = await resendConfirmationEmail(email);
-    if (success) {
-      setEmailResent(true);
+  
+  // Rediriger automatiquement vers la nouvelle page de confirmation d'email
+  React.useEffect(() => {
+    if (email) {
+      router.replace(`/email-confirmation?email=${encodeURIComponent(email)}`);
+    } else {
+      router.replace('/email-confirmation');
     }
-  };
+  }, [email]);
 
   const goBackToAuth = () => {
     router.replace('/auth');
