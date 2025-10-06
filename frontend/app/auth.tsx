@@ -225,6 +225,7 @@ export default function AuthScreen() {
             isPassword
             leftIcon="lock"
             placeholder="••••••••"
+            editable={true}
           />
         )}
       />
