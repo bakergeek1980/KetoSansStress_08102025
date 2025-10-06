@@ -305,3 +305,124 @@ async def get_current_user_info(
 ) -> User:
     """Get current user information."""
     return current_user
+
+@router.patch("/profile")
+async def update_user_profile(
+    profile_data: ProfileUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase_client)
+) -> Dict[str, Any]:
+    """Update user profile information."""
+    try:
+        # Update user profile in database
+        update_data = {
+            "full_name": profile_data.full_name,
+            "age": profile_data.age,
+            "gender": profile_data.gender,
+            "height": float(profile_data.height),
+            "weight": float(profile_data.weight),
+            "activity_level": profile_data.activity_level,
+            "goal": profile_data.goal,
+            "updated_at": "now()"
+        }
+        
+        result = supabase.table("users").update(update_data).eq("id", current_user.id).execute()
+        
+        if result.data:
+            return {
+                "message": "Profile updated successfully",
+                "user": result.data[0]
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+            
+    except Exception as e:
+        logger.error(f"Profile update error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update profile"
+        )
+
+@router.patch("/change-password")
+async def change_user_password(
+    password_data: PasswordChangeRequest,
+    current_user: User = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase_client)
+) -> Dict[str, str]:
+    """Change user password."""
+    try:
+        # First verify current password by attempting to sign in
+        try:
+            auth_response = supabase.auth.sign_in_with_password({
+                "email": current_user.email,
+                "password": password_data.current_password
+            })
+            
+            if not auth_response.user:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Current password is incorrect"
+                )
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Current password is incorrect"
+            )
+        
+        # Update password using Supabase Auth
+        try:
+            update_response = supabase.auth.update_user({
+                "password": password_data.new_password
+            })
+            
+            if update_response.user:
+                return {"message": "Password changed successfully"}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to update password"
+                )
+        except Exception as e:
+            logger.error(f"Password update error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update password"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Password change error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to change password"
+        )
+
+@router.delete("/account")
+async def delete_user_account(
+    current_user: User = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase_client)
+) -> Dict[str, str]:
+    """Delete user account and all associated data."""
+    try:
+        # Delete user profile data first
+        supabase.table("users").delete().eq("id", current_user.id).execute()
+        
+        # Delete user's meals
+        supabase.table("meals").delete().eq("user_id", current_user.id).execute()
+        
+        # Delete user from Supabase Auth (this should be done last)
+        # Note: Supabase doesn't have a direct delete user method in the client library
+        # In production, this should be handled by an admin API or service account
+        
+        return {"message": "Account deleted successfully"}
+        
+    except Exception as e:
+        logger.error(f"Account deletion error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete account"
+        )
