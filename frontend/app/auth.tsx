@@ -206,6 +206,7 @@ export default function AuthScreen() {
             leftIcon="mail"
             placeholder="votre@email.com"
             required
+            textInputProps={{ editable: true }}
           />
         )}
       />
