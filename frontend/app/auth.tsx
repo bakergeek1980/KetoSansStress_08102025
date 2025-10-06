@@ -112,7 +112,10 @@ export default function AuthScreen() {
     try {
       // Vérifier si tous les champs obligatoires sont remplis
       const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'age', 'gender', 'height', 'weight'];
-      const missingFields = requiredFields.filter(field => !data[field] || data[field] === '');
+      const missingFields = requiredFields.filter(field => {
+        const value = data[field as keyof RegisterFormData];
+        return !value || value === '' || value === 0;
+      });
       
       if (missingFields.length > 0) {
         Alert.alert(
