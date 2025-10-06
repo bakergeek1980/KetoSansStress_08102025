@@ -110,6 +110,23 @@ export default function AuthScreen() {
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
     try {
+      // Debug: Afficher les données du formulaire
+      console.log('📝 Données du formulaire:', data);
+      console.log('❌ Erreurs de validation:', registerErrors);
+      
+      // Vérifier si tous les champs obligatoires sont remplis
+      const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'age', 'gender', 'height', 'weight'];
+      const missingFields = requiredFields.filter(field => !data[field] || data[field] === '');
+      
+      if (missingFields.length > 0) {
+        Alert.alert(
+          'Champs manquants',
+          `Veuillez remplir les champs suivants: ${missingFields.join(', ')}`,
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      
       // Remove confirmPassword from data before sending to API
       const { confirmPassword, ...registerData } = data;
       
