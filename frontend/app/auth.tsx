@@ -203,16 +203,14 @@ export default function AuthScreen() {
         control={loginControl}
         name="email"
         render={({ field: { onChange, value } }) => (
-          <ValidatedInput
+          <SimpleInput
             label="Email"
             value={value}
             onChangeText={onChange}
             error={loginErrors.email?.message}
             keyboardType="email-address"
-            autoCapitalize="none"
             leftIcon="mail"
             placeholder="votre@email.com"
-            editable={true}
           />
         )}
       />
