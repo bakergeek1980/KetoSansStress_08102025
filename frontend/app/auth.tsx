@@ -329,7 +329,7 @@ export default function AuthScreen() {
             value={value}
             onChangeText={onChange}
             error={registerErrors.full_name?.message}
-            leftIcon="user"
+            leftIcon="person"
             placeholder="Prénom Nom"
             required
           />
