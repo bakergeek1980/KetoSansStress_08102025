@@ -468,7 +468,7 @@ class ImprovedKetoAPITester:
                 if not result["success"]:
                     logger.info(f"  - {result['test']}: {result['details']}")
         
-        logger.info("\\n✅ PASSED TESTS:")
+        logger.info("\n✅ PASSED TESTS:")
         for result in self.test_results:
             if result["success"]:
                 logger.info(f"  - {result['test']}")
