@@ -97,20 +97,26 @@ export default function AuthScreen() {
     try {
       // Remove confirmPassword from data before sending to API
       const { confirmPassword, ...registerData } = data;
-      const success = await register(registerData);
-      if (success) {
-        // Automatically log in after successful registration
-        const loginSuccess = await login(data.email, data.password);
-        if (loginSuccess) {
-          router.replace('/(tabs)');
+      const result = await register(registerData);
+      
+      if (result.success) {
+        if (result.needsEmailConfirmation) {
+          // Redirection vers la page d'email envoyé
+          router.push(`/email-sent?email=${encodeURIComponent(data.email)}`);
         } else {
-          // If auto-login fails, show login form with success message
-          setIsLogin(true);
-          Alert.alert(
-            'Inscription réussie !',
-            'Votre compte a été créé avec succès. Veuillez vous connecter.',
-            [{ text: 'OK' }]
-          );
+          // Inscription classique, tentative de connexion automatique
+          const loginSuccess = await login(data.email, data.password);
+          if (loginSuccess) {
+            router.replace('/(tabs)');
+          } else {
+            // Si auto-login échoue, afficher le formulaire de connexion
+            setIsLogin(true);
+            Alert.alert(
+              'Inscription réussie !',
+              'Votre compte a été créé avec succès. Veuillez vous connecter.',
+              [{ text: 'OK' }]
+            );
+          }
         }
       }
     } catch (error) {
