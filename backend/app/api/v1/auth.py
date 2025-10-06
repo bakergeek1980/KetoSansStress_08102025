@@ -182,9 +182,7 @@ async def register_user(
             )
 
     except Exception as e:
-        logger.error(f"Registration error détaillée: {type(e).__name__}: {str(e)}")
-        import traceback
-        logger.error(f"Stack trace: {traceback.format_exc()}")
+        logger.error(f"Registration error: {e}")
         
         if "User already registered" in str(e):
             raise HTTPException(
@@ -193,7 +191,7 @@ async def register_user(
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Registration failed: {str(e)}"
+            detail="Registration failed"
         )
 
 @router.post("/login")
