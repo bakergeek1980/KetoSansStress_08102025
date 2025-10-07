@@ -108,9 +108,10 @@ class AccountDeletionTester:
     def test_user_login(self):
         """Test user login to get access token"""
         try:
+            # First try with existing confirmed user
             login_data = {
-                "email": TEST_USER_EMAIL,
-                "password": TEST_USER_PASSWORD
+                "email": EXISTING_USER_EMAIL,
+                "password": EXISTING_USER_PASSWORD
             }
             
             response = self.make_request("POST", "/auth/login", login_data)
@@ -123,17 +124,38 @@ class AccountDeletionTester:
                 self.log_test(
                     "User Login", 
                     True, 
-                    f"Login successful, token obtained",
+                    f"Login successful with existing user: {EXISTING_USER_EMAIL}",
                     {"user_id": self.user_id}
                 )
                 return True
             else:
-                self.log_test(
-                    "User Login", 
-                    False, 
-                    f"Login failed: {response.status_code} - {response.text}"
-                )
-                return False
+                # Try with newly registered user
+                login_data = {
+                    "email": TEST_USER_EMAIL,
+                    "password": TEST_USER_PASSWORD
+                }
+                
+                response = self.make_request("POST", "/auth/login", login_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    self.access_token = data.get("access_token")
+                    self.user_id = data.get("user", {}).get("id")
+                    
+                    self.log_test(
+                        "User Login", 
+                        True, 
+                        f"Login successful with new user: {TEST_USER_EMAIL}",
+                        {"user_id": self.user_id}
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "User Login", 
+                        False, 
+                        f"Login failed for both users. Existing: {response.status_code}, New: {response.status_code} - Email confirmation may be required"
+                    )
+                    return False
                 
         except Exception as e:
             self.log_test("User Login", False, f"Exception: {str(e)}")
