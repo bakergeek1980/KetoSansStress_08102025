@@ -41,6 +41,10 @@ export default function AuthScreen() {
   const { login, register, loginLoading, registerLoading } = useAuth();
   const router = useRouter();
 
+  // ✅ États pour le modal de succès d'inscription
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [registrationInfo, setRegistrationInfo] = useState({ email: '', fullName: '' });
+
   // ✅ États locaux pour les formulaires (sans React Hook Form)
   const [loginData, setLoginData] = useState({
     email: '',
