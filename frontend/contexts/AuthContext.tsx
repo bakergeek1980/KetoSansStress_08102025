@@ -392,36 +392,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const deleteAccount = async (): Promise<boolean> => {
+  const requestAccountDeletion = async (): Promise<boolean> => {
     try {
-      setLoading(true);
-      
-      const response = await fetch(`${API_BASE_URL}/api/auth/account`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_BASE_URL}/api/auth/request-account-deletion`, {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Logout and clear all data
-        await logout();
-        Alert.alert('Compte supprimé', 'Votre compte a été supprimé avec succès');
+        Alert.alert(
+          'Email envoyé ✉️', 
+          data.details || 'Un email de confirmation a été envoyé à votre adresse. Vous avez 24h pour confirmer la suppression.',
+          [{ text: 'Compris' }]
+        );
         return true;
       } else {
-        Alert.alert('Erreur', data.detail || 'Impossible de supprimer le compte');
+        Alert.alert('Erreur', data.detail || 'Impossible d\'envoyer l\'email de confirmation');
         return false;
       }
     } catch (error) {
-      console.error('Account deletion error:', error);
-      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      console.error('Request account deletion error:', error);
+      Alert.alert('Erreur', 'Une erreur est survenue lors de la demande de suppression');
       return false;
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const deleteAccount = async (): Promise<boolean> => {
+    // This function now initiates the email confirmation process
+    return await requestAccountDeletion();
   };
 
   const requestPasswordReset = async (email: string): Promise<boolean> => {
