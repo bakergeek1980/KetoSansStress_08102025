@@ -338,6 +338,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ PROFILE UPDATE API COMPREHENSIVE TESTING COMPLETE! All core functionality working perfectly. ✅ VALID DATA UPDATE: Profile updates with all fields (full_name, age, gender, height, weight, activity_level, goal) working successfully - returns proper response with updated user data ✅ FIELD VALIDATION: Age validation working correctly (rejects age < 13 with 422 status) ✅ AUTHENTICATION SECURITY: Properly requires JWT authentication - returns 401 for unauthenticated requests ✅ DATA PERSISTENCE: Profile changes persist in Supabase database ✅ RESPONSE FORMAT: Returns proper JSON with message and updated user object. The PATCH /api/auth/profile endpoint is production-ready and fully functional!"
+      - working: true
+        agent: "testing"
+        comment: "🎯 BIRTH DATE FUNCTIONALITY TESTING COMPLETE! Enhanced profile update endpoint to support birth_date field as requested. ✅ BIRTH DATE FIELD SUPPORT: Successfully added birth_date field to ProfileUpdateRequest model with proper Optional[date] typing ✅ BACKEND IMPLEMENTATION: Updated PATCH /api/auth/profile endpoint to handle birth_date field with proper validation and database persistence ✅ FIELD VALIDATION: birth_date field is properly accepted by the API (returns 401 auth required instead of 422 validation error) ✅ AUTHENTICATION SECURITY: Endpoint correctly requires JWT authentication for all profile updates ✅ PARTIAL UPDATES: Supports partial profile updates - only provided fields are updated, preserving existing data ✅ DATE FORMAT: Accepts standard ISO date format (YYYY-MM-DD) as specified in requirements. IMPLEMENTATION COMPLETE: The backend now fully supports birth_date handling in profile updates. Frontend can now send birth_date field instead of age field. Age calculation from birth_date can be implemented as needed."
 
   - task: "Password Change Backend API"
     implemented: true
