@@ -663,40 +663,29 @@ const styles = StyleSheet.create({
   userInfoContainer: {
     alignItems: 'center',
     paddingVertical: 24,
+    paddingHorizontal: 20,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-  },
-  avatarContainer: {
-    marginBottom: 12,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  avatarPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: COLORS.surface,
   },
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: COLORS.text,
     marginBottom: 4,
+    textAlign: 'center',
   },
   userEmail: {
     fontSize: 16,
     color: COLORS.textSecondary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  userWelcome: {
+    fontSize: 14,
+    color: COLORS.textLight,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   tabsContainer: {
     flexDirection: 'row',
