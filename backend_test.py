@@ -437,11 +437,11 @@ class BackendTester:
         # Setup: Create and login test user
         if not self.create_test_user():
             print("❌ Failed to create test user. Aborting tests.")
-            return
+            return 0
             
         if not self.login_test_user():
             print("❌ Failed to login test user. Aborting tests.")
-            return
+            return 0
         
         print("🔐 Authentication Setup Complete")
         print()
@@ -460,7 +460,7 @@ class BackendTester:
         self.test_authentication_required()
         
         # Summary
-        self.print_summary()
+        return self.print_summary()
 
     def print_summary(self):
         """Print test summary"""
