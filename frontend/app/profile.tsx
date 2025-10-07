@@ -640,15 +640,36 @@ export default function ProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        {/* Header */}
-        <View style={styles.header}>
+        {/* ✅ Header fixe avec photo miniature */}
+        <View style={styles.headerFixed}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
             <ArrowLeft size={24} color={COLORS.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Mon Profil</Text>
+          
+          <View style={styles.headerUserInfo}>
+            {/* Photo miniature */}
+            <View style={styles.miniPhotoContainer}>
+              {profileData.profile_picture_url ? (
+                <Image 
+                  source={{ uri: profileData.profile_picture_url }} 
+                  style={styles.miniPhoto}
+                />
+              ) : (
+                <View style={styles.miniPhotoPlaceholder}>
+                  <User size={18} color={COLORS.surface} />
+                </View>
+              )}
+            </View>
+            
+            {/* Nom utilisateur */}
+            <Text style={styles.headerUserName}>
+              {profileData.full_name || 'Utilisateur'}
+            </Text>
+          </View>
+          
           <View style={styles.headerSpacer} />
         </View>
 
