@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Mail, CheckCircle, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react-native';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 const COLORS = {
   primary: '#4CAF50',
@@ -33,7 +33,7 @@ export default function EmailConfirmationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { resendConfirmationEmail, loading } = useAuth();
-  
+
   // Get email and name from params if coming from registration
   const initialEmail = params.email as string || '';
   const userName = params.name as string || '';
@@ -45,17 +45,17 @@ export default function EmailConfirmationScreen() {
 
   const validateEmail = (emailValue: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!emailValue) {
       setEmailError('L\'email est requis');
       return false;
     }
-    
+
     if (!emailRegex.test(emailValue)) {
       setEmailError('Format email invalide');
       return false;
     }
-    
+
     setEmailError('');
     return true;
   };
@@ -85,7 +85,7 @@ export default function EmailConfirmationScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
@@ -116,11 +116,11 @@ export default function EmailConfirmationScreen() {
               <View style={styles.successIconContainer}>
                 <CheckCircle color={COLORS.success} size={64} />
               </View>
-              
+
               <Text style={styles.successTitle}>Email renvoyé !</Text>
-              
+
               <Text style={styles.successDescription}>
-                {userName ? `Bonjour ${userName} ! ` : ''}Un nouvel email de confirmation a été envoyé à{' '}
+                {userName ? `Bonjour ${userName} ! ` : ''}Un nouvel email de confirmation a été envoyé à {' '}
                 <Text style={styles.emailText}>{email}</Text>
               </Text>
 
@@ -159,7 +159,7 @@ export default function EmailConfirmationScreen() {
               <Text style={styles.title}>
                 {userName ? `Bonjour ${userName} !` : 'Confirmez votre adresse email'}
               </Text>
-              
+
               <Text style={styles.description}>
                 📩 Un email de confirmation vous a été envoyé à l'adresse indiquée lors de votre inscription.
               </Text>
@@ -177,7 +177,7 @@ export default function EmailConfirmationScreen() {
                 <Text style={styles.formLabel}>
                   Si vous ne trouvez toujours pas l'email, saisissez votre adresse ci-dessous pour en recevoir un nouveau :
                 </Text>
-                
+
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Adresse email *</Text>
                   <View style={[
@@ -224,7 +224,7 @@ export default function EmailConfirmationScreen() {
               <View style={styles.helpContainer}>
                 <Text style={styles.helpTitle}>Besoin d'aide ?</Text>
                 <Text style={styles.helpText}>
-                  Si vous continuez à rencontrer des problèmes, contactez-nous à{' '}
+                  Si vous continuez à rencontrer des problèmes, contactez-nous à {' '}
                   <Text style={styles.contactEmail}>contact@ketosansstress.com</Text>
                 </Text>
               </View>
