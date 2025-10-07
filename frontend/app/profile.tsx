@@ -280,34 +280,11 @@ export default function ProfileScreen() {
         // Déconnexion et redirection
         await logout();
         router.replace('/auth');
-      }
-          onPress: () => confirmFinalDeletion()
-        }
-      ]
-    );
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      Alert.alert('Erreur', 'Impossible de supprimer le compte');
+    }
   };
-
-  const confirmFinalDeletion = () => {
-    Alert.alert(
-      '🚨 DERNIÈRE CONFIRMATION',
-      'Êtes-vous absolument certain(e) de vouloir supprimer votre compte ?\n\n' +
-      'Cette action supprimera immédiatement et définitivement toutes vos données.',
-      [
-        { text: 'Non, annuler', style: 'cancel' },
-        { 
-          text: 'OUI, SUPPRIMER MAINTENANT', 
-          style: 'destructive',
-          onPress: executeFinalDeletion
-        }
-      ]
-    );
-  };
-
-  const executeFinalDeletion = async () => {
-    try {
-      // Call the direct deletion function
-      const success = await deleteAccountDirectly();
-      if (success) {
         Alert.alert(
           '✅ Compte supprimé',
           'Votre compte a été supprimé avec succès. Un email de confirmation a été envoyé.',
