@@ -68,6 +68,46 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout, updateProfile, changePassword, deleteAccount, loading } = useAuth();
   
+  // ✅ Fonctions de conversion de format
+  const formatDateToDisplay = (isoDate: string): string => {
+    // YYYY-MM-DD → DD-MM-YYYY
+    if (!isoDate) return '';
+    const [year, month, day] = isoDate.split('-');
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatDateToISO = (displayDate: string): string => {
+    // DD-MM-YYYY → YYYY-MM-DD
+    if (!displayDate) return '';
+    const [day, month, year] = displayDate.split('-');
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateFromISO = (isoDate: string): Date | null => {
+    // Convert YYYY-MM-DD string to Date object
+    if (!isoDate) return null;
+    try {
+      return new Date(isoDate + 'T00:00:00');
+    } catch (error) {
+      console.error('Date parsing error:', error);
+      return null;
+    }
+  };
+
+  const calculateAgeFromBirthDate = (birthDateISO: string): number => {
+    if (!birthDateISO) return 0;
+    const birthDate = new Date(birthDateISO);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+  
   // States
   const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [profileData, setProfileData] = useState<UserProfile>({
