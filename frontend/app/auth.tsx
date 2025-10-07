@@ -274,15 +274,22 @@ export default function AuthScreen() {
         placeholder="Prénom Nom"
       />
 
-      <SimpleInput
-        label="Âge (années)"
-        value={registerData.age}
-        onChangeText={(text) => {
-          console.log('🎯 Register Age changé:', text);
-          setRegisterData(prev => ({ ...prev, age: text }));
+      <DateInput
+        label="Date de naissance"
+        value={registerData.birth_date}
+        onChange={(date) => {
+          console.log('🎯 Register Birth Date changé:', date);
+          // Calculer l'âge automatiquement
+          const age = new Date().getFullYear() - date.getFullYear();
+          setRegisterData(prev => ({ 
+            ...prev, 
+            birth_date: date,
+            age: age.toString()
+          }));
         }}
-        keyboardType="numeric"
-        placeholder="Ex: 25"
+        placeholder="Sélectionnez votre date de naissance"
+        maximumDate={new Date()}
+        minimumDate={new Date(1900, 0, 1)}
       />
 
       <Select
