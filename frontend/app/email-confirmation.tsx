@@ -7,15 +7,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
 import { Mail, CheckCircle, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react-native';
 import { useAuth } from '../hooks/useAuth';
-import ValidatedInput from '../components/forms/ValidatedInput';
-import LoadingButton from '../components/forms/LoadingButton';
 
 const COLORS = {
   primary: '#4CAF50',
@@ -32,39 +29,50 @@ const COLORS = {
   border: '#E0E0E0',
 };
 
-interface ResendEmailData {
-  email: string;
-}
-
-const emailSchema = Yup.object({
-  email: Yup.string()
-    .email('Format email invalide')
-    .required('L\'email est requis'),
-});
-
 export default function EmailConfirmationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { resendConfirmationEmail, loading } = useAuth();
-  const [emailSent, setEmailSent] = useState(false);
-  const [sendCount, setSendCount] = useState(0);
-
+  
   // Get email and name from params if coming from registration
   const initialEmail = params.email as string || '';
   const userName = params.name as string || '';
 
-  const { control, handleSubmit, formState: { errors }, watch } = useForm<ResendEmailData>({
-    resolver: yupResolver(emailSchema),
-    defaultValues: {
-      email: initialEmail,
-    },
-    mode: 'onChange',
-  });
+  const [email, setEmail] = useState(initialEmail);
+  const [emailError, setEmailError] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const [sendCount, setSendCount] = useState(0);
 
-  const email = watch('email');
+  const validateEmail = (emailValue: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailValue) {
+      setEmailError('L\'email est requis');
+      return false;
+    }
+    
+    if (!emailRegex.test(emailValue)) {
+      setEmailError('Format email invalide');
+      return false;
+    }
+    
+    setEmailError('');
+    return true;
+  };
 
-  const handleResendConfirmation = async (data: ResendEmailData) => {
-    const success = await resendConfirmationEmail(data.email);
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    if (emailError) {
+      validateEmail(text);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!validateEmail(email)) {
+      return;
+    }
+
+    const success = await resendConfirmationEmail(email);
     if (success) {
       setEmailSent(true);
       setSendCount(prev => prev + 1);
@@ -170,34 +178,47 @@ export default function EmailConfirmationScreen() {
                   Si vous ne trouvez toujours pas l'email, saisissez votre adresse ci-dessous pour en recevoir un nouveau :
                 </Text>
                 
-                <Controller
-                  control={control}
-                  name="email"
-                  render={({ field: { onChange, value } }) => (
-                    <ValidatedInput
-                      label="Adresse email"
-                      value={value}
-                      onChangeText={onChange}
-                      error={errors.email?.message}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Adresse email *</Text>
+                  <View style={[
+                    styles.inputWrapper,
+                    emailError && styles.inputWrapperError,
+                  ]}>
+                    <Mail color={emailError ? COLORS.error : COLORS.textLight} size={20} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      value={email}
+                      onChangeText={handleEmailChange}
+                      onBlur={() => validateEmail(email)}
+                      placeholder="votre@email.com"
+                      placeholderTextColor={COLORS.textLight}
                       keyboardType="email-address"
                       autoCapitalize="none"
-                      leftIcon="mail"
-                      placeholder="votre@email.com"
-                      required
-                      editable={true}
+                      autoCorrect={false}
+                      editable={!loading}
                     />
+                  </View>
+                  {emailError && (
+                    <Text style={styles.errorText}>{emailError}</Text>
                   )}
-                />
+                </View>
 
-                <LoadingButton
-                  onPress={handleSubmit(handleResendConfirmation)}
-                  loading={loading}
-                  style={styles.resendButton}
-                  textStyle={styles.resendButtonText}
+                <TouchableOpacity
+                  onPress={handleResendConfirmation}
+                  disabled={loading}
+                  style={[styles.resendButton, loading && styles.resendButtonDisabled]}
                 >
-                  <RefreshCw color={COLORS.surface} size={20} style={{ marginRight: 8 }} />
-                  Renvoyer l'email de confirmation
-                </LoadingButton>
+                  {loading ? (
+                    <ActivityIndicator color={COLORS.surface} size="small" />
+                  ) : (
+                    <>
+                      <RefreshCw color={COLORS.surface} size={20} style={{ marginRight: 8 }} />
+                      <Text style={styles.resendButtonText}>
+                        Renvoyer l'email de confirmation
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
               </View>
 
               <View style={styles.helpContainer}>
@@ -357,6 +378,43 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 20,
   },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    minHeight: 52,
+  },
+  inputWrapperError: {
+    borderColor: COLORS.error,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: COLORS.text,
+    paddingVertical: 12,
+  },
+  errorText: {
+    fontSize: 12,
+    color: COLORS.error,
+    marginTop: 4,
+    marginLeft: 4,
+  },
   resendButton: {
     backgroundColor: COLORS.primary,
     borderRadius: 12,
@@ -364,7 +422,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 8,
+  },
+  resendButtonDisabled: {
+    opacity: 0.6,
   },
   resendButtonText: {
     fontSize: 16,
