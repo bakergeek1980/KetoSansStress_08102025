@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+from datetime import date
 from supabase import Client
 from app.database.connection import get_supabase_client
 from app.auth.dependencies import get_current_user, get_current_user_token
