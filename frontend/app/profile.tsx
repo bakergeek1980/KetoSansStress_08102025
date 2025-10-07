@@ -410,20 +410,47 @@ export default function ProfileScreen() {
           leftIcon="user"
         />
 
-        <DateInput
-          label="Date de naissance"
-          value={profileData.birth_date ? new Date(profileData.birth_date) : null}
-          onChange={(date) => {
-            setProfileData(prev => ({ 
-              ...prev, 
-              birth_date: date.toISOString().split('T')[0],
-              age: (new Date().getFullYear() - date.getFullYear()).toString()
-            }));
-          }}
-          placeholder="Sélectionnez votre date de naissance"
-          maximumDate={new Date()}
-          minimumDate={new Date(1900, 0, 1)}
-        />
+        {/* ✅ Section Date de naissance avec format DD-MM-YYYY */}
+        <View style={styles.dateSection}>
+          <Text style={styles.dateSectionLabel}>Date de naissance</Text>
+          
+          {profileData.birth_date && (
+            <View style={styles.currentDateContainer}>
+              <View style={styles.dateBadge}>
+                <Calendar size={16} color={COLORS.primary} />
+                <Text style={styles.dateBadgeText}>
+                  {formatDateToDisplay(profileData.birth_date)}
+                </Text>
+              </View>
+              
+              <View style={styles.ageBadge}>
+                <UserCheck size={16} color={COLORS.success} />
+                <Text style={styles.ageBadgeText}>
+                  {calculateAgeFromBirthDate(profileData.birth_date)} ans
+                </Text>
+              </View>
+            </View>
+          )}
+          
+          <DateInput
+            label=""
+            value={parseDateFromISO(profileData.birth_date)}
+            onChange={(date) => {
+              console.log('📅 Date sélectionnée:', date);
+              const isoDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+              console.log('📅 Format ISO pour Supabase:', isoDate);
+              
+              setProfileData(prev => ({ 
+                ...prev, 
+                birth_date: isoDate, // Stocké au format Supabase: YYYY-MM-DD
+                age: calculateAgeFromBirthDate(isoDate).toString()
+              }));
+            }}
+            placeholder="Sélectionnez votre date de naissance"
+            maximumDate={new Date()}
+            minimumDate={new Date(1900, 0, 1)}
+          />
+        </View>
 
         <View style={styles.selectContainer}>
           <Text style={styles.selectLabel}>Genre</Text>
