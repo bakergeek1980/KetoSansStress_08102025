@@ -1000,4 +1000,53 @@ const styles = StyleSheet.create({
     color: COLORS.surface,
     marginLeft: 8,
   },
+  // ✅ Nouveaux styles pour la section date
+  dateSection: {
+    marginBottom: 16,
+  },
+  dateSectionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 12,
+  },
+  currentDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingVertical: 8,
+  },
+  dateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary + '15',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '30',
+  },
+  dateBadgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.primary,
+    marginLeft: 6,
+  },
+  ageBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.success + '15',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.success + '30',
+  },
+  ageBadgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.success,
+    marginLeft: 6,
+  },
 });
