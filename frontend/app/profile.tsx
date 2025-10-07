@@ -548,24 +548,11 @@ export default function ProfileScreen() {
           <View style={styles.headerSpacer} />
         </View>
 
-        {/* User Info */}
+        {/* User Info - Simplifié sans photo */}
         <View style={styles.userInfoContainer}>
-          <View style={styles.avatarContainer}>
-            {profileData.profile_picture_url ? (
-              <Image 
-                source={{ uri: profileData.profile_picture_url }}
-                style={styles.avatar}
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarText}>
-                  {getInitials(profileData.full_name || 'U')}
-                </Text>
-              </View>
-            )}
-          </View>
           <Text style={styles.userName}>{profileData.full_name || 'Utilisateur'}</Text>
           <Text style={styles.userEmail}>{user.email}</Text>
+          <Text style={styles.userWelcome}>Gérez votre profil et vos paramètres</Text>
         </View>
 
         {/* Tabs */}
