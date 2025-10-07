@@ -307,33 +307,7 @@ export default function ProfileScreen() {
     }
   };
 
-  const deleteAccountDirectly = async (): Promise<boolean> => {
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || ''}/api/auth/delete-account-direct`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token || ''}`,
-        },
-        body: JSON.stringify({
-          email: user.email,
-          full_name: user.full_name || 'Utilisateur'
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        return true;
-      } else {
-        console.error('Delete account error:', data);
-        return false;
-      }
-    } catch (error) {
-      console.error('Delete account request failed:', error);
-      return false;
-    }
-  };
+  // ✅ Fonction supprimée - maintenant on utilise deleteAccount du contexte
 
   const renderProfileTab = () => (
     <ScrollView style={styles.tabContent}>
