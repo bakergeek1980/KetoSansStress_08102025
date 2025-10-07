@@ -119,57 +119,102 @@ const DateInput: React.FC<DateInputProps> = ({
     setShowPicker(true);
   };
 
+  // Check if we're on web
+  const isWeb = Platform.OS === 'web';
+
   return (
     <View style={styles.container}>
       <Text style={[styles.label, error && styles.labelError]}>
         {label}
       </Text>
       
-      <TouchableOpacity
-        style={[
+      {isWeb ? (
+        // Web: Use HTML5 date input
+        <View style={[
           styles.inputContainer,
           error && styles.inputContainerError,
-          showPicker && styles.inputContainerFocused,
-        ]}
-        onPress={openDatePicker}
-        activeOpacity={0.7}
-      >
-        <Calendar 
-          size={20} 
-          color={error ? COLORS.error : showPicker ? COLORS.primary : COLORS.textLight} 
-          style={styles.icon} 
-        />
-        
-        <View style={styles.textContainer}>
-          <Text style={[
-            styles.inputText,
-            !value && styles.placeholderText
-          ]}>
-            {value ? formatShortDate(value) : placeholder}
-          </Text>
+        ]}>
+          <Calendar 
+            size={20} 
+            color={error ? COLORS.error : COLORS.textLight} 
+            style={styles.icon} 
+          />
+          
+          <input
+            type="date"
+            value={value ? value.toISOString().split('T')[0] : ''}
+            onChange={(e) => handleWebDateChange(e.target.value)}
+            min={minimumDate.toISOString().split('T')[0]}
+            max={maximumDate.toISOString().split('T')[0]}
+            placeholder={placeholder}
+            style={{
+              flex: 1,
+              fontSize: 16,
+              padding: 12,
+              border: 'none',
+              outline: 'none',
+              backgroundColor: 'transparent',
+              color: COLORS.text,
+              fontFamily: 'inherit',
+            }}
+          />
           
           {value && (
-            <Text style={styles.fullDateText}>
-              {formatDate(value)}
-            </Text>
+            <View style={styles.ageContainer}>
+              <Text style={styles.ageText}>
+                {calculateAge(value)} ans
+              </Text>
+            </View>
           )}
         </View>
-        
-        {value && (
-          <View style={styles.ageContainer}>
-            <Text style={styles.ageText}>
-              {calculateAge(value)} ans
+      ) : (
+        // Mobile: Use TouchableOpacity with DateTimePicker
+        <TouchableOpacity
+          style={[
+            styles.inputContainer,
+            error && styles.inputContainerError,
+            showPicker && styles.inputContainerFocused,
+          ]}
+          onPress={openDatePicker}
+          activeOpacity={0.7}
+        >
+          <Calendar 
+            size={20} 
+            color={error ? COLORS.error : showPicker ? COLORS.primary : COLORS.textLight} 
+            style={styles.icon} 
+          />
+          
+          <View style={styles.textContainer}>
+            <Text style={[
+              styles.inputText,
+              !value && styles.placeholderText
+            ]}>
+              {value ? formatShortDate(value) : placeholder}
             </Text>
+            
+            {value && (
+              <Text style={styles.fullDateText}>
+                {formatDate(value)}
+              </Text>
+            )}
           </View>
-        )}
-      </TouchableOpacity>
+          
+          {value && (
+            <View style={styles.ageContainer}>
+              <Text style={styles.ageText}>
+                {calculateAge(value)} ans
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
       
       {error && (
         <Text style={styles.errorText}>{error}</Text>
       )}
 
       {/* Android Date Picker */}
-      {Platform.OS === 'android' && showPicker && (
+      {!isWeb && Platform.OS === 'android' && showPicker && (
         <DateTimePicker
           value={tempDate}
           mode="date"
@@ -181,7 +226,7 @@ const DateInput: React.FC<DateInputProps> = ({
       )}
 
       {/* iOS Date Picker Modal */}
-      {Platform.OS === 'ios' && (
+      {!isWeb && Platform.OS === 'ios' && (
         <Modal
           visible={showPicker}
           transparent={true}
