@@ -362,13 +362,19 @@ export default function ProfileScreen() {
           leftIcon="user"
         />
 
-        <SimpleInput
-          label="Âge (années)"
-          value={profileData.age}
-          onChangeText={(text) => setProfileData(prev => ({ ...prev, age: text }))}
-          placeholder="Ex: 25"
-          keyboardType="numeric"
-          leftIcon="calendar"
+        <DateInput
+          label="Date de naissance"
+          value={profileData.birth_date ? new Date(profileData.birth_date) : null}
+          onChange={(date) => {
+            setProfileData(prev => ({ 
+              ...prev, 
+              birth_date: date.toISOString().split('T')[0],
+              age: (new Date().getFullYear() - date.getFullYear()).toString()
+            }));
+          }}
+          placeholder="Sélectionnez votre date de naissance"
+          maximumDate={new Date()}
+          minimumDate={new Date(1900, 0, 1)}
         />
 
         <View style={styles.selectContainer}>
