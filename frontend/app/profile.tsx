@@ -723,6 +723,51 @@ const styles = StyleSheet.create({
   headerSpacer: {
     width: 44,
   },
+  // ✅ Nouveau header fixe avec photo miniature
+  headerFixed: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: COLORS.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
+  },
+  headerUserInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+  },
+  miniPhotoContainer: {
+    marginRight: 12,
+  },
+  miniPhoto: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: COLORS.primary + '30',
+  },
+  miniPhotoPlaceholder: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.primary + '30',
+  },
+  headerUserName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
   userInfoContainer: {
     alignItems: 'center',
     paddingVertical: 24,
