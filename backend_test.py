@@ -57,7 +57,7 @@ class BackendTester:
         try:
             login_data = {
                 "email": self.test_user_email,
-                "password": "TestPassword123!"
+                "password": "SecurePass123!"  # Use the correct password for existing user
             }
             
             response = requests.post(f"{self.base_url}/auth/login", json=login_data)
