@@ -373,6 +373,17 @@ export default function AuthScreen() {
 
         {isLogin ? renderLoginForm() : renderRegisterForm()}
       </KeyboardAvoidingView>
+
+      {/* ✅ Modal de succès d'inscription */}
+      <RegistrationSuccessModal
+        visible={showSuccessModal}
+        email={registrationInfo.email}
+        fullName={registrationInfo.fullName}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push(`/email-confirmation?email=${encodeURIComponent(registrationInfo.email)}`);
+        }}
+      />
     </SafeAreaView>
   );
 }
