@@ -99,11 +99,16 @@ export default function AuthScreen() {
     
     try {
       // Validation
-      const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'age', 'gender', 'height', 'weight'];
+      const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'gender', 'height', 'weight'];
       const missingFields = requiredFields.filter(field => {
         const value = registerData[field as keyof typeof registerData];
         return !value || value === '';
       });
+      
+      // Vérification spéciale pour birth_date
+      if (!registerData.birth_date) {
+        missingFields.push('birth_date');
+      }
       
       if (missingFields.length > 0) {
         Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
