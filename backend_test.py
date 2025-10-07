@@ -51,7 +51,7 @@ class BackendTester:
                 "email": self.test_user_email,
                 "password": "TestPassword123!",
                 "full_name": "Marie Testeur",
-                "age": 28,
+                "birth_date": "1995-06-15",  # Required field
                 "gender": "female",
                 "height": 165.0,
                 "weight": 65.0,
