@@ -5,9 +5,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Modal,
+  Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Calendar } from 'lucide-react-native';
+import { Calendar, X } from 'lucide-react-native';
 
 const COLORS = {
   primary: '#4CAF50',
@@ -39,27 +41,51 @@ const DateInput: React.FC<DateInputProps> = ({
   value,
   onChange,
   error,
-  placeholder = 'Sélectionner une date',
+  placeholder = 'Sélectionner votre date de naissance',
   maximumDate = new Date(),
   minimumDate = new Date(1900, 0, 1),
 }) => {
   const [showPicker, setShowPicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date>(value || new Date(1990, 0, 1));
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowPicker(false);
+      if (selectedDate) {
+        onChange(selectedDate);
+      }
+    } else {
+      // iOS - update temporary date
+      if (selectedDate) {
+        setTempDate(selectedDate);
+      }
     }
-    
-    if (selectedDate) {
-      onChange(selectedDate);
-    }
+  };
+
+  const handleIOSConfirm = () => {
+    onChange(tempDate);
+    setShowPicker(false);
+  };
+
+  const handleIOSCancel = () => {
+    setTempDate(value || new Date(1990, 0, 1));
+    setShowPicker(false);
   };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+    });
+  };
+
+  const formatShortDate = (date: Date) => {
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
     });
   };
 
@@ -75,6 +101,13 @@ const DateInput: React.FC<DateInputProps> = ({
     return age;
   };
 
+  const openDatePicker = () => {
+    if (Platform.OS === 'ios') {
+      setTempDate(value || new Date(1990, 0, 1));
+    }
+    setShowPicker(true);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={[styles.label, error && styles.labelError]}>
@@ -85,21 +118,31 @@ const DateInput: React.FC<DateInputProps> = ({
         style={[
           styles.inputContainer,
           error && styles.inputContainerError,
+          showPicker && styles.inputContainerFocused,
         ]}
-        onPress={() => setShowPicker(true)}
+        onPress={openDatePicker}
+        activeOpacity={0.7}
       >
         <Calendar 
           size={20} 
-          color={error ? COLORS.error : COLORS.textLight} 
+          color={error ? COLORS.error : showPicker ? COLORS.primary : COLORS.textLight} 
           style={styles.icon} 
         />
         
-        <Text style={[
-          styles.inputText,
-          !value && styles.placeholderText
-        ]}>
-          {value ? formatDate(value) : placeholder}
-        </Text>
+        <View style={styles.textContainer}>
+          <Text style={[
+            styles.inputText,
+            !value && styles.placeholderText
+          ]}>
+            {value ? formatShortDate(value) : placeholder}
+          </Text>
+          
+          {value && (
+            <Text style={styles.fullDateText}>
+              {formatDate(value)}
+            </Text>
+          )}
+        </View>
         
         {value && (
           <View style={styles.ageContainer}>
@@ -114,16 +157,57 @@ const DateInput: React.FC<DateInputProps> = ({
         <Text style={styles.errorText}>{error}</Text>
       )}
 
-      {showPicker && (
+      {/* Android Date Picker */}
+      {Platform.OS === 'android' && showPicker && (
         <DateTimePicker
-          value={value || new Date()}
+          value={tempDate}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display="calendar"
           onChange={handleDateChange}
           maximumDate={maximumDate}
           minimumDate={minimumDate}
-          locale="fr-FR"
         />
+      )}
+
+      {/* iOS Date Picker Modal */}
+      {Platform.OS === 'ios' && (
+        <Modal
+          visible={showPicker}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={handleIOSCancel}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <TouchableOpacity onPress={handleIOSCancel} style={styles.cancelButton}>
+                  <X size={24} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Sélectionner votre date de naissance</Text>
+                <TouchableOpacity onPress={handleIOSConfirm} style={styles.confirmButton}>
+                  <Text style={styles.confirmButtonText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <DateTimePicker
+                value={tempDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                maximumDate={maximumDate}
+                minimumDate={minimumDate}
+                locale="fr-FR"
+                style={styles.iosPicker}
+              />
+              
+              <View style={styles.agePreview}>
+                <Text style={styles.agePreviewText}>
+                  Âge: {calculateAge(tempDate)} ans
+                </Text>
+              </View>
+            </View>
+          </View>
+        </Modal>
       )}
     </View>
   );
