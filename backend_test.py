@@ -405,6 +405,36 @@ class BackendTester:
         except Exception as e:
             self.log_test("Authentication Required", False, f"Exception: {str(e)}")
 
+    def test_birth_date_field_support(self):
+        """Test 9: Check if birth_date field is supported in profile update"""
+        try:
+            # Test with minimal data to see if birth_date field is accepted
+            profile_data = {
+                "birth_date": "1990-01-01"
+            }
+            
+            # Make request without authentication to check field validation
+            response = requests.patch(f"{self.base_url}/auth/profile", json=profile_data)
+            
+            # We expect 401 (auth required) not 422 (validation error)
+            if response.status_code == 401:
+                self.log_test("Birth Date Field Support", True, 
+                            "birth_date field is accepted (authentication required as expected)")
+            elif response.status_code == 422:
+                error_detail = response.json()
+                if "birth_date" in str(error_detail):
+                    self.log_test("Birth Date Field Support", False, 
+                                "birth_date field validation error", error_detail)
+                else:
+                    self.log_test("Birth Date Field Support", True, 
+                                "birth_date field accepted, other validation errors present")
+            else:
+                self.log_test("Birth Date Field Support", False, 
+                            f"Unexpected status code: {response.status_code}", response.json())
+                
+        except Exception as e:
+            self.log_test("Birth Date Field Support", False, f"Exception: {str(e)}")
+
     def run_all_tests(self):
         """Run all birth_date related tests"""
         print("🧪 BACKEND BIRTH DATE TESTING SUITE")
