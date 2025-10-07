@@ -303,8 +303,13 @@ export default function ProfileScreen() {
 
   const renderProfileTab = () => (
     <ScrollView style={styles.tabContent}>
-      {/* Profile Picture Section */}
+      {/* Profile Picture Section - Zone photo principale */}
       <View style={styles.profilePictureSection}>
+        <Text style={styles.photoSectionTitle}>Photo de profil</Text>
+        <Text style={styles.photoSectionSubtitle}>
+          Ajoutez une photo pour personnaliser votre profil
+        </Text>
+        
         <TouchableOpacity 
           style={styles.profilePictureContainer}
           onPress={handleImagePicker}
@@ -322,16 +327,28 @@ export default function ProfileScreen() {
               </Text>
             </View>
           )}
-          <View style={styles.cameraIconContainer}>
-            {uploading ? (
-              <ActivityIndicator size="small" color={COLORS.surface} />
-            ) : (
-              <Camera size={16} color={COLORS.surface} />
-            )}
+          
+          {/* Overlay avec icône camera */}
+          <View style={styles.photoOverlay}>
+            <View style={styles.cameraIconContainer}>
+              {uploading ? (
+                <ActivityIndicator size="small" color={COLORS.surface} />
+              ) : (
+                <Camera size={20} color={COLORS.surface} />
+              )}
+            </View>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleImagePicker} disabled={uploading}>
-          <Text style={styles.changePhotoText}>Changer la photo</Text>
+        
+        <TouchableOpacity 
+          style={styles.changePhotoButton}
+          onPress={handleImagePicker} 
+          disabled={uploading}
+        >
+          <Camera size={18} color={COLORS.primary} />
+          <Text style={styles.changePhotoText}>
+            {profileData.profile_picture_url ? 'Changer la photo' : 'Ajouter une photo'}
+          </Text>
         </TouchableOpacity>
       </View>
 
