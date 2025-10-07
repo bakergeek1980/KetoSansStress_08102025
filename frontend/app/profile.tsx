@@ -54,7 +54,7 @@ const COLORS = {
 interface UserProfile {
   full_name: string;
   age: string;
-  birth_date?: string;
+  birth_date?: Date | null; // ✅ Date object pour le nouveau DateInput
   gender: 'male' | 'female' | 'other';
   height: string;
   weight: string;
