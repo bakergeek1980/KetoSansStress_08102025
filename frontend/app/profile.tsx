@@ -211,18 +211,19 @@ export default function ProfileScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Supprimer le compte',
-      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.',
+      '🔴 Supprimer le compte définitivement',
+      'Cette action déclenchera un processus de confirmation par email.\n\n' +
+      '⚠️ ATTENTION : La suppression sera définitive et irréversible !\n\n' +
+      'Vous recevrez un email avec un lien de confirmation à votre adresse : ' + user.email,
       [
         { text: 'Annuler', style: 'cancel' },
         { 
-          text: 'Supprimer', 
+          text: 'Envoyer l\'email de confirmation', 
           style: 'destructive',
           onPress: async () => {
             const success = await deleteAccount();
-            if (success) {
-              router.replace('/auth');
-            }
+            // The deleteAccount function now handles the email confirmation process
+            // User will receive an email with instructions
           }
         }
       ]
