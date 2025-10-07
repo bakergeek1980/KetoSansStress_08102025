@@ -263,21 +263,24 @@ export default function ProfileScreen() {
     }
   };
 
+  // ✅ Fonction pour ouvrir le modal de suppression
   const handleDeleteAccount = () => {
-    Alert.alert(
-      '🔴 SUPPRIMER LE COMPTE DÉFINITIVEMENT',
-      '⚠️ ATTENTION : Cette action est IRRÉVERSIBLE !\n\n' +
-      'Toutes vos données seront supprimées :\n' +
-      '• Profil et informations personnelles\n' +
-      '• Historique des repas et nutrition\n' +
-      '• Photos et préférences\n' +
-      '• Tous vos paramètres\n\n' +
-      '✉️ Un email de confirmation de suppression sera envoyé à : ' + user.email,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'OUI, SUPPRIMER MON COMPTE', 
-          style: 'destructive',
+    setShowDeleteModal(true);
+  };
+
+  // ✅ Fonction de confirmation de suppression
+  const confirmDelete = async () => {
+    try {
+      setShowDeleteModal(false);
+      
+      // Appeler l'API de suppression directe
+      const success = await deleteAccount();
+      
+      if (success) {
+        // Déconnexion et redirection
+        await logout();
+        router.replace('/auth');
+      }
           onPress: () => confirmFinalDeletion()
         }
       ]
