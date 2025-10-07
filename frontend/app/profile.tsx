@@ -52,6 +52,7 @@ const COLORS = {
 interface UserProfile {
   full_name: string;
   age: string;
+  birth_date?: string;
   gender: 'male' | 'female' | 'other';
   height: string;
   weight: string;
