@@ -143,13 +143,15 @@ export default function ProfileScreen() {
     if (user) {
       console.log('🔄 Mise à jour du profil depuis user:', user);
       
+      // ✅ Conversion correcte de la date depuis Supabase
+      const dateObj = user.birth_date ? new Date(user.birth_date + 'T00:00:00') : null;
       const calculatedAge = user.birth_date ? calculateAgeFromBirthDate(user.birth_date) : 0;
       
       setProfileData(prevData => ({
         ...prevData, // Preserve any unsaved changes
         full_name: user.full_name || '',
         age: user.age?.toString() || calculatedAge.toString(),
-        birth_date: user.birth_date || '', // Format ISO: YYYY-MM-DD
+        birth_date: dateObj, // ✅ Date object pour le nouveau DateInput
         gender: user.gender || 'male',
         height: user.height?.toString() || '',
         weight: user.weight?.toString() || '',
