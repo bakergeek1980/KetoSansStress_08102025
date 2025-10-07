@@ -33,6 +33,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '../contexts/AuthContext';
 import SimpleInput from '../components/forms/SimpleInput';
+import DateInput from '../components/forms/DateInput';
 
 const COLORS = {
   primary: '#4CAF50',
