@@ -428,30 +428,28 @@ class AccountDeletionTester:
         
         # Phase 1: Setup
         print("\n📋 PHASE 1: User Setup")
-        if not self.test_user_registration():
-            print("❌ Cannot proceed without user registration")
-            return
-            
-        if not self.test_user_login():
-            print("❌ Cannot proceed without user login")
-            return
-            
-        # Create sample data for deletion testing
-        self.test_create_sample_data()
+        registration_success = self.test_user_registration()
+        login_success = self.test_user_login()
         
-        # Phase 2: Account Deletion Request Testing
-        print("\n🗑️ PHASE 2: Account Deletion Request Testing")
-        self.test_request_account_deletion()
-        self.test_verify_deletion_request_stored()
-        self.test_multiple_deletion_requests()
+        if login_success:
+            # Create sample data for deletion testing
+            self.test_create_sample_data()
+            
+            # Phase 2: Account Deletion Request Testing (requires auth)
+            print("\n🗑️ PHASE 2: Account Deletion Request Testing")
+            self.test_request_account_deletion()
+            self.test_multiple_deletion_requests()
+        else:
+            print("⚠️ Login failed - testing non-authenticated endpoints only")
         
-        # Phase 3: Security Testing
+        # Phase 3: Security Testing (doesn't require auth)
         print("\n🔒 PHASE 3: Security Testing")
         self.test_unauthenticated_deletion_request()
         self.test_invalid_token_security()
         self.test_deprecated_direct_deletion()
+        self.test_verify_deletion_request_stored()
         
-        # Phase 4: Email Confirmation Testing
+        # Phase 4: Email Confirmation Testing (doesn't require auth)
         print("\n📧 PHASE 4: Email Confirmation Testing")
         self.test_email_confirmation_simulation()
         
