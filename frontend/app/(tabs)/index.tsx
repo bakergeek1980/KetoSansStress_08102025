@@ -397,10 +397,7 @@ export default function HomeScreen() {
       />
 
       {/* Modal de profil utilisateur */}
-      <UserProfileModal
-        visible={userProfileModalVisible}
-        onClose={() => setUserProfileModalVisible(false)}
-      />
+      {/* UserProfileModal removed - now using /profile page */}
     </SafeAreaView>
   );
 }
