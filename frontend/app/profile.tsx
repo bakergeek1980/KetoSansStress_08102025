@@ -672,6 +672,14 @@ export default function ProfileScreen() {
         {activeTab === 'security' && renderSecurityTab()}
         {activeTab === 'account' && renderAccountTab()}
       </KeyboardAvoidingView>
+
+      {/* ✅ Modal de suppression de compte */}
+      <DeleteAccountModal
+        visible={showDeleteModal}
+        userName={profileData.full_name || 'Utilisateur'}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </SafeAreaView>
   );
 }
