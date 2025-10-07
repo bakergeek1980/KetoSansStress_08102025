@@ -1,23 +1,33 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for KetoSansStress Authentication System
-Testing the authentication endpoints after frontend changes from React Hook Form to useState
-Focus on login, register, profile endpoints and email confirmation flow
+Backend API Testing for KetoSansStress Account Deletion System
+Tests the new secure account deletion with email confirmation
 """
 
 import requests
 import json
 import time
 import uuid
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
-# Configuration - Using production URL from frontend .env
-BACKEND_URL = "https://ketolite.preview.emergentagent.com/api"
+# Configuration
+BASE_URL = "https://ketolite.preview.emergentagent.com/api"
+TEST_USER_EMAIL = f"test.deletion.{uuid.uuid4().hex[:8]}@ketosansstress.com"
+TEST_USER_PASSWORD = "SecurePass123!"
+TEST_USER_DATA = {
+    "email": TEST_USER_EMAIL,
+    "password": TEST_USER_PASSWORD,
+    "full_name": "Marie Suppression",
+    "age": 28,
+    "gender": "female",
+    "height": 165.0,
+    "weight": 60.0,
+    "activity_level": "moderately_active",
+    "goal": "weight_loss"
+}
 
-TIMEOUT = 30
-
-class BackendTester:
+class AccountDeletionTester:
     def __init__(self):
         self.session = requests.Session()
         self.session.timeout = TIMEOUT
