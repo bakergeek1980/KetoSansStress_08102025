@@ -48,6 +48,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     full_name: Optional[str] = Field(None, min_length=1, max_length=255)
     age: Optional[int] = Field(None, gt=0, lt=150)
+    birth_date: Optional[date] = Field(None, description="Date de naissance de l'utilisateur")
     gender: Optional[GenderEnum] = None
     height: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
     weight: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
