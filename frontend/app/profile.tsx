@@ -174,7 +174,7 @@ export default function ProfileScreen() {
     try {
       const dataToUpdate = {
         full_name: profileData.full_name,
-        age: parseInt(profileData.age) || 0,
+        birth_date: profileData.birth_date,
         gender: profileData.gender,
         height: parseInt(profileData.height) || 0,
         weight: parseFloat(profileData.weight) || 0,
