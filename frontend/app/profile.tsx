@@ -34,6 +34,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import SimpleInput from '../components/forms/SimpleInput';
 import DateInput from '../components/forms/DateInput';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 const COLORS = {
   primary: '#4CAF50',
