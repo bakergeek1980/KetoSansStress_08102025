@@ -223,9 +223,10 @@ export default function ProfileScreen() {
 
   const handleUpdateProfile = async () => {
     try {
+      // ✅ Conversion de la date pour Supabase (YYYY-MM-DD)
       const dataToUpdate = {
         full_name: profileData.full_name,
-        birth_date: profileData.birth_date,
+        birth_date: profileData.birth_date ? profileData.birth_date.toISOString().split('T')[0] : null,
         gender: profileData.gender,
         height: parseInt(profileData.height) || 0,
         weight: parseFloat(profileData.weight) || 0,
