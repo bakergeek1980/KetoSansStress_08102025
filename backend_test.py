@@ -13,6 +13,11 @@ from typing import Dict, Any, Optional
 
 # Configuration
 BASE_URL = "https://ketolite.preview.emergentagent.com/api"
+
+# Try with existing confirmed user first, then fallback to new user
+EXISTING_USER_EMAIL = "bdsbes@gmail.com"
+EXISTING_USER_PASSWORD = "SecurePass123!"
+
 TEST_USER_EMAIL = f"test.deletion.{uuid.uuid4().hex[:8]}@ketosansstress.com"
 TEST_USER_PASSWORD = "SecurePass123!"
 TEST_USER_DATA = {
