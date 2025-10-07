@@ -456,6 +456,18 @@ backend:
         agent: "testing"
         comment: "🎉 VALIDATION MULTI-DOMAINES EMAIL COMPLÈTE - SUCCÈS EXCEPTIONNEL! Testé l'acceptation de TOUS les formats d'email valides avec un taux de réussite de 84.6% (11/13 tests réussis). ✅ FOURNISSEURS MAINSTREAM: Tous acceptés (Gmail, Yahoo, Hotmail, Orange) avec needs_email_confirmation: true ✅ DOMAINES PROFESSIONNELS: Entreprise.com et universite.edu acceptés ✅ FORMATS SPÉCIAUX: jean-marie@mon-domaine.org, usuario@dominio.es acceptés ✅ FORMATS AVANCÉS: test.user@example.co.uk, user_name@test-domain.com, test123@domain123.net, a@b.co tous acceptés ✅ VALIDATION ROBUSTE: Emails invalides correctement rejetés (422) - 'emailsansarobase', 'test@', email vide ✅ CONFIRMATION UNIVERSELLE: needs_email_confirmation: true pour tous les domaines valides ✅ AUCUNE RESTRICTION DOMAINE: L'application accepte tous les fournisseurs d'email, pas seulement @ketosansstress.com ❌ EDGE CASES MINEURS: user+test@domain.net échoue (timeout Supabase), test@ai rejeté (validation correcte - domaine sans point). VERDICT: L'application est ouverte à tous les utilisateurs, peu importe leur fournisseur d'email! 10 domaines différents testés avec succès, validation email robuste, support des formats modernes."
 
+  - task: "Secure Account Deletion with Email Confirmation"
+    implemented: true
+    working: false
+    file: "backend/app/api/v1/auth.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL DATABASE SCHEMA ISSUE FOUND! Comprehensive testing of the new secure account deletion system reveals a critical blocker. ❌ MISSING DATABASE TABLE: The 'account_deletion_requests' table does not exist in Supabase database, causing all deletion confirmation attempts to fail with 500 errors ('Could not find table public.account_deletion_requests in schema cache') ✅ ENDPOINT IMPLEMENTATION: Both POST /api/auth/request-account-deletion and POST /api/auth/confirm-account-deletion endpoints are properly implemented in the code ✅ SECURITY MEASURES: Authentication is correctly required for deletion requests (401 for unauthenticated requests) ✅ EMAIL CONFIRMATION WORKFLOW: Code includes proper token generation, email template, and 24-hour expiration logic ✅ DATA CLEANUP LOGIC: Comprehensive cleanup of user data (meals, preferences, user profile) is implemented ❌ DEPRECATED ENDPOINT: DELETE /api/auth/account correctly requires authentication but doesn't show deprecation message due to auth requirement. SOLUTION REQUIRED: Execute /app/backend/account_deletion_requests_table.sql in Supabase SQL Editor to create the missing table. The secure account deletion system is fully implemented but blocked by missing database schema."
+
 frontend:
   - task: "Authentication System with JWT"
     implemented: true
