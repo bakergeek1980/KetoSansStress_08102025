@@ -134,6 +134,9 @@ export default function ProfileScreen() {
   });
   
   const [uploading, setUploading] = useState(false);
+  
+  // ✅ État pour le modal de suppression de compte
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // ✅ Initialize profile data from user with proper synchronization
   useEffect(() => {
