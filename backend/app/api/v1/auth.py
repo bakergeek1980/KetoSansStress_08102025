@@ -82,13 +82,14 @@ class PasswordChangeRequest(BaseModel):
         return v
 
 class ProfileUpdateRequest(BaseModel):
-    full_name: str = Field(..., min_length=2, max_length=100)
-    age: int = Field(..., ge=13, le=120)
-    gender: str = Field(..., pattern="^(male|female|other)$")
-    height: float = Field(..., ge=100, le=250)
-    weight: float = Field(..., ge=30, le=300)
-    activity_level: str = Field(default="moderately_active")
-    goal: str = Field(default="maintenance")
+    full_name: Optional[str] = Field(None, min_length=2, max_length=100)
+    age: Optional[int] = Field(None, ge=13, le=120)
+    birth_date: Optional[date] = Field(None, description="Date de naissance de l'utilisateur")
+    gender: Optional[str] = Field(None, pattern="^(male|female|other)$")
+    height: Optional[float] = Field(None, ge=100, le=250)
+    weight: Optional[float] = Field(None, ge=30, le=300)
+    activity_level: Optional[str] = Field(None)
+    goal: Optional[str] = Field(None)
 
 class EmailConfirmationRequest(BaseModel):
     token: str
