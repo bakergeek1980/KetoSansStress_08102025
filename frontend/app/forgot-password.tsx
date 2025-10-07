@@ -5,19 +5,15 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
+  TextInput,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
 import { ArrowLeft, Mail, Send } from 'lucide-react-native';
-import ValidatedInput from '../components/forms/ValidatedInput';
-import LoadingButton from '../components/forms/LoadingButton';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 const COLORS = {
   primary: '#4CAF50',
@@ -31,32 +27,45 @@ const COLORS = {
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
+  border: '#E0E0E0',
 };
-
-interface ForgotPasswordData {
-  email: string;
-}
-
-const forgotPasswordSchema = Yup.object({
-  email: Yup.string()
-    .email('Format email invalide')
-    .required('L\'email est requis'),
-});
 
 export default function ForgotPasswordScreen() {
   const { requestPasswordReset, loading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [emailSent, setEmailSent] = useState(false);
 
-  const { control, handleSubmit, formState: { errors }, getValues } = useForm<ForgotPasswordData>({
-    resolver: yupResolver(forgotPasswordSchema),
-    defaultValues: {
-      email: '',
-    },
-    mode: 'onChange',
-  });
+  const validateEmail = (emailValue: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const handleForgotPassword = async (data: ForgotPasswordData) => {
-    const success = await requestPasswordReset(data.email);
+    if (!emailValue) {
+      setEmailError('L\'email est requis');
+      return false;
+    }
+
+    if (!emailRegex.test(emailValue)) {
+      setEmailError('Format email invalide');
+      return false;
+    }
+
+    setEmailError('');
+    return true;
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    if (emailError) {
+      validateEmail(text);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!validateEmail(email)) {
+      return;
+    }
+
+    const success = await requestPasswordReset(email);
     if (success) {
       setEmailSent(true);
     }
@@ -93,13 +102,13 @@ export default function ForgotPasswordScreen() {
             <View style={styles.emailIconWrapper}>
               <Mail color={COLORS.success} size={48} />
             </View>
-            
+
             <Text style={styles.successTitle}>Email de réinitialisation envoyé!</Text>
             <Text style={styles.successSubtitle}>
               Nous avons envoyé un lien de réinitialisation à :
             </Text>
-            <Text style={styles.emailText}>{getValues('email')}</Text>
-            
+            <Text style={styles.emailText}>{email}</Text>
+
             <View style={styles.instructionsContainer}>
               <Text style={styles.instructionsTitle}>Étapes suivantes :</Text>
               <View style={styles.step}>
@@ -131,7 +140,7 @@ export default function ForgotPasswordScreen() {
 
           {/* Actions */}
           <View style={styles.actionsContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backToLoginButton}
               onPress={goBackToAuth}
             >
@@ -145,7 +154,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
@@ -179,35 +188,48 @@ export default function ForgotPasswordScreen() {
             </View>
 
             <View style={styles.form}>
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, value } }) => (
-                  <ValidatedInput
-                    label="Adresse email"
-                    value={value}
-                    onChangeText={onChange}
-                    error={errors.email?.message}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Adresse email *</Text>
+                <View style={[
+                  styles.inputWrapper,
+                  emailError && styles.inputWrapperError,
+                ]}>
+                  <Mail color={emailError ? COLORS.error : COLORS.textLight} size={20} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    value={email}
+                    onChangeText={handleEmailChange}
+                    onBlur={() => validateEmail(email)}
+                    placeholder="votre@email.com"
+                    placeholderTextColor={COLORS.textLight}
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    leftIcon="mail"
-                    placeholder="votre@email.com"
-                    required
-                    editable={true}
+                    autoCorrect={false}
+                    editable={!loading}
                   />
+                </View>
+                {emailError && (
+                  <Text style={styles.errorText}>{emailError}</Text>
                 )}
-              />
+              </View>
 
               <View style={styles.submitContainer}>
-                <LoadingButton
-                  onPress={handleSubmit(handleForgotPassword)}
-                  loading={loading}
-                  style={styles.submitButton}
-                  textStyle={styles.submitButtonText}
+                <TouchableOpacity
+                  onPress={handleForgotPassword}
+                  disabled={loading}
+                  style={[styles.submitButton, loading && styles.submitButtonDisabled]}
                 >
-                  <Send color={COLORS.surface} size={20} style={{ marginRight: 8 }} />
-                  Envoyer le lien de réinitialisation
-                </LoadingButton>
+                  {loading ? (
+                    <ActivityIndicator color={COLORS.surface} size="small" />
+                  ) : (
+                    <>
+                      <Send color={COLORS.surface} size={20} style={{ marginRight: 8 }} />
+                      <Text style={styles.submitButtonText}>
+                        Envoyer le lien de réinitialisation
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -322,6 +344,43 @@ const styles = StyleSheet.create({
   form: {
     marginBottom: 24,
   },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    minHeight: 52,
+  },
+  inputWrapperError: {
+    borderColor: COLORS.error,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: COLORS.text,
+    paddingVertical: 12,
+  },
+  errorText: {
+    fontSize: 12,
+    color: COLORS.error,
+    marginTop: 4,
+    marginLeft: 4,
+  },
   submitContainer: {
     marginTop: 24,
   },
@@ -332,6 +391,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
   },
   submitButtonText: {
     fontSize: 16,
