@@ -582,9 +582,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "API Integration and Data Loading"
+    - "Secure Account Deletion with Email Confirmation"
   stuck_tasks:
-    - "API Integration and Data Loading"
+    - "Secure Account Deletion with Email Confirmation"
   test_all: false
   test_priority: "high_first"
 
