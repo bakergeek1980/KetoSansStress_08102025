@@ -48,7 +48,18 @@ const DateInput: React.FC<DateInputProps> = ({
   const [showPicker, setShowPicker] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(value || new Date(1990, 0, 1));
 
+  // Handle HTML5 date input change (web)
+  const handleWebDateChange = (dateString: string) => {
+    console.log('🌐 Web date changed:', dateString);
+    if (dateString) {
+      const selectedDate = new Date(dateString + 'T00:00:00');
+      console.log('🌐 Parsed date:', selectedDate);
+      onChange(selectedDate);
+    }
+  };
+
   const handleDateChange = (event: any, selectedDate?: Date) => {
+    console.log('📱 Native date changed:', selectedDate);
     if (Platform.OS === 'android') {
       setShowPicker(false);
       if (selectedDate) {
