@@ -336,16 +336,25 @@ async def update_user_profile(
     """Update user profile information."""
     try:
         # Update user profile in database
-        update_data = {
-            "full_name": profile_data.full_name,
-            "age": profile_data.age,
-            "gender": profile_data.gender,
-            "height": float(profile_data.height),
-            "weight": float(profile_data.weight),
-            "activity_level": profile_data.activity_level,
-            "goal": profile_data.goal,
-            "updated_at": "now()"
-        }
+        update_data = {"updated_at": "now()"}
+        
+        # Only update fields that are provided
+        if profile_data.full_name is not None:
+            update_data["full_name"] = profile_data.full_name
+        if profile_data.age is not None:
+            update_data["age"] = profile_data.age
+        if profile_data.birth_date is not None:
+            update_data["birth_date"] = profile_data.birth_date.isoformat()
+        if profile_data.gender is not None:
+            update_data["gender"] = profile_data.gender
+        if profile_data.height is not None:
+            update_data["height"] = float(profile_data.height)
+        if profile_data.weight is not None:
+            update_data["weight"] = float(profile_data.weight)
+        if profile_data.activity_level is not None:
+            update_data["activity_level"] = profile_data.activity_level
+        if profile_data.goal is not None:
+            update_data["goal"] = profile_data.goal
         
         result = supabase.table("users").update(update_data).eq("id", current_user.id).execute()
         
