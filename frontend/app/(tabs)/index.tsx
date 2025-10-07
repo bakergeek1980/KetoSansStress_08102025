@@ -242,7 +242,7 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity 
             style={styles.logoButton}
-            onPress={() => setUserProfileModalVisible(true)}
+            onPress={() => router.push('/profile')}
           >
             <View style={styles.logoCircle}>
               <Text style={styles.logoText}>K</Text>
