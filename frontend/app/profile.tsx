@@ -211,23 +211,94 @@ export default function ProfileScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      '🔴 Supprimer le compte définitivement',
-      'Cette action déclenchera un processus de confirmation par email.\n\n' +
-      '⚠️ ATTENTION : La suppression sera définitive et irréversible !\n\n' +
-      'Vous recevrez un email avec un lien de confirmation à votre adresse : ' + user.email,
+      '🔴 SUPPRIMER LE COMPTE DÉFINITIVEMENT',
+      '⚠️ ATTENTION : Cette action est IRRÉVERSIBLE !\n\n' +
+      'Toutes vos données seront supprimées :\n' +
+      '• Profil et informations personnelles\n' +
+      '• Historique des repas et nutrition\n' +
+      '• Photos et préférences\n' +
+      '• Tous vos paramètres\n\n' +
+      '✉️ Un email de confirmation de suppression sera envoyé à : ' + user.email,
       [
         { text: 'Annuler', style: 'cancel' },
         { 
-          text: 'Envoyer l\'email de confirmation', 
+          text: 'OUI, SUPPRIMER MON COMPTE', 
           style: 'destructive',
-          onPress: async () => {
-            const success = await deleteAccount();
-            // The deleteAccount function now handles the email confirmation process
-            // User will receive an email with instructions
-          }
+          onPress: () => confirmFinalDeletion()
         }
       ]
     );
+  };
+
+  const confirmFinalDeletion = () => {
+    Alert.alert(
+      '🚨 DERNIÈRE CONFIRMATION',
+      'Êtes-vous absolument certain(e) de vouloir supprimer votre compte ?\n\n' +
+      'Cette action supprimera immédiatement et définitivement toutes vos données.',
+      [
+        { text: 'Non, annuler', style: 'cancel' },
+        { 
+          text: 'OUI, SUPPRIMER MAINTENANT', 
+          style: 'destructive',
+          onPress: executeFinalDeletion
+        }
+      ]
+    );
+  };
+
+  const executeFinalDeletion = async () => {
+    try {
+      // Call the direct deletion function
+      const success = await deleteAccountDirectly();
+      if (success) {
+        Alert.alert(
+          '✅ Compte supprimé',
+          'Votre compte a été supprimé avec succès. Un email de confirmation a été envoyé.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                logout();
+                router.replace('/auth');
+              }
+            }
+          ]
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        'Erreur',
+        'Impossible de supprimer le compte. Veuillez réessayer.'
+      );
+    }
+  };
+
+  const deleteAccountDirectly = async (): Promise<boolean> => {
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || ''}/api/auth/delete-account-direct`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token || ''}`,
+        },
+        body: JSON.stringify({
+          email: user.email,
+          full_name: user.full_name || 'Utilisateur'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return true;
+      } else {
+        console.error('Delete account error:', data);
+        return false;
+      }
+    } catch (error) {
+      console.error('Delete account request failed:', error);
+      return false;
+    }
   };
 
   const renderProfileTab = () => (
