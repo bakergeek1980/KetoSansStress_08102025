@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  TextInput,
   StyleSheet,
-  Platform,
-  Modal,
-  Alert,
+  TouchableOpacity,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Calendar, X } from 'lucide-react-native';
+import { Calendar, UserCheck } from 'lucide-react-native';
 
 const COLORS = {
   primary: '#4CAF50',
