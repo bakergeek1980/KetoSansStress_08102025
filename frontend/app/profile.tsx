@@ -100,6 +100,7 @@ export default function ProfileScreen() {
       setProfileData({
         full_name: user.full_name || '',
         age: user.age?.toString() || '',
+        birth_date: user.birth_date || '',
         gender: user.gender || 'male',
         height: user.height?.toString() || '',
         weight: user.weight?.toString() || '',
