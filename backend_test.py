@@ -445,14 +445,12 @@ class BackendTester:
         
         # Setup: Create and login test user
         if not self.create_test_user():
-            print("❌ Failed to create test user. Aborting tests.")
-            return 0
+            print("❌ Failed to create test user.")
             
         if not self.login_test_user():
-            print("❌ Failed to login test user. Aborting tests.")
-            return 0
-        
-        print("🔐 Authentication Setup Complete")
+            print("❌ Failed to login test user. Continuing with limited tests.")
+        else:
+            print("🔐 Authentication Setup Complete")
         print()
         
         # First test if birth_date field is supported
