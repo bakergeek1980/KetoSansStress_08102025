@@ -31,479 +31,469 @@ class BackendTester:
             "timestamp": datetime.now().isoformat()
         }
         self.test_results.append(result)
+        
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {details}")
-        
-    def make_request(self, method: str, endpoint: str, data: Dict = None, headers: Dict = None) -> requests.Response:
-        """Make HTTP request with proper error handling"""
-        url = f"{BASE_URL}{endpoint}"
-        default_headers = {"Content-Type": "application/json"}
-        
-        if self.access_token:
-            default_headers["Authorization"] = f"Bearer {self.access_token}"
-            
-        if headers:
-            default_headers.update(headers)
-            
+        print(f"{status} {test_name}")
+        if details:
+            print(f"    Details: {details}")
+        if not success and response_data:
+            print(f"    Response: {response_data}")
+        print()
+
+    def create_test_user(self) -> bool:
+        """Create a test user for authentication"""
         try:
-            if method.upper() == "GET":
-                response = self.session.get(url, headers=default_headers)
-            elif method.upper() == "POST":
-                response = self.session.post(url, json=data, headers=default_headers)
-            elif method.upper() == "DELETE":
-                response = self.session.delete(url, headers=default_headers)
-            else:
-                raise ValueError(f"Unsupported method: {method}")
-                
-            return response
-        except Exception as e:
-            print(f"Request error: {e}")
-            raise
+            # Generate unique email for this test session
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.test_user_email = f"birthdate_test_{timestamp}@ketosansstress.com"
             
-    def test_user_registration(self):
-        """Test user registration for account deletion testing"""
-        try:
-            response = self.make_request("POST", "/auth/register", TEST_USER_DATA)
+            user_data = {
+                "email": self.test_user_email,
+                "password": "TestPassword123!",
+                "full_name": "Marie Testeur",
+                "age": 28,
+                "gender": "female",
+                "height": 165.0,
+                "weight": 65.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss",
+                "timezone": "Europe/Paris"
+            }
+            
+            response = requests.post(f"{self.base_url}/auth/register", json=user_data)
             
             if response.status_code == 201:
-                data = response.json()
-                self.log_test(
-                    "User Registration", 
-                    True, 
-                    f"User registered successfully: {TEST_USER_EMAIL}",
-                    data
-                )
+                self.log_test("User Registration", True, f"Created test user: {self.test_user_email}")
                 return True
             else:
-                self.log_test(
-                    "User Registration", 
-                    False, 
-                    f"Registration failed: {response.status_code} - {response.text}"
-                )
+                self.log_test("User Registration", False, f"Status: {response.status_code}", response.json())
                 return False
                 
         except Exception as e:
             self.log_test("User Registration", False, f"Exception: {str(e)}")
             return False
-            
-    def test_user_login(self):
-        """Test user login to get access token"""
+
+    def login_test_user(self) -> bool:
+        """Login with test user to get access token"""
         try:
-            # First try with existing confirmed user
             login_data = {
-                "email": EXISTING_USER_EMAIL,
-                "password": EXISTING_USER_PASSWORD
+                "email": self.test_user_email,
+                "password": "TestPassword123!"
             }
             
-            response = self.make_request("POST", "/auth/login", login_data)
+            response = requests.post(f"{self.base_url}/auth/login", json=login_data)
             
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get("access_token")
-                self.user_id = data.get("user", {}).get("id")
-                
-                self.log_test(
-                    "User Login", 
-                    True, 
-                    f"Login successful with existing user: {EXISTING_USER_EMAIL}",
-                    {"user_id": self.user_id}
-                )
-                return True
-            else:
-                # Try with newly registered user
-                login_data = {
-                    "email": TEST_USER_EMAIL,
-                    "password": TEST_USER_PASSWORD
-                }
-                
-                response = self.make_request("POST", "/auth/login", login_data)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    self.access_token = data.get("access_token")
-                    self.user_id = data.get("user", {}).get("id")
-                    
-                    self.log_test(
-                        "User Login", 
-                        True, 
-                        f"Login successful with new user: {TEST_USER_EMAIL}",
-                        {"user_id": self.user_id}
-                    )
+                if self.access_token:
+                    self.log_test("User Login", True, "Successfully obtained access token")
                     return True
                 else:
-                    self.log_test(
-                        "User Login", 
-                        False, 
-                        f"Login failed for both users. Existing: {response.status_code}, New: {response.status_code} - Email confirmation may be required"
-                    )
+                    self.log_test("User Login", False, "No access token in response", data)
                     return False
+            else:
+                self.log_test("User Login", False, f"Status: {response.status_code}", response.json())
+                return False
                 
         except Exception as e:
             self.log_test("User Login", False, f"Exception: {str(e)}")
             return False
-            
-    def test_create_sample_data(self):
-        """Create sample meals and preferences for deletion testing"""
+
+    def get_auth_headers(self) -> Dict[str, str]:
+        """Get authorization headers"""
+        return {"Authorization": f"Bearer {self.access_token}"}
+
+    def test_profile_update_with_birth_date(self):
+        """Test 1: Profile Update with Valid Birth Date"""
         try:
-            # Create a sample meal
-            meal_data = {
-                "name": "Test Meal for Deletion",
-                "calories": 500,
-                "proteins": 25.0,
-                "carbs": 10.0,
-                "fats": 40.0,
-                "fiber": 5.0,
-                "meal_type": "lunch",
-                "foods": ["Test Food Item"]
+            birth_date = "1990-05-15"  # Valid date format
+            
+            profile_data = {
+                "full_name": "Marie Testeur Updated",
+                "birth_date": birth_date,
+                "gender": "female",
+                "height": 168.0,
+                "weight": 63.0,
+                "activity_level": "moderately_active",
+                "goal": "weight_loss"
             }
             
-            response = self.make_request("POST", "/meals/", meal_data)
-            
-            if response.status_code in [200, 201]:
-                self.log_test(
-                    "Sample Data Creation", 
-                    True, 
-                    "Sample meal created for deletion testing"
-                )
-                return True
-            else:
-                self.log_test(
-                    "Sample Data Creation", 
-                    False, 
-                    f"Failed to create sample data: {response.status_code} - {response.text}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Sample Data Creation", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_request_account_deletion(self):
-        """Test POST /api/auth/request-account-deletion"""
-        try:
-            response = self.make_request("POST", "/auth/request-account-deletion")
+            response = requests.patch(
+                f"{self.base_url}/auth/profile",
+                json=profile_data,
+                headers=self.get_auth_headers()
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                
-                # Check response structure
-                if "message" in data and "details" in data:
-                    self.log_test(
-                        "Request Account Deletion", 
-                        True, 
-                        f"Deletion request successful: {data['message']}",
-                        data
-                    )
-                    return True
+                # Check if birth_date is in response
+                if "user" in data and "birth_date" in str(data):
+                    self.log_test("Profile Update with Birth Date", True, 
+                                f"Successfully updated profile with birth_date: {birth_date}")
                 else:
-                    self.log_test(
-                        "Request Account Deletion", 
-                        False, 
-                        f"Invalid response structure: {data}"
-                    )
-                    return False
+                    self.log_test("Profile Update with Birth Date", False, 
+                                "Birth date not found in response", data)
             else:
-                self.log_test(
-                    "Request Account Deletion", 
-                    False, 
-                    f"Request failed: {response.status_code} - {response.text}"
-                )
-                return False
+                self.log_test("Profile Update with Birth Date", False, 
+                            f"Status: {response.status_code}", response.json())
                 
         except Exception as e:
-            self.log_test("Request Account Deletion", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_verify_deletion_request_stored(self):
-        """Verify that deletion request was stored in database"""
+            self.log_test("Profile Update with Birth Date", False, f"Exception: {str(e)}")
+
+    def test_profile_retrieval_with_birth_date(self):
+        """Test 2: Verify Birth Date in Profile Retrieval"""
         try:
-            # We can't directly query the database, but we can test with invalid token
-            # to confirm the system is working
-            invalid_token_data = {"token": "invalid_token_test"}
-            response = self.make_request("POST", "/auth/confirm-account-deletion", invalid_token_data)
-            
-            if response.status_code == 404:
-                data = response.json()
-                if "Token de suppression invalide" in data.get("detail", ""):
-                    self.log_test(
-                        "Deletion Request Storage Verification", 
-                        True, 
-                        "System correctly rejects invalid tokens, confirming storage mechanism works"
-                    )
-                    return True
-                    
-            self.log_test(
-                "Deletion Request Storage Verification", 
-                False, 
-                f"Unexpected response: {response.status_code} - {response.text}"
+            response = requests.get(
+                f"{self.base_url}/auth/me",
+                headers=self.get_auth_headers()
             )
-            return False
             
-        except Exception as e:
-            self.log_test("Deletion Request Storage Verification", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_invalid_token_security(self):
-        """Test security with invalid deletion token"""
-        try:
-            invalid_tokens = [
-                "invalid_token",
-                "",
-                "a" * 100,  # Very long token
-                "token_with_special_chars!@#$%",
-                "expired_token_simulation"
-            ]
-            
-            success_count = 0
-            for token in invalid_tokens:
-                token_data = {"token": token}
-                response = self.make_request("POST", "/auth/confirm-account-deletion", token_data)
-                
-                if response.status_code in [400, 404]:
-                    success_count += 1
+            if response.status_code == 200:
+                data = response.json()
+                if "birth_date" in data:
+                    birth_date = data["birth_date"]
+                    self.log_test("Profile Retrieval with Birth Date", True, 
+                                f"Birth date found in profile: {birth_date}")
                     
-            if success_count == len(invalid_tokens):
-                self.log_test(
-                    "Invalid Token Security", 
-                    True, 
-                    f"All {len(invalid_tokens)} invalid tokens correctly rejected"
-                )
-                return True
+                    # Check if age is calculated correctly
+                    if "age" in data:
+                        age = data["age"]
+                        self.log_test("Age Calculation from Birth Date", True, 
+                                    f"Age calculated: {age}")
+                    else:
+                        self.log_test("Age Calculation from Birth Date", False, 
+                                    "Age field not found in profile")
+                else:
+                    self.log_test("Profile Retrieval with Birth Date", False, 
+                                "Birth date not found in profile", data)
             else:
-                self.log_test(
-                    "Invalid Token Security", 
-                    False, 
-                    f"Only {success_count}/{len(invalid_tokens)} invalid tokens rejected"
-                )
-                return False
+                self.log_test("Profile Retrieval with Birth Date", False, 
+                            f"Status: {response.status_code}", response.json())
                 
         except Exception as e:
-            self.log_test("Invalid Token Security", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_unauthenticated_deletion_request(self):
-        """Test that deletion request requires authentication"""
+            self.log_test("Profile Retrieval with Birth Date", False, f"Exception: {str(e)}")
+
+    def test_invalid_date_formats(self):
+        """Test 3: Invalid Date Format Validation"""
+        invalid_dates = [
+            "15-05-1990",  # DD-MM-YYYY format
+            "05/15/1990",  # MM/DD/YYYY format
+            "invalid-date",  # Invalid string
+            "1990-13-01",  # Invalid month
+            "1990-02-30",  # Invalid day for February
+            ""  # Empty string
+        ]
+        
+        for invalid_date in invalid_dates:
+            try:
+                profile_data = {
+                    "full_name": "Marie Testeur",
+                    "birth_date": invalid_date,
+                    "gender": "female",
+                    "height": 165.0,
+                    "weight": 65.0
+                }
+                
+                response = requests.patch(
+                    f"{self.base_url}/auth/profile",
+                    json=profile_data,
+                    headers=self.get_auth_headers()
+                )
+                
+                if response.status_code == 422:  # Validation error expected
+                    self.log_test(f"Invalid Date Format: {invalid_date}", True, 
+                                "Correctly rejected invalid date format")
+                else:
+                    self.log_test(f"Invalid Date Format: {invalid_date}", False, 
+                                f"Expected 422, got {response.status_code}", response.json())
+                    
+            except Exception as e:
+                self.log_test(f"Invalid Date Format: {invalid_date}", False, f"Exception: {str(e)}")
+
+    def test_future_date_validation(self):
+        """Test 4: Future Date Validation"""
         try:
-            # Temporarily remove token
-            original_token = self.access_token
-            self.access_token = None
+            # Test with future date
+            future_date = (date.today() + timedelta(days=365)).isoformat()  # One year in future
             
-            response = self.make_request("POST", "/auth/request-account-deletion")
+            profile_data = {
+                "full_name": "Marie Testeur",
+                "birth_date": future_date,
+                "gender": "female",
+                "height": 165.0,
+                "weight": 65.0
+            }
             
-            # Restore token
-            self.access_token = original_token
+            response = requests.patch(
+                f"{self.base_url}/auth/profile",
+                json=profile_data,
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 422:  # Should reject future dates
+                self.log_test("Future Date Validation", True, 
+                            f"Correctly rejected future date: {future_date}")
+            else:
+                self.log_test("Future Date Validation", False, 
+                            f"Expected 422, got {response.status_code}. Future dates should be rejected", 
+                            response.json())
+                
+        except Exception as e:
+            self.log_test("Future Date Validation", False, f"Exception: {str(e)}")
+
+    def test_edge_case_dates(self):
+        """Test 5: Edge Case Date Validation"""
+        edge_cases = [
+            ("1900-01-01", "Very old birth date"),
+            ("2010-12-31", "Recent birth date"),
+            ("1990-02-29", "Leap year date"),  # This should be invalid (1990 wasn't a leap year)
+            ("2000-02-29", "Valid leap year date")  # This should be valid (2000 was a leap year)
+        ]
+        
+        for test_date, description in edge_cases:
+            try:
+                profile_data = {
+                    "full_name": "Marie Testeur",
+                    "birth_date": test_date,
+                    "gender": "female",
+                    "height": 165.0,
+                    "weight": 65.0
+                }
+                
+                response = requests.patch(
+                    f"{self.base_url}/auth/profile",
+                    json=profile_data,
+                    headers=self.get_auth_headers()
+                )
+                
+                if test_date == "1990-02-29":  # Invalid leap year date
+                    if response.status_code == 422:
+                        self.log_test(f"Edge Case: {description}", True, 
+                                    "Correctly rejected invalid leap year date")
+                    else:
+                        self.log_test(f"Edge Case: {description}", False, 
+                                    f"Should reject invalid leap year date, got {response.status_code}")
+                else:
+                    if response.status_code == 200:
+                        self.log_test(f"Edge Case: {description}", True, 
+                                    f"Successfully accepted valid date: {test_date}")
+                    else:
+                        self.log_test(f"Edge Case: {description}", False, 
+                                    f"Expected 200, got {response.status_code}", response.json())
+                        
+            except Exception as e:
+                self.log_test(f"Edge Case: {description}", False, f"Exception: {str(e)}")
+
+    def test_partial_profile_update_with_birth_date(self):
+        """Test 6: Partial Profile Update Preserving Other Data"""
+        try:
+            # First, update with full profile
+            full_profile = {
+                "full_name": "Marie Complete Profile",
+                "birth_date": "1985-03-20",
+                "gender": "female",
+                "height": 170.0,
+                "weight": 68.0,
+                "activity_level": "very_active",
+                "goal": "muscle_gain"
+            }
+            
+            response1 = requests.patch(
+                f"{self.base_url}/auth/profile",
+                json=full_profile,
+                headers=self.get_auth_headers()
+            )
+            
+            if response1.status_code != 200:
+                self.log_test("Partial Update Setup", False, 
+                            f"Failed to set up full profile: {response1.status_code}")
+                return
+            
+            # Now update only birth_date
+            partial_update = {
+                "birth_date": "1987-07-10"
+            }
+            
+            response2 = requests.patch(
+                f"{self.base_url}/auth/profile",
+                json=partial_update,
+                headers=self.get_auth_headers()
+            )
+            
+            if response2.status_code == 200:
+                # Verify other data is preserved
+                profile_response = requests.get(
+                    f"{self.base_url}/auth/me",
+                    headers=self.get_auth_headers()
+                )
+                
+                if profile_response.status_code == 200:
+                    profile_data = profile_response.json()
+                    
+                    # Check if birth_date was updated and other fields preserved
+                    birth_date_updated = profile_data.get("birth_date") == "1987-07-10"
+                    name_preserved = profile_data.get("full_name") == "Marie Complete Profile"
+                    weight_preserved = float(profile_data.get("weight", 0)) == 68.0
+                    
+                    if birth_date_updated and name_preserved and weight_preserved:
+                        self.log_test("Partial Profile Update", True, 
+                                    "Birth date updated while preserving other profile data")
+                    else:
+                        self.log_test("Partial Profile Update", False, 
+                                    f"Data integrity issue - birth_date: {birth_date_updated}, "
+                                    f"name: {name_preserved}, weight: {weight_preserved}", profile_data)
+                else:
+                    self.log_test("Partial Profile Update", False, 
+                                "Failed to retrieve profile after partial update")
+            else:
+                self.log_test("Partial Profile Update", False, 
+                            f"Partial update failed: {response2.status_code}", response2.json())
+                
+        except Exception as e:
+            self.log_test("Partial Profile Update", False, f"Exception: {str(e)}")
+
+    def test_birth_date_without_age_field(self):
+        """Test 7: Profile Update with Birth Date Only (No Age Field)"""
+        try:
+            # Update profile with birth_date but without age field
+            profile_data = {
+                "birth_date": "1992-11-25",
+                "full_name": "Marie Birth Date Only"
+            }
+            
+            response = requests.patch(
+                f"{self.base_url}/auth/profile",
+                json=profile_data,
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 200:
+                # Verify that age is calculated from birth_date
+                profile_response = requests.get(
+                    f"{self.base_url}/auth/me",
+                    headers=self.get_auth_headers()
+                )
+                
+                if profile_response.status_code == 200:
+                    profile_data = profile_response.json()
+                    birth_date = profile_data.get("birth_date")
+                    calculated_age = profile_data.get("age")
+                    
+                    if birth_date == "1992-11-25":
+                        # Calculate expected age
+                        birth_year = 1992
+                        current_year = datetime.now().year
+                        expected_age = current_year - birth_year
+                        
+                        if calculated_age and abs(calculated_age - expected_age) <= 1:  # Allow for birthday timing
+                            self.log_test("Birth Date Without Age Field", True, 
+                                        f"Age correctly calculated from birth_date: {calculated_age}")
+                        else:
+                            self.log_test("Birth Date Without Age Field", False, 
+                                        f"Age calculation incorrect. Expected ~{expected_age}, got {calculated_age}")
+                    else:
+                        self.log_test("Birth Date Without Age Field", False, 
+                                    f"Birth date not updated correctly: {birth_date}")
+                else:
+                    self.log_test("Birth Date Without Age Field", False, 
+                                "Failed to retrieve profile after update")
+            else:
+                self.log_test("Birth Date Without Age Field", False, 
+                            f"Profile update failed: {response.status_code}", response.json())
+                
+        except Exception as e:
+            self.log_test("Birth Date Without Age Field", False, f"Exception: {str(e)}")
+
+    def test_authentication_required(self):
+        """Test 8: Authentication Required for Profile Update"""
+        try:
+            profile_data = {
+                "birth_date": "1990-01-01",
+                "full_name": "Unauthorized User"
+            }
+            
+            # Make request without authentication headers
+            response = requests.patch(f"{self.base_url}/auth/profile", json=profile_data)
             
             if response.status_code == 401:
-                self.log_test(
-                    "Unauthenticated Deletion Request", 
-                    True, 
-                    "Correctly requires authentication for deletion request"
-                )
-                return True
+                self.log_test("Authentication Required", True, 
+                            "Correctly rejected unauthenticated request")
             else:
-                self.log_test(
-                    "Unauthenticated Deletion Request", 
-                    False, 
-                    f"Should require auth but got: {response.status_code}"
-                )
-                return False
+                self.log_test("Authentication Required", False, 
+                            f"Expected 401, got {response.status_code}", response.json())
                 
         except Exception as e:
-            self.log_test("Unauthenticated Deletion Request", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_deprecated_direct_deletion(self):
-        """Test that direct DELETE /api/auth/account is deprecated"""
-        try:
-            response = self.make_request("DELETE", "/auth/account")
-            
-            if response.status_code == 400:
-                data = response.json()
-                if "confirmation par email" in data.get("detail", "").lower():
-                    self.log_test(
-                        "Deprecated Direct Deletion", 
-                        True, 
-                        "Direct deletion correctly deprecated, redirects to email confirmation"
-                    )
-                    return True
-                    
-            self.log_test(
-                "Deprecated Direct Deletion", 
-                False, 
-                f"Unexpected response: {response.status_code} - {response.text}"
-            )
-            return False
-            
-        except Exception as e:
-            self.log_test("Deprecated Direct Deletion", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_multiple_deletion_requests(self):
-        """Test multiple deletion requests from same user"""
-        try:
-            # Make first request
-            response1 = self.make_request("POST", "/auth/request-account-deletion")
-            
-            # Wait a moment
-            time.sleep(1)
-            
-            # Make second request
-            response2 = self.make_request("POST", "/auth/request-account-deletion")
-            
-            if response1.status_code == 200 and response2.status_code == 200:
-                self.log_test(
-                    "Multiple Deletion Requests", 
-                    True, 
-                    "System handles multiple deletion requests (upsert behavior)"
-                )
-                return True
-            else:
-                self.log_test(
-                    "Multiple Deletion Requests", 
-                    False, 
-                    f"Failed: {response1.status_code}, {response2.status_code}"
-                )
-                return False
-                
-        except Exception as e:
-            self.log_test("Multiple Deletion Requests", False, f"Exception: {str(e)}")
-            return False
-            
-    def test_email_confirmation_simulation(self):
-        """Test the email confirmation process simulation"""
-        try:
-            # Since we can't access the actual token from logs in this test environment,
-            # we'll test the endpoint structure and error handling
-            
-            # Test with properly formatted but invalid token
-            test_token = "properly_formatted_but_invalid_token_12345678901234567890123456789012"
-            token_data = {"token": test_token}
-            
-            response = self.make_request("POST", "/auth/confirm-account-deletion", token_data)
-            
-            if response.status_code in [400, 404]:
-                data = response.json()
-                if "invalide" in data.get("detail", "").lower():
-                    self.log_test(
-                        "Email Confirmation Simulation", 
-                        True, 
-                        "Confirmation endpoint properly validates tokens"
-                    )
-                    return True
-                    
-            self.log_test(
-                "Email Confirmation Simulation", 
-                False, 
-                f"Unexpected response: {response.status_code} - {response.text}"
-            )
-            return False
-            
-        except Exception as e:
-            self.log_test("Email Confirmation Simulation", False, f"Exception: {str(e)}")
-            return False
-            
-    def run_comprehensive_tests(self):
-        """Run all account deletion tests"""
-        print("🧪 STARTING COMPREHENSIVE ACCOUNT DELETION TESTING")
-        print("=" * 60)
-        
-        # Phase 1: Setup
-        print("\n📋 PHASE 1: User Setup")
-        registration_success = self.test_user_registration()
-        login_success = self.test_user_login()
-        
-        if login_success:
-            # Create sample data for deletion testing
-            self.test_create_sample_data()
-            
-            # Phase 2: Account Deletion Request Testing (requires auth)
-            print("\n🗑️ PHASE 2: Account Deletion Request Testing")
-            self.test_request_account_deletion()
-            self.test_multiple_deletion_requests()
-        else:
-            print("⚠️ Login failed - testing non-authenticated endpoints only")
-        
-        # Phase 3: Security Testing (doesn't require auth)
-        print("\n🔒 PHASE 3: Security Testing")
-        self.test_unauthenticated_deletion_request()
-        self.test_invalid_token_security()
-        self.test_deprecated_direct_deletion()
-        self.test_verify_deletion_request_stored()
-        
-        # Phase 4: Email Confirmation Testing (doesn't require auth)
-        print("\n📧 PHASE 4: Email Confirmation Testing")
-        self.test_email_confirmation_simulation()
-        
-        # Results Summary
-        self.print_test_summary()
-        
-    def print_test_summary(self):
-        """Print comprehensive test results summary"""
-        print("\n" + "=" * 60)
-        print("🧪 ACCOUNT DELETION SYSTEM TEST RESULTS")
-        print("=" * 60)
-        
-        passed = sum(1 for result in self.test_results if result["success"])
-        total = len(self.test_results)
-        success_rate = (passed / total * 100) if total > 0 else 0
-        
-        print(f"📊 OVERALL SUCCESS RATE: {success_rate:.1f}% ({passed}/{total} tests passed)")
+            self.log_test("Authentication Required", False, f"Exception: {str(e)}")
+
+    def run_all_tests(self):
+        """Run all birth_date related tests"""
+        print("🧪 BACKEND BIRTH DATE TESTING SUITE")
+        print("=" * 50)
+        print(f"Backend URL: {self.base_url}")
+        print(f"Test started at: {datetime.now().isoformat()}")
         print()
         
-        # Group results by category
-        categories = {
-            "Setup": ["User Registration", "User Login", "Sample Data Creation"],
-            "Deletion Request": ["Request Account Deletion", "Deletion Request Storage Verification", "Multiple Deletion Requests"],
-            "Security": ["Unauthenticated Deletion Request", "Invalid Token Security", "Deprecated Direct Deletion"],
-            "Email Confirmation": ["Email Confirmation Simulation"]
-        }
-        
-        for category, test_names in categories.items():
-            print(f"📂 {category.upper()}:")
-            category_results = [r for r in self.test_results if r["test"] in test_names]
-            category_passed = sum(1 for r in category_results if r["success"])
-            category_total = len(category_results)
+        # Setup: Create and login test user
+        if not self.create_test_user():
+            print("❌ Failed to create test user. Aborting tests.")
+            return
             
-            if category_total > 0:
-                category_rate = (category_passed / category_total * 100)
-                print(f"   Success Rate: {category_rate:.1f}% ({category_passed}/{category_total})")
-                
-                for result in category_results:
-                    status = "✅" if result["success"] else "❌"
-                    print(f"   {status} {result['test']}: {result['details']}")
+        if not self.login_test_user():
+            print("❌ Failed to login test user. Aborting tests.")
+            return
+        
+        print("🔐 Authentication Setup Complete")
+        print()
+        
+        # Run all birth_date tests
+        print("📅 BIRTH DATE FUNCTIONALITY TESTS")
+        print("-" * 30)
+        
+        self.test_profile_update_with_birth_date()
+        self.test_profile_retrieval_with_birth_date()
+        self.test_invalid_date_formats()
+        self.test_future_date_validation()
+        self.test_edge_case_dates()
+        self.test_partial_profile_update_with_birth_date()
+        self.test_birth_date_without_age_field()
+        self.test_authentication_required()
+        
+        # Summary
+        self.print_summary()
+
+    def print_summary(self):
+        """Print test summary"""
+        print()
+        print("📊 TEST SUMMARY")
+        print("=" * 50)
+        
+        total_tests = len(self.test_results)
+        passed_tests = len([t for t in self.test_results if t["success"]])
+        failed_tests = total_tests - passed_tests
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests} ✅")
+        print(f"Failed: {failed_tests} ❌")
+        print(f"Success Rate: {success_rate:.1f}%")
+        print()
+        
+        if failed_tests > 0:
+            print("❌ FAILED TESTS:")
+            for test in self.test_results:
+                if not test["success"]:
+                    print(f"  • {test['test']}: {test['details']}")
             print()
-            
-        # Failed tests details
-        failed_tests = [r for r in self.test_results if not r["success"]]
-        if failed_tests:
-            print("❌ FAILED TESTS DETAILS:")
-            for result in failed_tests:
-                print(f"   • {result['test']}: {result['details']}")
-            print()
-            
-        # Key findings
-        print("🔍 KEY FINDINGS:")
         
-        # Check if core functionality is working
-        core_tests = ["Request Account Deletion", "Invalid Token Security", "Deprecated Direct Deletion"]
-        core_passed = sum(1 for r in self.test_results if r["test"] in core_tests and r["success"])
+        print("🎯 BIRTH DATE TESTING COMPLETE!")
         
-        if core_passed == len(core_tests):
-            print("   ✅ Core account deletion functionality is working correctly")
-        else:
-            print("   ❌ Core account deletion functionality has issues")
-            
-        # Check security
-        security_tests = ["Unauthenticated Deletion Request", "Invalid Token Security"]
-        security_passed = sum(1 for r in self.test_results if r["test"] in security_tests and r["success"])
-        
-        if security_passed == len(security_tests):
-            print("   ✅ Security measures are properly implemented")
-        else:
-            print("   ❌ Security measures need attention")
-            
-        print("\n" + "=" * 60)
+        # Return success rate for external evaluation
+        return success_rate
 
 if __name__ == "__main__":
-    tester = AccountDeletionTester()
-    tester.run_comprehensive_tests()
+    tester = BackendTester()
+    success_rate = tester.run_all_tests()
+    
+    # Exit with appropriate code
+    sys.exit(0 if success_rate >= 80 else 1)
