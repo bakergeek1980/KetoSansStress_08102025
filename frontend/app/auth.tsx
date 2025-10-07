@@ -143,16 +143,12 @@ export default function AuthScreen() {
       
       if (result.success) {
         if (result.needsEmailConfirmation) {
-          Alert.alert(
-            '✅ Inscription réussie !',
-            `🎉 Bonjour ${registerData.full_name} !\n\n` +
-            `📩 Un email de confirmation vous a été envoyé à l'adresse :\n${registerData.email}`,
-            [
-              { text: 'OK', onPress: () => {
-                router.push(`/email-confirmation?email=${encodeURIComponent(registerData.email)}&name=${encodeURIComponent(registerData.full_name)}`);
-              }}
-            ]
-          );
+          // ✅ Utiliser le modal de succès au lieu d'Alert.alert
+          setRegistrationInfo({ 
+            email: registerData.email, 
+            fullName: registerData.full_name 
+          });
+          setShowSuccessModal(true);
         } else {
           const loginResult = await login(registerData.email, registerData.password);
           if (loginResult.success) {
