@@ -17,6 +17,7 @@ import SimpleInput from '../components/forms/SimpleInput';
 import DateInput from '../components/forms/DateInput';
 import LoadingButton from '../components/forms/LoadingButton';
 import Select from '../components/forms/Select';
+import RegistrationSuccessModal from '../components/RegistrationSuccessModal';
 
 const COLORS = {
   primary: '#4CAF50',
