@@ -1,43 +1,24 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for KetoSansStress Account Deletion System
-Tests the new secure account deletion with email confirmation
+Backend Testing Suite for KetoSansStress Profile Update with Birth Date
+Focus: Testing birth_date handling in profile update functionality
 """
 
 import requests
 import json
-import time
-import uuid
-from datetime import datetime, timedelta
+import sys
+import os
+from datetime import datetime, date, timedelta
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://keto-journey-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://keto-journey-1.preview.emergentagent.com/api"
 
-# Try with existing confirmed user first, then fallback to new user
-EXISTING_USER_EMAIL = "bdsbes@gmail.com"
-EXISTING_USER_PASSWORD = "SecurePass123!"
-
-TEST_USER_EMAIL = f"test.deletion.{uuid.uuid4().hex[:8]}@ketosansstress.com"
-TEST_USER_PASSWORD = "SecurePass123!"
-TEST_USER_DATA = {
-    "email": TEST_USER_EMAIL,
-    "password": TEST_USER_PASSWORD,
-    "full_name": "Marie Suppression",
-    "age": 28,
-    "gender": "female",
-    "height": 165.0,
-    "weight": 60.0,
-    "activity_level": "moderately_active",
-    "goal": "weight_loss"
-}
-
-class AccountDeletionTester:
+class BackendTester:
     def __init__(self):
-        self.session = requests.Session()
+        self.base_url = BACKEND_URL
         self.access_token = None
-        self.user_id = None
-        self.deletion_token = None
+        self.test_user_email = None
         self.test_results = []
         
     def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
@@ -46,8 +27,8 @@ class AccountDeletionTester:
             "test": test_name,
             "success": success,
             "details": details,
-            "timestamp": datetime.now().isoformat(),
-            "response_data": response_data
+            "response_data": response_data,
+            "timestamp": datetime.now().isoformat()
         }
         self.test_results.append(result)
         status = "✅ PASS" if success else "❌ FAIL"
