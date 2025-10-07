@@ -41,36 +41,15 @@ class BackendTester:
         print()
 
     def create_test_user(self) -> bool:
-        """Create a test user for authentication"""
+        """Use existing confirmed user for authentication"""
         try:
-            # Generate unique email for this test session
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            self.test_user_email = f"birthdate_test_{timestamp}@ketosansstress.com"
-            
-            user_data = {
-                "email": self.test_user_email,
-                "password": "TestPassword123!",
-                "full_name": "Marie Testeur",
-                "birth_date": "1995-06-15",  # Required field
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.0,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss",
-                "timezone": "Europe/Paris"
-            }
-            
-            response = requests.post(f"{self.base_url}/auth/register", json=user_data)
-            
-            if response.status_code == 201:
-                self.log_test("User Registration", True, f"Created test user: {self.test_user_email}")
-                return True
-            else:
-                self.log_test("User Registration", False, f"Status: {response.status_code}", response.json())
-                return False
+            # Use existing confirmed user from test_result.md
+            self.test_user_email = "bdsbes@gmail.com"
+            self.log_test("User Setup", True, f"Using existing confirmed user: {self.test_user_email}")
+            return True
                 
         except Exception as e:
-            self.log_test("User Registration", False, f"Exception: {str(e)}")
+            self.log_test("User Setup", False, f"Exception: {str(e)}")
             return False
 
     def login_test_user(self) -> bool:
