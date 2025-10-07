@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://ketolite.preview.emergentagent.com/api"
+BASE_URL = "https://keto-journey-1.preview.emergentagent.com/api"
 
 # Try with existing confirmed user first, then fallback to new user
 EXISTING_USER_EMAIL = "bdsbes@gmail.com"

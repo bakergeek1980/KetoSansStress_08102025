@@ -11,7 +11,7 @@ const getApiBaseUrl = () => {
     return window.location.origin;
   }
   // Mode mobile (Expo Go)
-  return Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'https://ketolite.preview.emergentagent.com';
+  return Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'https://keto-journey-1.preview.emergentagent.com';
 };
 
 const API_BASE_URL = getApiBaseUrl();
