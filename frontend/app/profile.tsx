@@ -380,7 +380,7 @@ export default function ProfileScreen() {
             setProfileData(prev => ({ 
               ...prev, 
               birth_date: date, // Stocké comme Date object
-              age: calculateAge(date).toString()
+              age: new Date().getFullYear() - date.getFullYear() // Calcul simple de l'âge
             }));
           }}
           maximumDate={new Date()}
