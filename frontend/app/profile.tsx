@@ -134,20 +134,25 @@ export default function ProfileScreen() {
   
   const [uploading, setUploading] = useState(false);
 
-  // Initialize profile data from user
+  // ✅ Initialize profile data from user with proper synchronization
   useEffect(() => {
     if (user) {
-      setProfileData({
+      console.log('🔄 Mise à jour du profil depuis user:', user);
+      
+      const calculatedAge = user.birth_date ? calculateAgeFromBirthDate(user.birth_date) : 0;
+      
+      setProfileData(prevData => ({
+        ...prevData, // Preserve any unsaved changes
         full_name: user.full_name || '',
-        age: user.age?.toString() || '',
-        birth_date: user.birth_date || '',
+        age: user.age?.toString() || calculatedAge.toString(),
+        birth_date: user.birth_date || '', // Format ISO: YYYY-MM-DD
         gender: user.gender || 'male',
         height: user.height?.toString() || '',
         weight: user.weight?.toString() || '',
         activity_level: user.activity_level || 'moderately_active',
         goal: user.goal || 'maintenance',
         profile_picture_url: user.profile_picture_url,
-      });
+      }));
     }
   }, [user]);
 
