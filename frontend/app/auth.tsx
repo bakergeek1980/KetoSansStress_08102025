@@ -50,6 +50,7 @@ export default function AuthScreen() {
     password: '',
     confirmPassword: '',
     full_name: '',
+    birth_date: null as Date | null,
     age: '',
     gender: 'male' as 'male' | 'female' | 'other',
     height: '',
