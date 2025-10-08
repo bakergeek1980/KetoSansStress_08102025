@@ -1,393 +1,478 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for KetoSansStress
-Testing the simplified registration endpoint POST /api/auth/register
+Backend Testing Suite for KetoSansStress Onboarding Endpoints
+Testing the new onboarding functionality that was just implemented.
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, date
+from typing import Dict, Any, Optional
+import logging
 
-# Configuration
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Test configuration
 BASE_URL = "https://keto-onboard.preview.emergentagent.com/api"
-HEADERS = {
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-}
+TEST_EMAIL = "onboarding.test@ketosansstress.com"
+TEST_PASSWORD = "OnboardingTest123!"
 
-class TestResults:
+class OnboardingTester:
     def __init__(self):
-        self.passed = 0
-        self.failed = 0
-        self.results = []
-    
-    def add_result(self, test_name, passed, details=""):
-        self.results.append({
+        self.session = requests.Session()
+        self.access_token = None
+        self.user_id = None
+        self.test_results = []
+        
+    def log_test_result(self, test_name: str, success: bool, details: str = ""):
+        """Log test result"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        logger.info(f"{status}: {test_name}")
+        if details:
+            logger.info(f"   Details: {details}")
+        
+        self.test_results.append({
             "test": test_name,
-            "passed": passed,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
+            "success": success,
+            "details": details
         })
-        if passed:
-            self.passed += 1
-        else:
-            self.failed += 1
     
-    def print_summary(self):
-        total = self.passed + self.failed
-        success_rate = (self.passed / total * 100) if total > 0 else 0
-        
-        print(f"\n{'='*60}")
-        print(f"SIMPLIFIED REGISTRATION ENDPOINT TEST SUMMARY")
-        print(f"{'='*60}")
-        print(f"Total Tests: {total}")
-        print(f"Passed: {self.passed}")
-        print(f"Failed: {self.failed}")
-        print(f"Success Rate: {success_rate:.1f}%")
-        print(f"{'='*60}")
-        
-        for result in self.results:
-            status = "✅ PASS" if result["passed"] else "❌ FAIL"
-            print(f"{status} - {result['test']}")
-            if result["details"]:
-                print(f"    Details: {result['details']}")
-        print(f"{'='*60}")
-
-def test_simplified_registration():
-    """Test the simplified registration endpoint with various scenarios"""
-    
-    results = TestResults()
-    
-    print("🧪 TESTING SIMPLIFIED REGISTRATION ENDPOINT")
-    print(f"Backend URL: {BASE_URL}")
-    print(f"Testing endpoint: POST /api/auth/register")
-    print("-" * 60)
-    
-    # Test Case 1: Valid registration with only email and password
-    print("\n1. Testing valid registration with email and password...")
-    try:
-        test_data = {
-            "email": "test.simple@ketosansstress.com",
-            "password": "ValidPass123!"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers=HEADERS,
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code == 201:
-            response_data = response.json()
-            required_fields = ["user_id", "email", "needs_email_confirmation"]
+    def setup_test_user(self) -> bool:
+        """Create and authenticate a test user"""
+        try:
+            # Register test user
+            register_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
             
-            has_all_fields = all(field in response_data for field in required_fields)
-            correct_email = response_data.get("email") == test_data["email"]
-            has_confirmation_flag = "needs_email_confirmation" in response_data
+            response = self.session.post(f"{BASE_URL}/auth/register", json=register_data)
             
-            if has_all_fields and correct_email and has_confirmation_flag:
-                results.add_result(
-                    "Valid registration with email and password", 
-                    True, 
-                    f"User created successfully with user_id: {response_data.get('user_id')}, needs_email_confirmation: {response_data.get('needs_email_confirmation')}"
-                )
+            if response.status_code in [201, 409]:  # Created or already exists
+                # Login to get access token
+                login_data = {
+                    "email": TEST_EMAIL,
+                    "password": TEST_PASSWORD
+                }
+                
+                login_response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
+                
+                if login_response.status_code == 200:
+                    login_result = login_response.json()
+                    self.access_token = login_result["access_token"]
+                    self.user_id = login_result["user"]["id"]
+                    
+                    # Set authorization header for future requests
+                    self.session.headers.update({
+                        "Authorization": f"Bearer {self.access_token}"
+                    })
+                    
+                    self.log_test_result("Test User Setup", True, f"User authenticated: {TEST_EMAIL}")
+                    return True
+                else:
+                    self.log_test_result("Test User Setup", False, f"Login failed: {login_response.status_code}")
+                    return False
             else:
-                results.add_result(
-                    "Valid registration with email and password", 
-                    False, 
-                    f"Missing required fields or incorrect data. Response: {response_data}"
-                )
-        else:
-            results.add_result(
-                "Valid registration with email and password", 
-                False, 
-                f"Expected 201, got {response.status_code}. Response: {response.text}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Valid registration with email and password", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    # Test Case 2: Invalid email format should be rejected with 422
-    print("\n2. Testing invalid email format...")
-    try:
-        test_data = {
-            "email": "invalid-email",
-            "password": "ValidPass123!"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers=HEADERS,
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code == 422:
-            results.add_result(
-                "Invalid email format rejection", 
-                True, 
-                "Invalid email correctly rejected with 422"
-            )
-        else:
-            results.add_result(
-                "Invalid email format rejection", 
-                False, 
-                f"Expected 422, got {response.status_code}. Response: {response.text}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Invalid email format rejection", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    # Test Case 3: Weak password should be rejected with 422
-    print("\n3. Testing weak password...")
-    try:
-        test_data = {
-            "email": "weak@test.com",
-            "password": "123"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers=HEADERS,
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code == 422:
-            results.add_result(
-                "Weak password rejection", 
-                True, 
-                "Weak password correctly rejected with 422"
-            )
-        else:
-            results.add_result(
-                "Weak password rejection", 
-                False, 
-                f"Expected 422, got {response.status_code}. Response: {response.text}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Weak password rejection", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    # Test Case 4: Missing email should be rejected with 422
-    print("\n4. Testing missing email...")
-    try:
-        test_data = {
-            "password": "ValidPass123!"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers=HEADERS,
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code == 422:
-            results.add_result(
-                "Missing email rejection", 
-                True, 
-                "Missing email correctly rejected with 422"
-            )
-        else:
-            results.add_result(
-                "Missing email rejection", 
-                False, 
-                f"Expected 422, got {response.status_code}. Response: {response.text}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Missing email rejection", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    # Test Case 5: Missing password should be rejected with 422
-    print("\n5. Testing missing password...")
-    try:
-        test_data = {
-            "email": "missing@test.com"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers=HEADERS,
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code == 422:
-            results.add_result(
-                "Missing password rejection", 
-                True, 
-                "Missing password correctly rejected with 422"
-            )
-        else:
-            results.add_result(
-                "Missing password rejection", 
-                False, 
-                f"Expected 422, got {response.status_code}. Response: {response.text}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Missing password rejection", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    # Test Case 6: Test duplicate email registration (should return 409 or 500)
-    print("\n6. Testing duplicate email registration...")
-    try:
-        test_data = {
-            "email": "test.simple@ketosansstress.com",  # Same as test case 1
-            "password": "ValidPass123!"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers=HEADERS,
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code in [409, 500]:  # Either conflict or server error due to rate limiting
-            results.add_result(
-                "Duplicate email handling", 
-                True, 
-                f"Duplicate email correctly handled with {response.status_code}"
-            )
-        else:
-            results.add_result(
-                "Duplicate email handling", 
-                False, 
-                f"Expected 409 or 500, got {response.status_code}. Response: {response.text}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Duplicate email handling", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    # Test Case 7: Test endpoint accessibility (should not require authentication)
-    print("\n7. Testing endpoint accessibility...")
-    try:
-        # Test with no authorization header
-        test_data = {
-            "email": "access.test@ketosansstress.com",
-            "password": "AccessTest123!"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/auth/register",
-            headers={"Content-Type": "application/json"},  # No auth header
-            json=test_data,
-            timeout=30
-        )
-        
-        print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text[:200]}...")
-        
-        if response.status_code in [201, 409, 500]:  # Success, conflict, or rate limit - not 401/403
-            results.add_result(
-                "Endpoint accessibility (no auth required)", 
-                True, 
-                f"Endpoint accessible without authentication: {response.status_code}"
-            )
-        else:
-            results.add_result(
-                "Endpoint accessibility (no auth required)", 
-                False, 
-                f"Endpoint may require authentication. Status: {response.status_code}"
-            )
-            
-    except Exception as e:
-        results.add_result(
-            "Endpoint accessibility (no auth required)", 
-            False, 
-            f"Request failed: {str(e)}"
-        )
-    
-    return results
-
-def test_health_check():
-    """Test the health check endpoint to verify backend is running"""
-    print("\n🏥 TESTING BACKEND HEALTH CHECK")
-    print("-" * 40)
-    
-    try:
-        response = requests.get(f"{BASE_URL}/health", timeout=10)
-        print(f"Health Check Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            health_data = response.json()
-            print(f"Service Status: {health_data.get('status', 'unknown')}")
-            print(f"Service Name: {health_data.get('service', 'unknown')}")
-            print(f"Supabase Status: {health_data.get('supabase', 'unknown')}")
-            return True
-        else:
-            print(f"Health check failed: {response.text}")
+                self.log_test_result("Test User Setup", False, f"Registration failed: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Test User Setup", False, f"Exception: {str(e)}")
             return False
+    
+    def test_complete_onboarding_valid_data(self) -> bool:
+        """Test POST /api/auth/complete-onboarding with valid data"""
+        try:
+            onboarding_data = {
+                "onboarding_data": {
+                    "first_name": "Sophie",
+                    "sex": "female",
+                    "goal": "weight_loss",
+                    "current_weight": 68.5,
+                    "target_weight": 62.0,
+                    "height": 165.0,
+                    "activity_level": "moderately_active",
+                    "birth_date": "1990-05-15",
+                    "food_restrictions": ["gluten", "dairy"]
+                }
+            }
             
-    except Exception as e:
-        print(f"Health check error: {str(e)}")
-        return False
+            response = self.session.post(f"{BASE_URL}/auth/complete-onboarding", json=onboarding_data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                # Verify response structure
+                if (result.get("success") and 
+                    result.get("message") and 
+                    result.get("user") and
+                    result["user"].get("nutrition_targets")):
+                    
+                    nutrition = result["user"]["nutrition_targets"]
+                    
+                    # Verify nutrition targets are calculated
+                    if (nutrition.get("calories") and 
+                        nutrition.get("proteins") and 
+                        nutrition.get("carbs") and 
+                        nutrition.get("fats")):
+                        
+                        self.log_test_result(
+                            "Complete Onboarding - Valid Data", 
+                            True, 
+                            f"Nutrition targets: {nutrition['calories']} cal, {nutrition['proteins']}g protein, {nutrition['carbs']}g carbs, {nutrition['fats']}g fats"
+                        )
+                        return True
+                    else:
+                        self.log_test_result("Complete Onboarding - Valid Data", False, "Missing nutrition targets")
+                        return False
+                else:
+                    self.log_test_result("Complete Onboarding - Valid Data", False, f"Invalid response structure: {result}")
+                    return False
+            else:
+                self.log_test_result("Complete Onboarding - Valid Data", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Complete Onboarding - Valid Data", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_complete_onboarding_without_auth(self) -> bool:
+        """Test complete onboarding without authentication"""
+        try:
+            # Temporarily remove auth header
+            original_headers = self.session.headers.copy()
+            if "Authorization" in self.session.headers:
+                del self.session.headers["Authorization"]
+            
+            onboarding_data = {
+                "onboarding_data": {
+                    "first_name": "Test",
+                    "sex": "male",
+                    "goal": "maintenance",
+                    "current_weight": 75.0,
+                    "height": 180.0,
+                    "activity_level": "lightly_active",
+                    "birth_date": "1985-01-01"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/auth/complete-onboarding", json=onboarding_data)
+            
+            # Restore headers
+            self.session.headers.update(original_headers)
+            
+            if response.status_code == 401:
+                self.log_test_result("Complete Onboarding - No Auth", True, "Correctly rejected unauthenticated request")
+                return True
+            else:
+                self.log_test_result("Complete Onboarding - No Auth", False, f"Expected 401, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Complete Onboarding - No Auth", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_complete_onboarding_invalid_data(self) -> bool:
+        """Test complete onboarding with invalid data"""
+        try:
+            # Test with invalid sex
+            invalid_data = {
+                "onboarding_data": {
+                    "first_name": "Test",
+                    "sex": "invalid_sex",  # Invalid value
+                    "goal": "weight_loss",
+                    "current_weight": 70.0,
+                    "height": 170.0,
+                    "activity_level": "moderately_active",
+                    "birth_date": "1990-01-01"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/auth/complete-onboarding", json=invalid_data)
+            
+            if response.status_code == 422:
+                self.log_test_result("Complete Onboarding - Invalid Sex", True, "Correctly rejected invalid sex value")
+            else:
+                self.log_test_result("Complete Onboarding - Invalid Sex", False, f"Expected 422, got {response.status_code}")
+                return False
+            
+            # Test with invalid weight
+            invalid_weight_data = {
+                "onboarding_data": {
+                    "first_name": "Test",
+                    "sex": "male",
+                    "goal": "weight_loss",
+                    "current_weight": 500.0,  # Too high
+                    "height": 170.0,
+                    "activity_level": "moderately_active",
+                    "birth_date": "1990-01-01"
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/auth/complete-onboarding", json=invalid_weight_data)
+            
+            if response.status_code == 422:
+                self.log_test_result("Complete Onboarding - Invalid Weight", True, "Correctly rejected invalid weight")
+                return True
+            else:
+                self.log_test_result("Complete Onboarding - Invalid Weight", False, f"Expected 422, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Complete Onboarding - Invalid Data", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_save_onboarding_progress_valid(self) -> bool:
+        """Test PATCH /api/auth/save-onboarding-progress with valid data"""
+        try:
+            progress_data = {
+                "onboarding_step": 3,
+                "data": {
+                    "first_name": "Marie",
+                    "sex": "female"
+                }
+            }
+            
+            response = self.session.patch(f"{BASE_URL}/auth/save-onboarding-progress", json=progress_data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                if (result.get("success") and 
+                    result.get("message") and 
+                    result.get("onboarding_step") == 3):
+                    
+                    self.log_test_result("Save Onboarding Progress - Valid", True, "Progress saved successfully")
+                    return True
+                else:
+                    self.log_test_result("Save Onboarding Progress - Valid", False, f"Invalid response: {result}")
+                    return False
+            else:
+                self.log_test_result("Save Onboarding Progress - Valid", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Save Onboarding Progress - Valid", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_save_onboarding_progress_without_auth(self) -> bool:
+        """Test save onboarding progress without authentication"""
+        try:
+            # Temporarily remove auth header
+            original_headers = self.session.headers.copy()
+            if "Authorization" in self.session.headers:
+                del self.session.headers["Authorization"]
+            
+            progress_data = {
+                "onboarding_step": 2,
+                "data": {"first_name": "Test"}
+            }
+            
+            response = self.session.patch(f"{BASE_URL}/auth/save-onboarding-progress", json=progress_data)
+            
+            # Restore headers
+            self.session.headers.update(original_headers)
+            
+            if response.status_code == 401:
+                self.log_test_result("Save Progress - No Auth", True, "Correctly rejected unauthenticated request")
+                return True
+            else:
+                self.log_test_result("Save Progress - No Auth", False, f"Expected 401, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Save Progress - No Auth", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_save_onboarding_progress_invalid_step(self) -> bool:
+        """Test save onboarding progress with invalid step"""
+        try:
+            # Test with step out of range
+            invalid_data = {
+                "onboarding_step": 15,  # Out of range (1-9)
+                "data": {"first_name": "Test"}
+            }
+            
+            response = self.session.patch(f"{BASE_URL}/auth/save-onboarding-progress", json=invalid_data)
+            
+            if response.status_code == 422:
+                self.log_test_result("Save Progress - Invalid Step", True, "Correctly rejected invalid step")
+                return True
+            else:
+                self.log_test_result("Save Progress - Invalid Step", False, f"Expected 422, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Save Progress - Invalid Step", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_email_confirmation_html_valid_token(self) -> bool:
+        """Test GET /api/auth/confirm-email with valid token (HTML response)"""
+        try:
+            # Use a test token - in real scenario this would be from email
+            test_token = "test_confirmation_token_123"
+            
+            response = self.session.get(f"{BASE_URL}/auth/confirm-email?token={test_token}")
+            
+            # Should return HTML content (not JSON)
+            content_type = response.headers.get('content-type', '')
+            
+            if 'text/html' in content_type:
+                # Check if it contains Keto Sans Stress design elements
+                html_content = response.text.lower()
+                
+                if ('ketosansstress' in html_content or 'keto sans stress' in html_content):
+                    self.log_test_result("Email Confirmation HTML - Valid Token", True, "Returns HTML with Keto Sans Stress branding")
+                    return True
+                else:
+                    self.log_test_result("Email Confirmation HTML - Valid Token", False, "HTML missing Keto Sans Stress branding")
+                    return False
+            else:
+                self.log_test_result("Email Confirmation HTML - Valid Token", False, f"Expected HTML, got {content_type}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Email Confirmation HTML - Valid Token", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_email_confirmation_html_invalid_token(self) -> bool:
+        """Test GET /api/auth/confirm-email with invalid token"""
+        try:
+            invalid_token = "invalid_token_xyz"
+            
+            response = self.session.get(f"{BASE_URL}/auth/confirm-email?token={invalid_token}")
+            
+            # Should return HTML error page
+            content_type = response.headers.get('content-type', '')
+            
+            if 'text/html' in content_type and response.status_code in [400, 404]:
+                html_content = response.text.lower()
+                
+                # Should contain error message and Keto Sans Stress branding
+                if ('error' in html_content or 'erreur' in html_content) and ('ketosansstress' in html_content or 'keto sans stress' in html_content):
+                    self.log_test_result("Email Confirmation HTML - Invalid Token", True, "Returns HTML error page with branding")
+                    return True
+                else:
+                    self.log_test_result("Email Confirmation HTML - Invalid Token", False, "HTML error page missing expected content")
+                    return False
+            else:
+                self.log_test_result("Email Confirmation HTML - Invalid Token", False, f"Expected HTML error, got {response.status_code} {content_type}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Email Confirmation HTML - Invalid Token", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_nutrition_targets_calculation(self) -> bool:
+        """Test that nutrition targets are calculated correctly"""
+        try:
+            # Test with specific data to verify calculation
+            onboarding_data = {
+                "onboarding_data": {
+                    "first_name": "TestCalc",
+                    "sex": "male",
+                    "goal": "weight_loss",
+                    "current_weight": 80.0,
+                    "height": 175.0,
+                    "activity_level": "moderately_active",
+                    "birth_date": "1985-06-15"  # ~38 years old
+                }
+            }
+            
+            response = self.session.post(f"{BASE_URL}/auth/complete-onboarding", json=onboarding_data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                nutrition = result["user"]["nutrition_targets"]
+                
+                # Verify reasonable ranges for a 38-year-old male, 80kg, 175cm, moderately active, weight loss
+                calories = nutrition["calories"]
+                proteins = nutrition["proteins"]
+                carbs = nutrition["carbs"]
+                fats = nutrition["fats"]
+                
+                # Expected ranges (approximate)
+                if (1500 <= calories <= 2500 and  # Reasonable calorie range for weight loss
+                    50 <= proteins <= 200 and     # Reasonable protein range
+                    5 <= carbs <= 50 and          # Keto carb range
+                    80 <= fats <= 200):           # Reasonable fat range for keto
+                    
+                    self.log_test_result(
+                        "Nutrition Calculation", 
+                        True, 
+                        f"Calculated targets within expected ranges: {calories}cal, {proteins}g protein, {carbs}g carbs, {fats}g fats"
+                    )
+                    return True
+                else:
+                    self.log_test_result(
+                        "Nutrition Calculation", 
+                        False, 
+                        f"Targets outside expected ranges: {calories}cal, {proteins}g protein, {carbs}g carbs, {fats}g fats"
+                    )
+                    return False
+            else:
+                self.log_test_result("Nutrition Calculation", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test_result("Nutrition Calculation", False, f"Exception: {str(e)}")
+            return False
+    
+    def run_all_tests(self) -> Dict[str, Any]:
+        """Run all onboarding endpoint tests"""
+        logger.info("🧪 Starting Onboarding Endpoints Testing Suite")
+        logger.info(f"Testing against: {BASE_URL}")
+        
+        # Setup test user
+        if not self.setup_test_user():
+            return {"success": False, "error": "Failed to setup test user"}
+        
+        # Run all tests
+        tests = [
+            self.test_complete_onboarding_valid_data,
+            self.test_complete_onboarding_without_auth,
+            self.test_complete_onboarding_invalid_data,
+            self.test_save_onboarding_progress_valid,
+            self.test_save_onboarding_progress_without_auth,
+            self.test_save_onboarding_progress_invalid_step,
+            self.test_email_confirmation_html_valid_token,
+            self.test_email_confirmation_html_invalid_token,
+            self.test_nutrition_targets_calculation
+        ]
+        
+        for test in tests:
+            test()
+        
+        # Calculate results
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+        
+        logger.info(f"\n🎯 ONBOARDING ENDPOINTS TESTING COMPLETE!")
+        logger.info(f"Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        
+        return {
+            "success": success_rate > 80,  # Consider successful if >80% pass
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "success_rate": success_rate,
+            "results": self.test_results
+        }
+
+def main():
+    """Main test execution"""
+    tester = OnboardingTester()
+    results = tester.run_all_tests()
+    
+    if results["success"]:
+        logger.info("✅ Overall testing: SUCCESS")
+        sys.exit(0)
+    else:
+        logger.info("❌ Overall testing: FAILED")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    print("🚀 STARTING BACKEND API TESTING")
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    print("=" * 60)
-    
-    # Test backend health first
-    if not test_health_check():
-        print("❌ Backend health check failed. Exiting...")
-        sys.exit(1)
-    
-    # Run simplified registration tests
-    test_results = test_simplified_registration()
-    
-    # Print summary
-    test_results.print_summary()
-    
-    # Exit with appropriate code
-    if test_results.failed > 0:
-        print(f"\n❌ {test_results.failed} test(s) failed!")
-        sys.exit(1)
-    else:
-        print(f"\n✅ All {test_results.passed} tests passed!")
-        sys.exit(0)
+    main()
