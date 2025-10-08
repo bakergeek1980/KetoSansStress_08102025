@@ -212,6 +212,33 @@ export const useApi = () => {
     [makeRequest]
   );
 
+  // ✅ Nouvelle fonction : Scanner de codes-barres
+  const scanBarcode = useCallback(async (barcode: string): Promise<BarcodeScanResponse | null> => {
+    return await makeRequest<BarcodeScanResponse>('/api/foods/scan-barcode', {
+      method: 'POST',
+      body: JSON.stringify({ barcode })
+    });
+  }, [makeRequest]);
+
+  // ✅ Nouvelle fonction : Analyse d'image (version mise à jour)
+  const analyzeImage = useCallback(async (imageBase64: string, mealType: string = 'lunch'): Promise<NutritionalInfo | null> => {
+    return await makeRequest<NutritionalInfo>('/api/vision/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        image_base64: imageBase64,
+        meal_type: mealType 
+      })
+    });
+  }, [makeRequest]);
+
+  // ✅ Nouvelle fonction : Gestion des favoris
+  const toggleFavorite = useCallback(async (foodId: string): Promise<boolean> => {
+    const result = await makeRequest(`/api/foods/favorites/${foodId}`, {
+      method: 'POST'
+    });
+    return result !== null;
+  }, [makeRequest]);
+
   return {
     ...apiState,
     // Meal functions
