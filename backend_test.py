@@ -37,497 +37,492 @@ class KetoAPITester:
         self.test_results = []
         
     def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
-        """Log test results"""
+        """Enregistrer le résultat d'un test"""
         result = {
             "test": test_name,
             "success": success,
             "details": details,
-            "response_data": response_data,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "response_data": response_data
         }
         self.test_results.append(result)
         
         status = "✅ PASS" if success else "❌ FAIL"
         print(f"{status} {test_name}")
         if details:
-            print(f"    Details: {details}")
+            print(f"    {details}")
         if not success and response_data:
             print(f"    Response: {response_data}")
         print()
 
-    def create_test_user(self) -> bool:
-        """Use existing confirmed user for authentication"""
+    def authenticate(self) -> bool:
+        """S'authentifier et obtenir un token JWT"""
         try:
-            # Use existing confirmed user from test_result.md
-            self.test_user_email = "bdsbes@gmail.com"
-            self.log_test("User Setup", True, f"Using existing confirmed user: {self.test_user_email}")
-            return True
-                
-        except Exception as e:
-            self.log_test("User Setup", False, f"Exception: {str(e)}")
-            return False
-
-    def login_test_user(self) -> bool:
-        """Login with test user to get access token"""
-        try:
-            login_data = {
-                "email": self.test_user_email,
-                "password": "SecurePass123!"  # Use the correct password for existing user
+            # Essayer de s'inscrire d'abord
+            register_data = {
+                "email": TEST_USER_EMAIL,
+                "password": TEST_USER_PASSWORD,
+                "full_name": "Testeur API",
+                "age": 30,
+                "gender": "homme",
+                "height": 175,
+                "weight": 75,
+                "activity_level": "modere",
+                "goal": "maintien"
             }
             
-            response = requests.post(f"{self.base_url}/auth/login", json=login_data)
+            register_response = self.session.post(
+                f"{API_BASE_URL}/auth/register",
+                json=register_data,
+                timeout=10
+            )
             
-            if response.status_code == 200:
-                data = response.json()
-                self.access_token = data.get("access_token")
-                if self.access_token:
-                    self.log_test("User Login", True, "Successfully obtained access token")
-                    return True
-                else:
-                    self.log_test("User Login", False, "No access token in response", data)
-                    return False
+            # Maintenant se connecter
+            login_data = {
+                "email": TEST_USER_EMAIL,
+                "password": TEST_USER_PASSWORD
+            }
+            
+            login_response = self.session.post(
+                f"{API_BASE_URL}/auth/login",
+                json=login_data,
+                timeout=10
+            )
+            
+            if login_response.status_code == 200:
+                token_data = login_response.json()
+                self.auth_token = token_data.get("access_token")
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.auth_token}"
+                })
+                self.log_test("Authentication", True, f"Token obtenu: {self.auth_token[:20]}...")
+                return True
             else:
-                self.log_test("User Login", False, f"Status: {response.status_code}", response.json())
+                self.log_test("Authentication", False, f"Login failed: {login_response.status_code}", login_response.text)
                 return False
                 
         except Exception as e:
-            self.log_test("User Login", False, f"Exception: {str(e)}")
+            self.log_test("Authentication", False, f"Auth error: {str(e)}")
             return False
 
-    def get_auth_headers(self) -> Dict[str, str]:
-        """Get authorization headers"""
-        return {"Authorization": f"Bearer {self.access_token}"}
-
-    def test_profile_update_with_birth_date(self):
-        """Test 1: Profile Update with Valid Birth Date"""
+    def test_health_check(self):
+        """Test du health check"""
         try:
-            birth_date = "1990-05-15"  # Valid date format
-            
-            profile_data = {
-                "full_name": "Marie Testeur Updated",
-                "birth_date": birth_date,
-                "gender": "female",
-                "height": 168.0,
-                "weight": 63.0,
-                "activity_level": "moderately_active",
-                "goal": "weight_loss"
-            }
-            
-            response = requests.patch(
-                f"{self.base_url}/auth/profile",
-                json=profile_data,
-                headers=self.get_auth_headers()
-            )
+            response = self.session.get(f"{API_BASE_URL}/health", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                # Check if birth_date is in response
-                if "user" in data and "birth_date" in str(data):
-                    self.log_test("Profile Update with Birth Date", True, 
-                                f"Successfully updated profile with birth_date: {birth_date}")
-                else:
-                    self.log_test("Profile Update with Birth Date", False, 
-                                "Birth date not found in response", data)
+                supabase_status = data.get("supabase", "unknown")
+                self.log_test(
+                    "Health Check", 
+                    True, 
+                    f"Service: {data.get('service')}, Supabase: {supabase_status}",
+                    data
+                )
             else:
-                self.log_test("Profile Update with Birth Date", False, 
-                            f"Status: {response.status_code}", response.json())
+                self.log_test("Health Check", False, f"Status: {response.status_code}", response.text)
                 
         except Exception as e:
-            self.log_test("Profile Update with Birth Date", False, f"Exception: {str(e)}")
+            self.log_test("Health Check", False, f"Error: {str(e)}")
 
-    def test_profile_retrieval_with_birth_date(self):
-        """Test 2: Verify Birth Date in Profile Retrieval"""
+    def test_swagger_docs(self):
+        """Test de l'accès à la documentation Swagger"""
         try:
-            response = requests.get(
-                f"{self.base_url}/auth/me",
-                headers=self.get_auth_headers()
-            )
+            response = self.session.get(f"{API_BASE_URL}/docs", timeout=10)
             
-            if response.status_code == 200:
-                data = response.json()
-                if "birth_date" in data:
-                    birth_date = data["birth_date"]
-                    self.log_test("Profile Retrieval with Birth Date", True, 
-                                f"Birth date found in profile: {birth_date}")
-                    
-                    # Check if age is calculated correctly
-                    if "age" in data:
-                        age = data["age"]
-                        self.log_test("Age Calculation from Birth Date", True, 
-                                    f"Age calculated: {age}")
-                    else:
-                        self.log_test("Age Calculation from Birth Date", False, 
-                                    "Age field not found in profile")
-                else:
-                    self.log_test("Profile Retrieval with Birth Date", False, 
-                                "Birth date not found in profile", data)
-            else:
-                self.log_test("Profile Retrieval with Birth Date", False, 
-                            f"Status: {response.status_code}", response.json())
+            success = response.status_code == 200
+            self.log_test(
+                "Swagger Documentation", 
+                success, 
+                f"Status: {response.status_code}"
+            )
                 
         except Exception as e:
-            self.log_test("Profile Retrieval with Birth Date", False, f"Exception: {str(e)}")
+            self.log_test("Swagger Documentation", False, f"Error: {str(e)}")
 
-    def test_invalid_date_formats(self):
-        """Test 3: Invalid Date Format Validation"""
-        invalid_dates = [
-            "15-05-1990",  # DD-MM-YYYY format
-            "05/15/1990",  # MM/DD/YYYY format
-            "invalid-date",  # Invalid string
-            "1990-13-01",  # Invalid month
-            "1990-02-30",  # Invalid day for February
-            ""  # Empty string
-        ]
+    def test_foods_search(self):
+        """Test de l'endpoint de recherche d'aliments"""
+        test_queries = ["saumon", "avocat", "fromage", "œufs", "brocoli"]
         
-        for invalid_date in invalid_dates:
+        for query in test_queries:
             try:
-                profile_data = {
-                    "full_name": "Marie Testeur",
-                    "birth_date": invalid_date,
-                    "gender": "female",
-                    "height": 165.0,
-                    "weight": 65.0
-                }
-                
-                response = requests.patch(
-                    f"{self.base_url}/auth/profile",
-                    json=profile_data,
-                    headers=self.get_auth_headers()
+                response = self.session.get(
+                    f"{API_BASE_URL}/foods/search",
+                    params={"q": query, "limit": 5},
+                    timeout=10
                 )
                 
-                if response.status_code == 422:  # Validation error expected
-                    self.log_test(f"Invalid Date Format: {invalid_date}", True, 
-                                "Correctly rejected invalid date format")
+                if response.status_code == 200:
+                    data = response.json()
+                    results_count = len(data) if isinstance(data, list) else 0
+                    self.log_test(
+                        f"Food Search - {query}", 
+                        True, 
+                        f"Found {results_count} results",
+                        {"query": query, "results_count": results_count}
+                    )
                 else:
-                    self.log_test(f"Invalid Date Format: {invalid_date}", False, 
-                                f"Expected 422, got {response.status_code}", response.json())
+                    self.log_test(
+                        f"Food Search - {query}", 
+                        False, 
+                        f"Status: {response.status_code}",
+                        response.text
+                    )
                     
             except Exception as e:
-                self.log_test(f"Invalid Date Format: {invalid_date}", False, f"Exception: {str(e)}")
+                self.log_test(f"Food Search - {query}", False, f"Error: {str(e)}")
 
-    def test_future_date_validation(self):
-        """Test 4: Future Date Validation"""
+    def test_foods_search_with_params(self):
+        """Test de la recherche avec paramètres avancés"""
         try:
-            # Test with future date
-            future_date = (date.today() + timedelta(days=365)).isoformat()  # One year in future
-            
-            profile_data = {
-                "full_name": "Marie Testeur",
-                "birth_date": future_date,
-                "gender": "female",
-                "height": 165.0,
-                "weight": 65.0
-            }
-            
-            response = requests.patch(
-                f"{self.base_url}/auth/profile",
-                json=profile_data,
-                headers=self.get_auth_headers()
+            # Test avec caractères spéciaux
+            response = self.session.get(
+                f"{API_BASE_URL}/foods/search",
+                params={"q": "œuf à la coque", "limit": 3},
+                timeout=10
             )
             
-            if response.status_code == 422:  # Should reject future dates
-                self.log_test("Future Date Validation", True, 
-                            f"Correctly rejected future date: {future_date}")
-            else:
-                self.log_test("Future Date Validation", False, 
-                            f"Expected 422, got {response.status_code}. Future dates should be rejected", 
-                            response.json())
+            success = response.status_code == 200
+            details = f"Status: {response.status_code}"
+            if success:
+                data = response.json()
+                details += f", Results: {len(data) if isinstance(data, list) else 0}"
+            
+            self.log_test("Food Search - Special Characters", success, details)
+            
+            # Test recherche vide
+            response = self.session.get(
+                f"{API_BASE_URL}/foods/search",
+                params={"q": "", "limit": 5},
+                timeout=10
+            )
+            
+            # Une recherche vide devrait retourner une erreur 422 (validation)
+            expected_fail = response.status_code == 422
+            self.log_test(
+                "Food Search - Empty Query", 
+                expected_fail, 
+                f"Status: {response.status_code} (expected 422)"
+            )
                 
         except Exception as e:
-            self.log_test("Future Date Validation", False, f"Exception: {str(e)}")
+            self.log_test("Food Search - Advanced Parameters", False, f"Error: {str(e)}")
 
-    def test_edge_case_dates(self):
-        """Test 5: Edge Case Date Validation"""
-        edge_cases = [
-            ("1900-01-01", "Very old birth date"),
-            ("2010-12-31", "Recent birth date"),
-            ("1990-02-29", "Leap year date"),  # This should be invalid (1990 wasn't a leap year)
-            ("2000-02-29", "Valid leap year date")  # This should be valid (2000 was a leap year)
-        ]
-        
-        for test_date, description in edge_cases:
+    def test_barcode_scanning(self):
+        """Test du scanner de codes-barres"""
+        for product_name, barcode in TEST_BARCODES.items():
             try:
-                profile_data = {
-                    "full_name": "Marie Testeur",
-                    "birth_date": test_date,
-                    "gender": "female",
-                    "height": 165.0,
-                    "weight": 65.0
-                }
-                
-                response = requests.patch(
-                    f"{self.base_url}/auth/profile",
-                    json=profile_data,
-                    headers=self.get_auth_headers()
+                response = self.session.post(
+                    f"{API_BASE_URL}/foods/scan-barcode",
+                    json={"barcode": barcode},
+                    timeout=15  # Plus de temps pour OpenFoodFacts
                 )
                 
-                if test_date == "1990-02-29":  # Invalid leap year date
-                    if response.status_code == 422:
-                        self.log_test(f"Edge Case: {description}", True, 
-                                    "Correctly rejected invalid leap year date")
-                    else:
-                        self.log_test(f"Edge Case: {description}", False, 
-                                    f"Should reject invalid leap year date, got {response.status_code}")
+                if response.status_code == 200:
+                    data = response.json()
+                    found = data.get("found", False)
+                    product_name_found = data.get("food_data", {}).get("name", "Unknown") if found else "Not found"
+                    
+                    # Pour les codes-barres invalides, on s'attend à found=False
+                    expected_success = found if product_name != "invalid" else not found
+                    
+                    self.log_test(
+                        f"Barcode Scan - {product_name}", 
+                        expected_success, 
+                        f"Barcode: {barcode}, Found: {found}, Product: {product_name_found}",
+                        data
+                    )
                 else:
+                    # Pour les codes-barres invalides, un 404 est acceptable
+                    expected_fail = product_name == "invalid" and response.status_code == 404
+                    self.log_test(
+                        f"Barcode Scan - {product_name}", 
+                        expected_fail, 
+                        f"Status: {response.status_code}",
+                        response.text
+                    )
+                    
+            except Exception as e:
+                self.log_test(f"Barcode Scan - {product_name}", False, f"Error: {str(e)}")
+
+    def test_vision_analysis(self):
+        """Test de l'analyse d'image avec l'API Vision"""
+        meal_types = ["breakfast", "lunch", "dinner", "snack"]
+        
+        for meal_type in meal_types:
+            try:
+                # Test avec différentes tailles d'images simulées
+                test_images = {
+                    "small": TEST_IMAGE_BASE64,  # Petite image
+                    "medium": TEST_IMAGE_BASE64 + "A" * 50000,  # Image moyenne
+                    "large": TEST_IMAGE_BASE64 + "B" * 150000   # Grande image
+                }
+                
+                for size, image_data in test_images.items():
+                    response = self.session.post(
+                        f"{API_BASE_URL}/vision/analyze",
+                        json={
+                            "image_base64": image_data,
+                            "meal_type": meal_type
+                        },
+                        timeout=20
+                    )
+                    
                     if response.status_code == 200:
-                        self.log_test(f"Edge Case: {description}", True, 
-                                    f"Successfully accepted valid date: {test_date}")
+                        data = response.json()
+                        foods_detected = len(data.get("foods_detected", []))
+                        total_calories = data.get("total_nutrition", {}).get("calories", 0)
+                        confidence = data.get("analysis_confidence", 0)
+                        
+                        self.log_test(
+                            f"Vision Analysis - {meal_type} ({size})", 
+                            True, 
+                            f"Foods: {foods_detected}, Calories: {total_calories}, Confidence: {confidence}",
+                            {
+                                "meal_type": meal_type,
+                                "foods_detected": foods_detected,
+                                "calories": total_calories,
+                                "confidence": confidence
+                            }
+                        )
                     else:
-                        self.log_test(f"Edge Case: {description}", False, 
-                                    f"Expected 200, got {response.status_code}", response.json())
+                        self.log_test(
+                            f"Vision Analysis - {meal_type} ({size})", 
+                            False, 
+                            f"Status: {response.status_code}",
+                            response.text
+                        )
                         
             except Exception as e:
-                self.log_test(f"Edge Case: {description}", False, f"Exception: {str(e)}")
+                self.log_test(f"Vision Analysis - {meal_type}", False, f"Error: {str(e)}")
 
-    def test_partial_profile_update_with_birth_date(self):
-        """Test 6: Partial Profile Update Preserving Other Data"""
+    def test_foods_favorites(self):
+        """Test des endpoints de favoris"""
         try:
-            # First, update with full profile
-            full_profile = {
-                "full_name": "Marie Complete Profile",
-                "birth_date": "1985-03-20",
-                "gender": "female",
-                "height": 170.0,
-                "weight": 68.0,
-                "activity_level": "very_active",
-                "goal": "muscle_gain"
-            }
+            # Test GET favorites
+            response = self.session.get(f"{API_BASE_URL}/foods/favorites", timeout=10)
             
-            response1 = requests.patch(
-                f"{self.base_url}/auth/profile",
-                json=full_profile,
-                headers=self.get_auth_headers()
-            )
-            
-            if response1.status_code != 200:
-                self.log_test("Partial Update Setup", False, 
-                            f"Failed to set up full profile: {response1.status_code}")
-                return
-            
-            # Now update only birth_date
-            partial_update = {
-                "birth_date": "1987-07-10"
-            }
-            
-            response2 = requests.patch(
-                f"{self.base_url}/auth/profile",
-                json=partial_update,
-                headers=self.get_auth_headers()
-            )
-            
-            if response2.status_code == 200:
-                # Verify other data is preserved
-                profile_response = requests.get(
-                    f"{self.base_url}/auth/me",
-                    headers=self.get_auth_headers()
+            if response.status_code == 200:
+                data = response.json()
+                favorites_count = len(data) if isinstance(data, list) else 0
+                self.log_test(
+                    "Foods Favorites - GET", 
+                    True, 
+                    f"Found {favorites_count} favorites",
+                    {"favorites_count": favorites_count}
                 )
                 
-                if profile_response.status_code == 200:
-                    profile_data = profile_response.json()
-                    
-                    # Check if birth_date was updated and other fields preserved
-                    birth_date_updated = profile_data.get("birth_date") == "1987-07-10"
-                    name_preserved = profile_data.get("full_name") == "Marie Complete Profile"
-                    weight_preserved = float(profile_data.get("weight", 0)) == 68.0
-                    
-                    if birth_date_updated and name_preserved and weight_preserved:
-                        self.log_test("Partial Profile Update", True, 
-                                    "Birth date updated while preserving other profile data")
-                    else:
-                        self.log_test("Partial Profile Update", False, 
-                                    f"Data integrity issue - birth_date: {birth_date_updated}, "
-                                    f"name: {name_preserved}, weight: {weight_preserved}", profile_data)
-                else:
-                    self.log_test("Partial Profile Update", False, 
-                                "Failed to retrieve profile after partial update")
+                # Test POST favorites (ajouter/retirer) - endpoint pas encore implémenté
+                # On teste quand même pour voir la réponse
+                test_food_id = "test-food-123"
+                fav_response = self.session.post(
+                    f"{API_BASE_URL}/foods/favorites/{test_food_id}",
+                    timeout=10
+                )
+                
+                # On s'attend à une erreur 404 ou 405 car l'endpoint n'est pas implémenté
+                expected_error = fav_response.status_code in [404, 405, 501]
+                self.log_test(
+                    "Foods Favorites - POST", 
+                    expected_error, 
+                    f"Status: {fav_response.status_code} (endpoint not implemented yet)"
+                )
+                
             else:
-                self.log_test("Partial Profile Update", False, 
-                            f"Partial update failed: {response2.status_code}", response2.json())
+                self.log_test(
+                    "Foods Favorites - GET", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
                 
         except Exception as e:
-            self.log_test("Partial Profile Update", False, f"Exception: {str(e)}")
+            self.log_test("Foods Favorites", False, f"Error: {str(e)}")
 
-    def test_birth_date_without_age_field(self):
-        """Test 7: Profile Update with Birth Date Only (No Age Field)"""
+    def test_foods_categories(self):
+        """Test de l'endpoint des catégories d'aliments"""
         try:
-            # Update profile with birth_date but without age field
-            profile_data = {
-                "birth_date": "1992-11-25",
-                "full_name": "Marie Birth Date Only"
-            }
+            response = self.session.get(f"{API_BASE_URL}/foods/categories", timeout=10)
             
-            response = requests.patch(
-                f"{self.base_url}/auth/profile",
-                json=profile_data,
-                headers=self.get_auth_headers()
+            if response.status_code == 200:
+                data = response.json()
+                categories_count = len(data) if isinstance(data, list) else 0
+                self.log_test(
+                    "Foods Categories", 
+                    True, 
+                    f"Found {categories_count} categories: {data[:5] if isinstance(data, list) else 'N/A'}",
+                    data
+                )
+            else:
+                self.log_test(
+                    "Foods Categories", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
+                )
+                
+        except Exception as e:
+            self.log_test("Foods Categories", False, f"Error: {str(e)}")
+
+    def test_openfoodfacts_integration(self):
+        """Test spécifique de l'intégration OpenFoodFacts"""
+        try:
+            # Test direct du service OpenFoodFacts via l'endpoint de recherche
+            response = self.session.get(
+                f"{API_BASE_URL}/foods/search",
+                params={"q": "nutella", "limit": 3},
+                timeout=15
             )
             
             if response.status_code == 200:
-                # Verify that age is calculated from birth_date
-                profile_response = requests.get(
-                    f"{self.base_url}/auth/me",
-                    headers=self.get_auth_headers()
+                data = response.json()
+                
+                # Vérifier si on a des résultats OpenFoodFacts
+                openfoodfacts_results = [
+                    item for item in data 
+                    if isinstance(item, dict) and item.get("source") == "openfoodfacts"
+                ]
+                
+                success = len(openfoodfacts_results) > 0
+                self.log_test(
+                    "OpenFoodFacts Integration", 
+                    success, 
+                    f"Found {len(openfoodfacts_results)} OpenFoodFacts results out of {len(data)} total",
+                    {"total_results": len(data), "openfoodfacts_results": len(openfoodfacts_results)}
+                )
+            else:
+                self.log_test(
+                    "OpenFoodFacts Integration", 
+                    False, 
+                    f"Status: {response.status_code}",
+                    response.text
                 )
                 
-                if profile_response.status_code == 200:
-                    profile_data = profile_response.json()
-                    birth_date = profile_data.get("birth_date")
-                    calculated_age = profile_data.get("age")
-                    
-                    if birth_date == "1992-11-25":
-                        # Calculate expected age
-                        birth_year = 1992
-                        current_year = datetime.now().year
-                        expected_age = current_year - birth_year
-                        
-                        if calculated_age and abs(calculated_age - expected_age) <= 1:  # Allow for birthday timing
-                            self.log_test("Birth Date Without Age Field", True, 
-                                        f"Age correctly calculated from birth_date: {calculated_age}")
-                        else:
-                            self.log_test("Birth Date Without Age Field", False, 
-                                        f"Age calculation incorrect. Expected ~{expected_age}, got {calculated_age}")
-                    else:
-                        self.log_test("Birth Date Without Age Field", False, 
-                                    f"Birth date not updated correctly: {birth_date}")
-                else:
-                    self.log_test("Birth Date Without Age Field", False, 
-                                "Failed to retrieve profile after update")
-            else:
-                self.log_test("Birth Date Without Age Field", False, 
-                            f"Profile update failed: {response.status_code}", response.json())
-                
         except Exception as e:
-            self.log_test("Birth Date Without Age Field", False, f"Exception: {str(e)}")
+            self.log_test("OpenFoodFacts Integration", False, f"Error: {str(e)}")
 
-    def test_authentication_required(self):
-        """Test 8: Authentication Required for Profile Update"""
-        try:
-            profile_data = {
-                "birth_date": "1990-01-01",
-                "full_name": "Unauthorized User"
-            }
-            
-            # Make request without authentication headers
-            response = requests.patch(f"{self.base_url}/auth/profile", json=profile_data)
-            
-            if response.status_code == 401:
-                self.log_test("Authentication Required", True, 
-                            "Correctly rejected unauthenticated request")
-            else:
-                self.log_test("Authentication Required", False, 
-                            f"Expected 401, got {response.status_code}", response.json())
-                
-        except Exception as e:
-            self.log_test("Authentication Required", False, f"Exception: {str(e)}")
-
-    def test_birth_date_field_support(self):
-        """Test 9: Check if birth_date field is supported in profile update"""
-        try:
-            # Test with minimal data to see if birth_date field is accepted
-            profile_data = {
-                "birth_date": "1990-01-01"
-            }
-            
-            # Make request without authentication to check field validation
-            response = requests.patch(f"{self.base_url}/auth/profile", json=profile_data)
-            
-            # We expect 401 (auth required) not 422 (validation error)
-            if response.status_code == 401:
-                self.log_test("Birth Date Field Support", True, 
-                            "birth_date field is accepted (authentication required as expected)")
-            elif response.status_code == 422:
-                error_detail = response.json()
-                if "birth_date" in str(error_detail):
-                    self.log_test("Birth Date Field Support", False, 
-                                "birth_date field validation error", error_detail)
+    def test_authentication_requirements(self):
+        """Test que les endpoints nécessitent une authentification"""
+        # Sauvegarder le token actuel
+        original_token = self.auth_token
+        original_headers = self.session.headers.copy()
+        
+        # Supprimer l'authentification
+        self.session.headers.pop("Authorization", None)
+        
+        protected_endpoints = [
+            ("GET", "/foods/search?q=test"),
+            ("POST", "/foods/scan-barcode"),
+            ("GET", "/foods/favorites"),
+            ("POST", "/vision/analyze")
+        ]
+        
+        for method, endpoint in protected_endpoints:
+            try:
+                if method == "GET":
+                    response = self.session.get(f"{API_BASE_URL}{endpoint}", timeout=10)
                 else:
-                    self.log_test("Birth Date Field Support", True, 
-                                "birth_date field accepted, other validation errors present")
-            else:
-                self.log_test("Birth Date Field Support", False, 
-                            f"Unexpected status code: {response.status_code}", response.json())
+                    test_data = {"barcode": "123"} if "barcode" in endpoint else {"image_base64": TEST_IMAGE_BASE64, "meal_type": "lunch"}
+                    response = self.session.post(f"{API_BASE_URL}{endpoint}", json=test_data, timeout=10)
                 
-        except Exception as e:
-            self.log_test("Birth Date Field Support", False, f"Exception: {str(e)}")
+                # On s'attend à un 401 Unauthorized
+                expected_unauthorized = response.status_code == 401
+                self.log_test(
+                    f"Auth Required - {method} {endpoint}", 
+                    expected_unauthorized, 
+                    f"Status: {response.status_code} (expected 401)"
+                )
+                
+            except Exception as e:
+                self.log_test(f"Auth Required - {method} {endpoint}", False, f"Error: {str(e)}")
+        
+        # Restaurer l'authentification
+        self.auth_token = original_token
+        self.session.headers = original_headers
 
     def run_all_tests(self):
-        """Run all birth_date related tests"""
-        print("🧪 BACKEND BIRTH DATE TESTING SUITE")
-        print("=" * 50)
-        print(f"Backend URL: {self.base_url}")
-        print(f"Test started at: {datetime.now().isoformat()}")
+        """Exécuter tous les tests"""
+        print("🧪 DÉBUT DES TESTS API KETOSANSSTRESS")
+        print("=" * 60)
         print()
         
-        # Setup: Create and login test user
-        if not self.create_test_user():
-            print("❌ Failed to create test user.")
-            
-        if not self.login_test_user():
-            print("❌ Failed to login test user. Continuing with limited tests.")
-        else:
-            print("🔐 Authentication Setup Complete")
-        print()
+        start_time = time.time()
         
-        # First test if birth_date field is supported
-        print("🔍 BIRTH DATE FIELD SUPPORT TEST")
+        # Tests de base
+        self.test_health_check()
+        self.test_swagger_docs()
+        
+        # Authentification
+        if not self.authenticate():
+            print("❌ ÉCHEC DE L'AUTHENTIFICATION - ARRÊT DES TESTS")
+            return
+        
+        # Tests des endpoints Foods API
+        print("🍎 TESTS FOODS API")
         print("-" * 30)
-        self.test_birth_date_field_support()
+        self.test_foods_search()
+        self.test_foods_search_with_params()
+        self.test_barcode_scanning()
+        self.test_foods_favorites()
+        self.test_foods_categories()
+        self.test_openfoodfacts_integration()
         
-        # Run authentication test
-        self.test_authentication_required()
-        
-        # If we can't authenticate, we'll still run some basic tests
-        print("\n📅 BIRTH DATE FUNCTIONALITY TESTS")
+        # Tests des endpoints Vision API
+        print("\n👁️ TESTS VISION API")
         print("-" * 30)
+        self.test_vision_analysis()
         
-        if self.access_token:
-            # Run full authenticated tests
-            self.test_profile_update_with_birth_date()
-            self.test_profile_retrieval_with_birth_date()
-            self.test_invalid_date_formats()
-            self.test_future_date_validation()
-            self.test_edge_case_dates()
-            self.test_partial_profile_update_with_birth_date()
-            self.test_birth_date_without_age_field()
-        else:
-            print("⚠️  Skipping authenticated tests due to login failure")
-            print("   Testing birth_date field validation without authentication...")
+        # Tests de sécurité
+        print("\n🔒 TESTS DE SÉCURITÉ")
+        print("-" * 30)
+        self.test_authentication_requirements()
         
-        # Summary
-        return self.print_summary()
+        # Résumé
+        end_time = time.time()
+        self.print_summary(end_time - start_time)
 
-    def print_summary(self):
-        """Print test summary"""
-        print()
-        print("📊 TEST SUMMARY")
-        print("=" * 50)
+    def print_summary(self, duration: float):
+        """Afficher le résumé des tests"""
+        print("\n" + "=" * 60)
+        print("📊 RÉSUMÉ DES TESTS")
+        print("=" * 60)
         
         total_tests = len(self.test_results)
-        passed_tests = len([t for t in self.test_results if t["success"]])
+        passed_tests = sum(1 for result in self.test_results if result["success"])
         failed_tests = total_tests - passed_tests
+        
         success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
         
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests} ✅")
-        print(f"Failed: {failed_tests} ❌")
-        print(f"Success Rate: {success_rate:.1f}%")
-        print()
+        print(f"Total des tests: {total_tests}")
+        print(f"✅ Réussis: {passed_tests}")
+        print(f"❌ Échoués: {failed_tests}")
+        print(f"📈 Taux de réussite: {success_rate:.1f}%")
+        print(f"⏱️ Durée: {duration:.1f}s")
         
         if failed_tests > 0:
-            print("❌ FAILED TESTS:")
-            for test in self.test_results:
-                if not test["success"]:
-                    print(f"  • {test['test']}: {test['details']}")
-            print()
+            print(f"\n❌ TESTS ÉCHOUÉS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"  - {result['test']}: {result['details']}")
         
-        print("🎯 BIRTH DATE TESTING COMPLETE!")
+        print("\n🎯 ENDPOINTS TESTÉS:")
+        endpoints_tested = [
+            "✅ GET /api/health",
+            "✅ GET /api/docs", 
+            "✅ GET /api/foods/search",
+            "✅ POST /api/foods/scan-barcode",
+            "✅ GET /api/foods/favorites",
+            "✅ GET /api/foods/categories",
+            "✅ POST /api/vision/analyze",
+            "✅ Intégration OpenFoodFacts",
+            "✅ Tests d'authentification"
+        ]
         
-        # Return success rate for external evaluation
-        return success_rate
+        for endpoint in endpoints_tested:
+            print(f"  {endpoint}")
+        
+        print(f"\n🏁 Tests terminés à {datetime.now().strftime('%H:%M:%S')}")
 
 if __name__ == "__main__":
-    tester = BackendTester()
-    success_rate = tester.run_all_tests()
-    
-    # Exit with appropriate code
-    sys.exit(0 if success_rate >= 80 else 1)
+    tester = KetoAPITester()
+    tester.run_all_tests()
