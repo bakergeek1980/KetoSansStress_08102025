@@ -263,60 +263,7 @@ export default function AuthScreen() {
         placeholder="Votre prénom"
       />
 
-      <DateInput
-        label="Date de naissance"
-        value={registerData.birth_date}
-        onChange={(date) => {
-          console.log('🎯 Register Birth Date changé:', date);
-          // Calculer l'âge automatiquement
-          const age = new Date().getFullYear() - date.getFullYear();
-          setRegisterData(prev => ({ 
-            ...prev, 
-            birth_date: date,
-            age: age.toString()
-          }));
-        }}
-        placeholder="Sélectionnez votre date de naissance"
-        maximumDate={new Date()}
-        minimumDate={new Date(1900, 0, 1)}
-      />
-
-      <Select
-        label="Genre"
-        value={registerData.gender}
-        options={[
-          { label: 'Femme', value: 'female' },
-          { label: 'Homme', value: 'male' },
-          { label: 'Autre', value: 'other' },
-        ]}
-        onSelect={(value) => {
-          console.log('🎯 Register Gender changé:', value);
-          setRegisterData(prev => ({ ...prev, gender: value as 'male' | 'female' | 'other' }));
-        }}
-        placeholder="Sélectionner votre genre"
-      />
-
-      <SimpleInput
-        label="Taille (cm)"
-        value={registerData.height}
-        onChangeText={(text) => {
-          console.log('🎯 Register Height changé:', text);
-          setRegisterData(prev => ({ ...prev, height: text }));
-        }}
-        keyboardType="numeric"
-        placeholder="Ex: 170"
-      />
-
-      <SimpleInput
-        label="Poids (kg)"
-        value={registerData.weight}
-        onChangeText={(text) => {
-          console.log('🎯 Register Weight changé:', text);
-          setRegisterData(prev => ({ ...prev, weight: text }));
-        }}
-        keyboardType="decimal-pad"
-        placeholder="Ex: 70.5"
-      />
+      {/* ✅ Champs supplémentaires supprimés - Phase 1 simplifiée */}
 
       <LoadingButton
         title="S'inscrire"
