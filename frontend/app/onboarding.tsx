@@ -716,39 +716,32 @@ export default function OnboardingScreen() {
               {onboardingData.first_name}, voici ton plan personnalisé 🎯
             </Text>
             
-            {/* ✅ Donut Chart avec proportions visuelles */}
+            {/* ✅ Cercle nutritionnel avec vraies couleurs des macros */}
             <View style={styles.nutritionCircleContainer}>
-              <View style={styles.donutChartContainer}>
-                {/* Donut Chart avec segments proportionnels */}
-                <View style={styles.donutChart}>
-                  {/* Segment Lipides 75% */}
-                  <View style={[styles.donutSegment, styles.donutSegmentFats]} />
-                  
-                  {/* Segment Protéines 20% */}
-                  <View style={[styles.donutSegment, styles.donutSegmentProteins]} />
-                  
-                  {/* Segment Glucides 5% */}
-                  <View style={[styles.donutSegment, styles.donutSegmentCarbs]} />
-                </View>
-                
-                {/* Centre avec calories */}
-                <View style={styles.donutCenter}>
+              <View style={styles.macroCircleContainer}>
+                {/* Cercle principal avec calories au centre */}
+                <View style={styles.macroCircleMain}>
                   <Text style={styles.caloriesText}>{nutritionTargets.calories}</Text>
                   <Text style={styles.caloriesLabel}>kcal/jour</Text>
                 </View>
+                
+                {/* Cercles colorés pour chaque macro - pas que du vert ! */}
+                <View style={[styles.macroRing, styles.macroRingFats]} />
+                <View style={[styles.macroRing, styles.macroRingProteins]} />
+                <View style={[styles.macroRing, styles.macroRingCarbs]} />
               </View>
               
               <View style={styles.macrosLegend}>
                 <View style={styles.macroItem}>
                   <View style={[styles.macroColor, { backgroundColor: '#9C27B0' }]} />
-                  <Text style={styles.macroText}>Glucides nets: {nutritionTargets.carbs}g (5%)</Text>
+                  <Text style={styles.macroText}>Glucides: {nutritionTargets.carbs}g (5%)</Text>
                 </View>
                 <View style={styles.macroItem}>
-                  <View style={[styles.macroColor, { backgroundColor: COLORS.primary }]} />
+                  <View style={[styles.macroColor, { backgroundColor: '#4CAF50' }]} />
                   <Text style={styles.macroText}>Protéines: {nutritionTargets.proteins}g (20%)</Text>
                 </View>
                 <View style={styles.macroItem}>
-                  <View style={[styles.macroColor, { backgroundColor: COLORS.accent }]} />
+                  <View style={[styles.macroColor, { backgroundColor: '#FF7043' }]} />
                   <Text style={styles.macroText}>Lipides: {nutritionTargets.fats}g (75%)</Text>
                 </View>
               </View>
