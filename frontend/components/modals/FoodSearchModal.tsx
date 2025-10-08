@@ -208,10 +208,10 @@ export default function FoodSearchModal({
               }
               setFoods(recentFoods);
             } else {
-              setFoods(mockRecent);
+              setFoods([]);
             }
           } catch (error) {
-            setFoods(mockRecent);
+            setFoods([]);
           }
           break;
           
