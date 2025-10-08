@@ -333,7 +333,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
       const ketoScore = calculateKetoScore(manualEntry);
 
       const success = await saveMeal({
-        name: manualEntry.name,
+        name: manualEntry.food_name,
         meal_type: mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
         calories: manualEntry.calories * manualEntry.quantity,
         proteins: manualEntry.protein * manualEntry.quantity,
