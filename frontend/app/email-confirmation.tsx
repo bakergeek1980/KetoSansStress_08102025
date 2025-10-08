@@ -80,6 +80,7 @@ export default function EmailConfirmationScreen() {
   };
 
   const handleBackToAuth = () => {
+    // ✅ Rediriger vers auth avec navigation state pour mode connexion
     router.push('/auth');
   };
 
