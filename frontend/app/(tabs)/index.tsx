@@ -238,6 +238,10 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={styles.appName}>KetoSansStress</Text>
+            {/* ✅ Afficher prénom si disponible */}
+            {user?.first_name && (
+              <Text style={styles.welcomeText}>Bonjour {user.first_name} 👋</Text>
+            )}
             <Text style={styles.dateText}>{getCurrentDate()}</Text>
           </View>
           <TouchableOpacity 
@@ -245,7 +249,10 @@ export default function HomeScreen() {
             onPress={() => router.push('/profile')}
           >
             <View style={styles.logoCircle}>
-              <Text style={styles.logoText}>K</Text>
+              {/* ✅ Afficher initiale du prénom */}
+              <Text style={styles.logoText}>
+                {user?.first_name ? user.first_name[0].toUpperCase() : 'K'}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
