@@ -347,23 +347,41 @@ export default function OnboardingScreen() {
       const success = await completeProfile(completeData, nutritionTargets);
       
       if (success) {
-        await clearProgress();
-        Alert.alert(
-          '🎉 Profil créé !',
-          'Votre plan nutritionnel personnalisé a été créé avec succès.',
-          [
-            {
-              text: 'Commencer',
-              onPress: () => router.replace('/(tabs)')
-            }
-          ]
-        );
+        if (!isEditMode) {
+          // Mode première fois : effacer progression et aller au dashboard
+          await clearProgress();
+          Alert.alert(
+            '🎉 Profil créé !',
+            'Votre plan nutritionnel personnalisé a été créé avec succès.',
+            [
+              {
+                text: 'Commencer',
+                onPress: () => router.replace('/(tabs)')
+              }
+            ]
+          );
+        } else {
+          // Mode édition : retourner aux paramètres avec notification
+          Alert.alert(
+            '✅ Objectifs mis à jour !',
+            'Vos nouveaux objectifs nutritionnels ont été calculés et sauvegardés.',
+            [
+              {
+                text: 'Retour aux paramètres',
+                onPress: () => router.back()
+              }
+            ]
+          );
+        }
       } else {
-        throw new Error('Échec de la création du profil');
+        throw new Error(isEditMode ? 'Échec de la mise à jour' : 'Échec de la création du profil');
       }
     } catch (error) {
-      console.error('Erreur création profil:', error);
-      Alert.alert('Erreur', 'Impossible de créer votre profil. Veuillez réessayer.');
+      console.error('Erreur profil:', error);
+      const errorMessage = isEditMode 
+        ? 'Impossible de mettre à jour vos objectifs. Veuillez réessayer.'
+        : 'Impossible de créer votre profil. Veuillez réessayer.';
+      Alert.alert('Erreur', errorMessage);
     } finally {
       setIsLoading(false);
     }
