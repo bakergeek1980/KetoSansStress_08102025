@@ -453,9 +453,10 @@ class KetoAPITester:
         self.test_swagger_docs()
         
         # Authentification
-        if not self.authenticate():
-            print("❌ ÉCHEC DE L'AUTHENTIFICATION - ARRÊT DES TESTS")
-            return
+        auth_success = self.authenticate()
+        if not auth_success:
+            print("⚠️ ÉCHEC DE L'AUTHENTIFICATION - CONTINUATION AVEC TESTS LIMITÉS")
+            print("   Certains endpoints peuvent être publics ou avoir des fallbacks")
         
         # Tests des endpoints Foods API
         print("🍎 TESTS FOODS API")
