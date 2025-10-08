@@ -15,9 +15,9 @@ from typing import Dict, Any, Optional
 # Configuration de l'API
 API_BASE_URL = "https://keto-journey-1.preview.emergentagent.com/api"
 
-# Données de test
-TEST_USER_EMAIL = "testeur@ketosansstress.com"
-TEST_USER_PASSWORD = "TestKeto123!"
+# Données de test - utiliser un utilisateur existant confirmé
+TEST_USER_EMAIL = "contact@ketosansstress.com"
+TEST_USER_PASSWORD = "SecurePass123!"
 
 # Code-barres de test (produits réels OpenFoodFacts)
 TEST_BARCODES = {
