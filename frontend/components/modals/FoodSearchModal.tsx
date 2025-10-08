@@ -228,10 +228,10 @@ export default function FoodSearchModal({
           setFoods(mockFoods);
           break;
         case 'favorites':
-          setFoods(mockFavorites);
+          setFoods([]);
           break;
         case 'recent':
-          setFoods(mockRecent);
+          setFoods([]);
           break;
         default:
           setFoods([]);
