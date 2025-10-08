@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Optional
 from app.auth.dependencies import get_current_user
 from app.database.connection import get_supabase_client
+from integrations.openfoodfacts import food_search_service  # ✅ Utiliser le service existant
 from pydantic import BaseModel
 import requests
 import logging
