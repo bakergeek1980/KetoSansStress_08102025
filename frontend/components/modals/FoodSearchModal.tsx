@@ -180,10 +180,10 @@ export default function FoodSearchModal({
               const results = await response.json();
               setFoods(results);
             } else {
-              setFoods(mockFavorites);
+              setFoods([]);
             }
           } catch (error) {
-            setFoods(mockFavorites);
+            setFoods([]);
           }
           break;
           
