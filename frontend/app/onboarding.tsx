@@ -844,32 +844,35 @@ export default function OnboardingScreen() {
     );
   };
 
+  // ✅ Fonction pour rendre le slide actuel (pas de ScrollView horizontal)
+  const renderCurrentSlide = () => {
+    switch (currentStep) {
+      case 1: return renderSlide1();
+      case 2: return renderSlide2();
+      case 3: return renderSlide3();
+      case 4: return renderSlide4();
+      case 5: return renderSlide5();
+      case 6: return renderSlide6();
+      case 7: return renderSlide7();
+      case 8: return renderSlide8();
+      case 9: return renderSlide9();
+      default: return renderSlide1();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
+        {/* ✅ Barre de progression toujours visible en haut */}
         {renderProgressBar()}
         
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          scrollEnabled={false}
-          style={styles.slidesContainer}
-        >
-          {renderSlide1()}
-          {renderSlide2()}
-          {renderSlide3()}
-          {renderSlide4()}
-          {renderSlide5()}
-          {renderSlide6()}
-          {renderSlide7()}
-          {renderSlide8()}
-          {renderSlide9()}
-        </ScrollView>
+        {/* ✅ Une seule page visible à la fois - plus de chevauchement */}
+        <View style={styles.slidePageContainer}>
+          {renderCurrentSlide()}
+        </View>
         
         {renderNavigationButtons()}
       </KeyboardAvoidingView>
