@@ -64,11 +64,11 @@ class KetoAPITester:
                 "password": TEST_USER_PASSWORD,
                 "full_name": "Testeur API",
                 "age": 30,
-                "gender": "homme",
+                "gender": "male",
                 "height": 175,
                 "weight": 75,
-                "activity_level": "modere",
-                "goal": "maintien"
+                "activity_level": "moderately_active",
+                "goal": "maintenance"
             }
             
             register_response = self.session.post(
