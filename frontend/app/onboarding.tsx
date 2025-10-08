@@ -925,6 +925,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // ✅ Style spécial pour slides avec ScrollView
+  slideContentWithScroll: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
   avocadoEmoji: {
     fontSize: 64,
     marginBottom: 32,
