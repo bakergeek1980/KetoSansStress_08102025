@@ -168,20 +168,7 @@ export default function OnboardingScreen() {
     }
   };
 
-  const animateToStep = (step: OnboardingStep) => {
-    const offsetX = (step - 1) * SCREEN_WIDTH;
-    
-    Animated.timing(slideAnimation, {
-      toValue: -offsetX,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-
-    scrollViewRef.current?.scrollTo({
-      x: offsetX,
-      animated: true
-    });
-  };
+  // ✅ animateToStep supprimé - plus besoin avec le système de pages
 
   // Validation des étapes
   const validateCurrentStep = (): boolean => {
