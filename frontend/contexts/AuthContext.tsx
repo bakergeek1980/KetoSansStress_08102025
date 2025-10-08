@@ -517,6 +517,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // ✅ Fonction pour sauvegarder la progression de l'onboarding
+  const saveOnboardingProgress = async (step: number, data: any): Promise<boolean> => {
+    try {
+      // Sauvegarder localement dans AsyncStorage
+      const progressData = {
+        step,
+        data,
+        timestamp: new Date().toISOString()
+      };
+      
+      await AsyncStorage.setItem('onboarding_progress', JSON.stringify(progressData));
+      
+      // Sauvegarder aussi sur le serveur si l'utilisateur est connecté
+      if (token) {
+        const response = await fetch(`${API_BASE_URL}/api/auth/save-onboarding-progress`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            onboarding_step: step,
+            data: data
+          }),
+        });
+        
+        if (!response.ok) {
+          console.warn('Failed to save onboarding progress to server, but saved locally');
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Save onboarding progress error:', error);
+      return false;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
