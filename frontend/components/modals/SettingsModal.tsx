@@ -223,6 +223,7 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
           </View>
           <TouchableOpacity style={styles.modifyButton} onPress={handleModifyObjectives}>
             <Text style={styles.modifyButtonText}>Modifier</Text>
+            <ChevronRight color={COLORS.primary} size={16} />
           </TouchableOpacity>
         </TouchableOpacity>
 
