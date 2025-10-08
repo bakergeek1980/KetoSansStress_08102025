@@ -787,3 +787,85 @@ async def delete_user_account(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete account"
         )
+
+def verify_confirmation_token(token: str, supabase: Client) -> Optional[Dict[str, Any]]:
+    """Vérifier et décoder le token de confirmation"""
+    try:
+        # Dans un vrai environnement, nous utiliserions Supabase pour vérifier le token
+        # Pour l'instant, nous allons utiliser une approche simplifiée
+        
+        # Rechercher dans les métadonnées utilisateur un token correspondant
+        # Ceci est une implémentation temporaire - en production, nous utiliserions
+        # les tokens de confirmation Supabase natifs
+        
+        # Pour l'instant, simulons la vérification en cherchant un utilisateur
+        # avec un token correspondant dans les métadonnées
+        result = supabase.table("auth.users").select("*").execute()
+        
+        if result.data:
+            for user in result.data:
+                # Vérifier si le token correspond
+                if user.get("email_confirm_token") == token:
+                    return user
+        
+        return None
+        
+    except Exception as e:
+        logger.error(f"Token verification error: {e}")
+        return None
+
+@router.get("/confirm-email", response_class=HTMLResponse)
+async def confirm_email(
+    token: str = Query(...), 
+    supabase: Client = Depends(get_supabase_client)
+) -> HTMLResponse:
+    """Confirmer l'adresse email via un lien cliqué dans l'email"""
+    try:
+        logger.info(f"Email confirmation attempt with token: {token[:20]}...")
+        
+        # Utiliser l'API Supabase pour vérifier le token de confirmation
+        try:
+            # Essayer de vérifier le token avec Supabase Auth
+            response = supabase.auth.verify_otp({
+                "token": token,
+                "type": "signup"
+            })
+            
+            if response.user:
+                logger.info(f"Email confirmed successfully for user: {response.user.email}")
+                
+                # Récupérer le prénom depuis les métadonnées utilisateur
+                first_name = "utilisateur"
+                if response.user.user_metadata:
+                    first_name = response.user.user_metadata.get("first_name", "utilisateur")
+                
+                # Rendre la page de succès
+                html_content = render_confirmed_page(first_name)
+                return HTMLResponse(content=html_content, status_code=200)
+            else:
+                logger.warning("Invalid confirmation token")
+                error_html = render_error_page("Token de confirmation invalide ou expiré.")
+                return HTMLResponse(content=error_html, status_code=400)
+                
+        except Exception as supabase_error:
+            logger.error(f"Supabase confirmation error: {supabase_error}")
+            
+            # Fallback: essayer une approche alternative
+            # Si le token Supabase échoue, essayer de parser le token manuellement
+            try:
+                # Cette partie pourrait être implémentée selon les besoins spécifiques
+                # Pour l'instant, retourner une erreur générique
+                error_html = render_error_page(
+                    "Impossible de confirmer l'email. Le lien a peut-être expiré."
+                )
+                return HTMLResponse(content=error_html, status_code=400)
+                
+            except Exception as fallback_error:
+                logger.error(f"Fallback confirmation error: {fallback_error}")
+                error_html = render_error_page("Erreur technique lors de la confirmation.")
+                return HTMLResponse(content=error_html, status_code=500)
+        
+    except Exception as e:
+        logger.error(f"Email confirmation error: {e}")
+        error_html = render_error_page(f"Erreur lors de la confirmation: {str(e)}")
+        return HTMLResponse(content=error_html, status_code=500)
