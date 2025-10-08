@@ -218,8 +218,8 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
             <Target color={COLORS.primary} size={24} />
           </View>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingTitle}>Changer objectifs</Text>
-            <Text style={styles.settingValue}>{objective}</Text>
+            <Text style={styles.settingTitle}>Modifier mes objectifs</Text>
+            <Text style={styles.settingValue}>Reprendre le questionnaire</Text>
           </View>
           <TouchableOpacity style={styles.modifyButton} onPress={handleModifyObjectives}>
             <Text style={styles.modifyButtonText}>Modifier</Text>
