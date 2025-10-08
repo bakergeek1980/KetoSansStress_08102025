@@ -8,7 +8,7 @@ import requests
 import json
 from datetime import datetime
 
-BASE_URL = "https://keto-journey-1.preview.emergentagent.com/api"
+BASE_URL = "https://keto-onboard.preview.emergentagent.com/api"
 
 def test_account_deletion_endpoints():
     """Test the account deletion endpoints to identify issues"""

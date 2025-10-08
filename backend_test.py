@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration de l'API
-API_BASE_URL = "https://keto-journey-1.preview.emergentagent.com/api"
+API_BASE_URL = "https://keto-onboard.preview.emergentagent.com/api"
 
 # Données de test - utiliser un utilisateur existant confirmé
 TEST_USER_EMAIL = "contact@ketosansstress.com"

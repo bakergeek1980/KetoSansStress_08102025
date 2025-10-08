@@ -467,7 +467,7 @@ async def request_account_deletion(
             pass
         
         # Send confirmation email
-        confirmation_url = f"https://keto-journey-1.preview.emergentagent.com/confirm-deletion?token={deletion_token}"
+        confirmation_url = f"https://keto-onboard.preview.emergentagent.com/confirm-deletion?token={deletion_token}"
         
         email_subject = "🔴 KetoSansStress - Confirmation de suppression de compte"
         email_html = f"""
