@@ -312,51 +312,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
     return 2;
   };
 
-  const handleManualSubmit = async () => {
-    if (!user) {
-      Alert.alert('Erreur', 'Utilisateur non connecté');
-      return;
-    }
-
-    if (!manualEntry.food_name.trim()) {
-      Alert.alert('Erreur', 'Veuillez saisir le nom du repas');
-      return;
-    }
-
-    if (manualEntry.calories === 0) {
-      Alert.alert('Erreur', 'Veuillez saisir les calories');
-      return;
-    }
-
-    try {
-      const netCarbs = manualEntry.carbohydrates - manualEntry.fiber;
-      const ketoScore = calculateKetoScore(manualEntry);
-
-      const success = await saveMeal({
-        name: manualEntry.food_name,
-        meal_type: mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
-        calories: manualEntry.calories * manualEntry.quantity,
-        proteins: manualEntry.protein * manualEntry.quantity,
-        carbs: manualEntry.carbohydrates * manualEntry.quantity,
-        net_carbs: netCarbs * manualEntry.quantity,
-        total_fat: manualEntry.total_fat * manualEntry.quantity,
-        fiber: manualEntry.fiber * manualEntry.quantity,
-        serving_size: `${manualEntry.quantity} ${manualEntry.unit}`,
-        keto_score: ketoScore,
-      });
-
-      if (success) {
-        Alert.alert('Succès', 'Repas ajouté avec succès!');
-        onMealAdded();
-        handleClose();
-      } else {
-        Alert.alert('Erreur', 'Impossible d\'ajouter le repas');
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout du repas:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'ajout du repas');
-    }
-  };
+  // ✅ Fonction supprimée - maintenant unifiée avec onSubmit
 
   const renderMethodSelection = () => (
     <View style={styles.stepContainer}>
