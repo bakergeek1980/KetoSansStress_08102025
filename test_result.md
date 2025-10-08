@@ -486,7 +486,21 @@ backend:
         agent: "testing"
         comment: "✅ SIMPLIFIED REGISTRATION ENDPOINT COMPREHENSIVE TESTING COMPLETE - 100% SUCCESS RATE! Tested the new simplified registration system that only requires email and password (no first_name or other personal data). All 7 test scenarios passed perfectly: ✅ VALID REGISTRATION: POST /api/auth/register with email and password works correctly, returns user_id, email, and needs_email_confirmation: true ✅ EMAIL VALIDATION: Invalid email format correctly rejected with 422 status ✅ PASSWORD STRENGTH: Weak passwords (like '123') properly rejected with 422 status ✅ REQUIRED FIELDS: Missing email or password correctly rejected with 422 status ✅ DUPLICATE HANDLING: Duplicate email registration handled appropriately with 500 status (rate limiting) ✅ ACCESSIBILITY: Endpoint accessible without authentication as expected ✅ RESPONSE FORMAT: All responses contain required fields (user_id, email, needs_email_confirmation, message). The simplified registration system is production-ready and working perfectly for the new onboarding flow that collects minimal data upfront."
 
-frontend:
+  - task: "Simplified Registration Frontend Form"
+    implemented: true
+    working: true
+    file: "frontend/app/auth.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Simplified registration form by removing 'Prénom' field. Modified registerData state, validation logic, and API data preparation to only include email, password, and confirmPassword. Updated form rendering to display only essential fields."
+      - working: true
+        agent: "main"
+        comment: "COMPLETED: Successfully simplified the registration form as requested. The form now contains only Email, Password, Confirm Password fields, plus the 'S'inscrire' button and 'Se connecter' link. Removed the 'Prénom' field completely from both frontend state and backend API calls."
+
   - task: "Authentication System with JWT"
     implemented: true
     working: true
