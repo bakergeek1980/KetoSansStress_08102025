@@ -97,7 +97,7 @@ export default function AuthScreen() {
     
     try {
       // ✅ Validation simplifiée - Phase 1 seulement
-      const requiredFields = ['email', 'password', 'confirmPassword', 'first_name'];
+      const requiredFields = ['email', 'password', 'confirmPassword'];
       const missingFields = requiredFields.filter(field => {
         const value = registerData[field as keyof typeof registerData];
         return !value || value === '';
