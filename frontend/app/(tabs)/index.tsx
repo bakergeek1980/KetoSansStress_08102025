@@ -446,6 +446,12 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     letterSpacing: -1,
   },
+  welcomeText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+    fontWeight: '600',
+  },
   dateText: {
     fontSize: 14,
     color: COLORS.textSecondary,
