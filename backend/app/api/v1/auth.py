@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from datetime import date, datetime, timedelta
 from supabase import Client
 from app.database.connection import get_supabase_client
