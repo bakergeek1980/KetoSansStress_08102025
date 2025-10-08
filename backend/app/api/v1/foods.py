@@ -219,9 +219,12 @@ async def get_recent_searches(
             {"query": "œufs", "searched_at": datetime.now().isoformat()}
         ]
 
+class BarcodeScanRequest(BaseModel):
+    barcode: str
+
 @router.post("/scan-barcode", response_model=BarcodeScanResult)
 async def scan_barcode(
-    barcode: str,
+    request: BarcodeScanRequest,  # ✅ Accepter le barcode dans le body
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -229,10 +232,10 @@ async def scan_barcode(
     """
     try:
         # Rechercher dans OpenFoodFacts par code-barres
-        food_data = await get_product_by_barcode(barcode)
+        food_data = await get_product_by_barcode(request.barcode)
         
         return BarcodeScanResult(
-            barcode=barcode,
+            barcode=request.barcode,
             food_data=food_data,
             found=food_data is not None
         )
