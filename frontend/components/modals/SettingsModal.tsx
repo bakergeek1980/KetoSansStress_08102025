@@ -113,16 +113,9 @@ export default function SettingsModal({ visible, onClose }: SettingsModalProps) 
   };
 
   const handleModifyObjectives = () => {
-    Alert.alert(
-      'Changer objectifs',
-      'Sélectionnez votre type de régime alimentaire',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Keto', onPress: () => setObjective('Keto') },
-        { text: 'Paléo', onPress: () => setObjective('Paléo') },
-        { text: 'Végétarien', onPress: () => setObjective('Végétarien') }
-      ]
-    );
+    // ✅ Fermer le modal et rediriger vers le questionnaire d'onboarding en mode édition
+    onClose();
+    router.push('/onboarding?mode=edit');
   };
 
   const handleCustomerService = () => {
