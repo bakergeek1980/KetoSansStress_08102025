@@ -134,6 +134,35 @@ class EmailConfirmationRequest(BaseModel):
 class ResendConfirmationRequest(BaseModel):
     email: EmailStr
 
+class OnboardingData(BaseModel):
+    """Données collectées lors de l'onboarding"""
+    first_name: str = Field(..., min_length=1, max_length=100)
+    sex: str = Field(..., pattern="^(male|female|other)$")
+    goal: str = Field(..., pattern="^(weight_loss|weight_gain|maintenance|muscle_gain|fat_loss)$")
+    current_weight: float = Field(..., ge=30, le=300)
+    target_weight: Optional[float] = Field(None, ge=30, le=300)
+    height: float = Field(..., ge=100, le=250)
+    activity_level: str = Field(..., pattern="^(sedentary|lightly_active|moderately_active|very_active|extremely_active)$")
+    birth_date: date = Field(..., description="Date de naissance")
+    food_restrictions: Optional[List[str]] = Field(default_factory=list)
+
+class OnboardingProgressData(BaseModel):
+    """Sauvegarde progressive de l'onboarding"""
+    onboarding_step: int = Field(..., ge=1, le=9)
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+class NutritionTargets(BaseModel):
+    """Objectifs nutritionnels calculés"""
+    calories: int = Field(..., ge=800, le=5000)
+    proteins: int = Field(..., ge=20, le=300)
+    carbs: int = Field(..., ge=5, le=100)
+    fats: int = Field(..., ge=30, le=400)
+
+class CompleteOnboardingRequest(BaseModel):
+    """Requête pour finaliser l'onboarding"""
+    onboarding_data: OnboardingData
+    nutrition_targets: Optional[NutritionTargets] = None
+
 # Endpoint de test supprimé - utiliser uniquement l'endpoint principal /register
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
