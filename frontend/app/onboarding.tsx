@@ -160,7 +160,8 @@ export default function OnboardingScreen() {
   };
 
   const goToNextStep = () => {
-    if (currentStep < 9) {
+    // ✅ Valider avant de passer à l'étape suivante
+    if (validateCurrentStep() && currentStep < 9) {
       setCurrentStep(prev => prev + 1);
     }
   };
