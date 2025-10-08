@@ -35,11 +35,13 @@ interface User {
   
   // ✅ Nouveaux champs pour onboarding
   profile_completed?: boolean;
+  onboarding_completed?: boolean;
   onboarding_step?: number;
   sex?: string;
   current_weight?: number;
   target_weight?: number;
   food_restrictions?: string[];
+  email_confirmed_at?: string;
   
   token?: string;
 }
