@@ -62,7 +62,8 @@ interface DailySummary {
   keto_status: string;
 }
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8001';
+// ✅ URL de base de l'API
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
 
 export const useApi = () => {
   const { token } = useAuth();
