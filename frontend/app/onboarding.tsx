@@ -115,11 +115,19 @@ export default function OnboardingScreen() {
   }, [onboardingData]);
 
   const saveProgress = async () => {
+    // ✅ Ne pas sauvegarder la progression en mode édition
+    if (isEditMode) return;
+    
     try {
+      // Sauvegarder localement
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
         step: currentStep,
         data: onboardingData
       }));
+      
+      // Sauvegarder aussi sur le serveur
+      await saveOnboardingProgress(currentStep, onboardingData);
+      
     } catch (error) {
       console.error('Erreur sauvegarde progression:', error);
     }
