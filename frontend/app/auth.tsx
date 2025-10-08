@@ -51,18 +51,12 @@ export default function AuthScreen() {
     password: '',
   });
 
+  // ✅ État simplifié pour l'inscription - Phase 1 seulement
   const [registerData, setRegisterData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
-    full_name: '',
-    birth_date: null as Date | null,
-    age: '',
-    gender: 'male' as 'male' | 'female' | 'other',
-    height: '',
-    weight: '',
-    activity_level: 'moderately_active' as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active',
-    goal: 'weight_loss' as 'weight_loss' | 'weight_gain' | 'maintenance' | 'muscle_gain' | 'fat_loss',
+    first_name: '', // ✅ Renommé pour cohérence avec onboarding
   });
 
   // Formulaires supprimés - maintenant utilisation d'état local
