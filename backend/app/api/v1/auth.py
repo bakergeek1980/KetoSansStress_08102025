@@ -140,17 +140,11 @@ async def register_user(
 ) -> Dict[str, Any]:
     """Register a new user with Supabase Auth."""
     try:
-        # Préparer les options pour Supabase
+        # Préparer les options pour Supabase (inscription simplifiée)
         auth_options = {
             "data": {
-                "full_name": user_data.full_name,
-                "age": user_data.age,
-                "gender": user_data.gender,
-                "height": float(user_data.height),
-                "weight": float(user_data.weight),
-                "activity_level": user_data.activity_level,
-                "goal": user_data.goal,
-                "timezone": user_data.timezone,
+                "profile_completed": False,  # Indiquer que le profil n'est pas complet
+                "onboarding_step": 0,  # L'utilisateur n'a pas encore commencé l'onboarding
             }
         }
         
