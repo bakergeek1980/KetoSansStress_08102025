@@ -117,7 +117,6 @@ export default function AuthScreen() {
       const apiData = {
         email: registerData.email,
         password: registerData.password,
-        first_name: registerData.first_name, // ✅ Utilise first_name au lieu de full_name
       };
       
       const result = await register(apiData);
