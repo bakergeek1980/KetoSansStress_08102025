@@ -522,8 +522,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Mettre à jour l'utilisateur local avec les nouvelles données
-        await updateUser(data.user);
+        // ✅ CRITIQUE : Mettre à jour l'utilisateur local avec first_name
+        const updatedUser = {
+          ...user,
+          ...data.user,
+          first_name: onboardingData.first_name, // ✅ Garantir que first_name est mis à jour
+          profile_completed: true,
+          onboarding_completed: true,
+        };
+        
+        setUser(updatedUser);
+        await AsyncStorage.setItem('user_data', JSON.stringify(updatedUser));
+        
         Alert.alert('Succès', 'Profil complété avec succès!');
         return true;
       } else {
