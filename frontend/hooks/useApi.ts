@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
+import Constants from 'expo-constants';
 import { useAuth } from './useAuth';
 import { Food, MealData, BarcodeScanResponse, NutritionalInfo } from '../types/food';  // ✅ Utiliser les types unifiés
 
