@@ -342,7 +342,14 @@ class KetoAPITester:
     def test_foods_categories(self):
         """Test de l'endpoint des catégories d'aliments"""
         try:
+            # Test sans authentification d'abord (peut être public)
+            temp_headers = self.session.headers.copy()
+            self.session.headers.pop("Authorization", None)
+            
             response = self.session.get(f"{API_BASE_URL}/foods/categories", timeout=10)
+            
+            # Restaurer les headers
+            self.session.headers = temp_headers
             
             if response.status_code == 200:
                 data = response.json()
