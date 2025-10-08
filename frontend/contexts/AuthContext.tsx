@@ -482,7 +482,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      const response = await fetch(`${API_BASE_URL}/api/auth/complete-profile`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/complete-onboarding`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
