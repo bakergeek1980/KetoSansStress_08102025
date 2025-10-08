@@ -572,6 +572,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     confirmEmail,
     resendConfirmationEmail,
     completeProfile,
+    saveOnboardingProgress,
   };
 
   return (
