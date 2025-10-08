@@ -253,14 +253,14 @@ export default function AuthScreen() {
       />
 
       <SimpleInput
-        label="Nom complet"
-        value={registerData.full_name}
+        label="Prénom"
+        value={registerData.first_name}
         onChangeText={(text) => {
-          console.log('🎯 Register Full Name changé:', text);
-          setRegisterData(prev => ({ ...prev, full_name: text }));
+          console.log('🎯 Register First Name changé:', text);
+          setRegisterData(prev => ({ ...prev, first_name: text }));
         }}
         leftIcon="person"
-        placeholder="Prénom Nom"
+        placeholder="Votre prénom"
       />
 
       <DateInput
