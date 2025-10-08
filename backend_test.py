@@ -43,40 +43,60 @@ class OnboardingTester:
     def setup_test_user(self) -> bool:
         """Create and authenticate a test user"""
         try:
-            # Register test user
+            # Try to login first in case user already exists
+            login_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
+            
+            login_response = self.session.post(f"{BASE_URL}/auth/login", json=login_data, timeout=30)
+            
+            if login_response.status_code == 200:
+                login_result = login_response.json()
+                self.access_token = login_result["access_token"]
+                self.user_id = login_result["user"]["id"]
+                
+                # Set authorization header for future requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.access_token}"
+                })
+                
+                self.log_test_result("Test User Setup", True, f"User authenticated (existing): {TEST_EMAIL}")
+                return True
+            
+            # If login fails, try to register
             register_data = {
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
             }
             
-            response = self.session.post(f"{BASE_URL}/auth/register", json=register_data)
-            
-            if response.status_code in [201, 409]:  # Created or already exists
-                # Login to get access token
-                login_data = {
-                    "email": TEST_EMAIL,
-                    "password": TEST_PASSWORD
-                }
+            try:
+                response = self.session.post(f"{BASE_URL}/auth/register", json=register_data, timeout=30)
                 
-                login_response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
-                
-                if login_response.status_code == 200:
-                    login_result = login_response.json()
-                    self.access_token = login_result["access_token"]
-                    self.user_id = login_result["user"]["id"]
+                if response.status_code in [201, 409, 500]:  # Created, already exists, or timeout/rate limit
+                    # Try login again after registration attempt
+                    login_response = self.session.post(f"{BASE_URL}/auth/login", json=login_data, timeout=30)
                     
-                    # Set authorization header for future requests
-                    self.session.headers.update({
-                        "Authorization": f"Bearer {self.access_token}"
-                    })
-                    
-                    self.log_test_result("Test User Setup", True, f"User authenticated: {TEST_EMAIL}")
-                    return True
+                    if login_response.status_code == 200:
+                        login_result = login_response.json()
+                        self.access_token = login_result["access_token"]
+                        self.user_id = login_result["user"]["id"]
+                        
+                        # Set authorization header for future requests
+                        self.session.headers.update({
+                            "Authorization": f"Bearer {self.access_token}"
+                        })
+                        
+                        self.log_test_result("Test User Setup", True, f"User authenticated (after registration): {TEST_EMAIL}")
+                        return True
+                    else:
+                        self.log_test_result("Test User Setup", False, f"Login failed after registration: {login_response.status_code}")
+                        return False
                 else:
-                    self.log_test_result("Test User Setup", False, f"Login failed: {login_response.status_code}")
+                    self.log_test_result("Test User Setup", False, f"Registration failed: {response.status_code}")
                     return False
-            else:
-                self.log_test_result("Test User Setup", False, f"Registration failed: {response.status_code}")
+            except Exception as reg_e:
+                self.log_test_result("Test User Setup", False, f"Registration exception: {str(reg_e)}")
                 return False
                 
         except Exception as e:
