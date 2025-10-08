@@ -178,11 +178,13 @@ export default function FoodSearchModal({
             
             if (response.ok) {
               const results = await response.json();
-              setFoods(results);
+              setFoods(results || []);
             } else {
+              console.warn('Failed to fetch favorites:', response.status);
               setFoods([]);
             }
           } catch (error) {
+            console.error('Favorites fetch error:', error);
             setFoods([]);
           }
           break;
