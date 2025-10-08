@@ -152,12 +152,6 @@ async def register_user(
         if confirm_email:
             auth_options["redirect_to"] = "https://ketosansstress.app/confirm"
             auth_options["email_redirect_to"] = "https://ketosansstress.app/confirm"
-            # Ajouter le nom d'utilisateur pour personnaliser l'email
-            auth_options["data"] = {
-                "full_name": user_data.full_name,
-                "age": user_data.age,
-                "gender": user_data.gender
-            }
 
         # Register user with Supabase Auth
         auth_response = supabase.auth.sign_up({
