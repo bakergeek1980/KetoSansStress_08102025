@@ -34,6 +34,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useHealthApp } from '../../hooks/useHealthApp';
+import { useRouter } from 'expo-router';
 import LoadingButton from '../forms/LoadingButton';
 
 const COLORS = {
