@@ -125,6 +125,7 @@ export default function BarcodeScannerModal({
 
     try {
       const { token } = user;
+      // ✅ Correction: utiliser POST avec barcode dans le body comme attendu par le backend
       const response = await fetch(`${API_BASE_URL}/api/foods/scan-barcode`, {
         method: 'POST',
         headers: {
