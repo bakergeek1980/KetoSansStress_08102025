@@ -528,6 +528,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     requestPasswordReset,
     confirmEmail,
     resendConfirmationEmail,
+    completeProfile,
   };
 
   return (
