@@ -56,7 +56,6 @@ export default function AuthScreen() {
     email: '',
     password: '',
     confirmPassword: '',
-    first_name: '', // ✅ Renommé pour cohérence avec onboarding
   });
 
   // Formulaires supprimés - maintenant utilisation d'état local
