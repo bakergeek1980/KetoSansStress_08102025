@@ -43,6 +43,14 @@ export default function EmailConfirmationScreen() {
   const [emailSent, setEmailSent] = useState(false);
   const [sendCount, setSendCount] = useState(0);
 
+  // ✅ Rediriger si l'email est déjà confirmé
+  useEffect(() => {
+    if (user && user.email_confirmed_at) {
+      console.log('✅ Email already confirmed, redirecting to tabs');
+      router.replace('/(tabs)');
+    }
+  }, [user]);
+
   const validateEmail = (emailValue: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
