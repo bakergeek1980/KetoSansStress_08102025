@@ -1,18 +1,34 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for KetoSansStress Profile Update with Birth Date
-Focus: Testing birth_date handling in profile update functionality
+Tests complets pour les nouvelles fonctionnalités de l'API KetoSansStress
+Test des endpoints Foods API et Vision API après corrections
 """
 
 import requests
 import json
-import sys
+import base64
+import time
 import os
-from datetime import datetime, date, timedelta
+from datetime import datetime
 from typing import Dict, Any, Optional
 
-# Configuration
-BACKEND_URL = "https://keto-journey-1.preview.emergentagent.com/api"
+# Configuration de l'API
+API_BASE_URL = "https://keto-journey-1.preview.emergentagent.com/api"
+
+# Données de test
+TEST_USER_EMAIL = "testeur@ketosansstress.com"
+TEST_USER_PASSWORD = "TestKeto123!"
+
+# Code-barres de test (produits réels OpenFoodFacts)
+TEST_BARCODES = {
+    "nutella": "3017620425035",  # Nutella
+    "ferrero_rocher": "8000500037454",  # Ferrero Rocher
+    "camembert": "3228021170015",  # President Camembert
+    "invalid": "0000000000000"  # Code-barres invalide
+}
+
+# Image de test en base64 (petite image 1x1 pixel)
+TEST_IMAGE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
 class BackendTester:
     def __init__(self):
