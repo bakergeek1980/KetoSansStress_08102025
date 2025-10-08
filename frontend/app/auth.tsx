@@ -126,7 +126,7 @@ export default function AuthScreen() {
           // ✅ Utiliser le modal de succès au lieu d'Alert.alert
           setRegistrationInfo({ 
             email: registerData.email, 
-            fullName: registerData.first_name 
+            fullName: '' 
           });
           setShowSuccessModal(true);
         } else {
