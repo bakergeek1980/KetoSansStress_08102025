@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the KetoSansStress app after major backend migration from MongoDB to Supabase. Verify that all legacy endpoints still work with the new architecture while new Supabase authentication and meal management features are functional. Frontend should continue to display all widgets correctly with data from the new backend."
+user_problem_statement: "Simplify the registration form in KetoSansStress app to only contain Email, Password, and Confirm Password fields, removing the 'Prénom' field. The registration should work with just these essential credentials, and users will complete their profile later through the onboarding flow."
 
 backend:
   - task: "Health Check Endpoint"
