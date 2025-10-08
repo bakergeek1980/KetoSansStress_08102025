@@ -318,7 +318,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
       return;
     }
 
-    if (!manualEntry.name.trim()) {
+    if (!manualEntry.food_name.trim()) {
       Alert.alert('Erreur', 'Veuillez saisir le nom du repas');
       return;
     }
