@@ -135,6 +135,7 @@ app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(meals_router, prefix=settings.api_v1_prefix)
 app.include_router(preferences_router, prefix=settings.api_v1_prefix)
 app.include_router(foods_router, prefix=settings.api_v1_prefix, tags=["foods"])
+app.include_router(vision_router, prefix=settings.api_v1_prefix, tags=["vision"])  # ✅ Router vision ajouté
 
 # Legacy AI meal analysis function (will be migrated to separate service)
 async def analyze_meal_with_ai(image_base64: str) -> NutritionalInfo:
