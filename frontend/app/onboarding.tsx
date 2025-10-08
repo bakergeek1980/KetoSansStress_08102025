@@ -155,19 +155,16 @@ export default function OnboardingScreen() {
   };
 
   // Navigation entre slides
-  const goToNextStep = () => {
-    if (validateCurrentStep()) {
-      const nextStep = (currentStep + 1) as OnboardingStep;
-      setCurrentStep(nextStep);
-      animateToStep(nextStep);
+  // ✅ Navigation simplifiée sans ScrollView
+  const goToPreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
     }
   };
 
-  const goToPreviousStep = () => {
-    if (currentStep > 1) {
-      const prevStep = (currentStep - 1) as OnboardingStep;
-      setCurrentStep(prevStep);
-      animateToStep(prevStep);
+  const goToNextStep = () => {
+    if (currentStep < 9) {
+      setCurrentStep(prev => prev + 1);
     }
   };
 
