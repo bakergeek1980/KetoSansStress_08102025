@@ -167,29 +167,8 @@ async def register_user(
             # Supabase envoie automatiquement l'email de confirmation lors du sign_up
             # si email_confirm est activé dans les settings
             
-            # Si pas de confirmation nécessaire, créer le profil immédiatement
-            if not needs_email_confirmation:
-                # Create user profile in our users table
-                user_profile_data = {
-                    "id": auth_response.user.id,
-                    "email": user_data.email,
-                    "full_name": user_data.full_name,
-                    "age": user_data.age,
-                    "gender": user_data.gender,
-                    "height": float(user_data.height),
-                    "weight": float(user_data.weight),
-                    "activity_level": user_data.activity_level,
-                    "goal": user_data.goal,
-                    "timezone": user_data.timezone,
-                    "created_at": "now()",
-                    "updated_at": "now()"
-                }
-
-                try:
-                    profile_result = supabase.table("users").insert(user_profile_data).execute()
-                    logger.info(f"User profile created: {auth_response.user.id}")
-                except Exception as e:
-                    logger.warning(f"Failed to create user profile: {e}")
+            # Profil simplifié - les données complètes seront collectées lors de l'onboarding
+            # Pas de création de profil détaillé pour le moment
 
             return {
                 "message": "User registered successfully" if not needs_email_confirmation else "Registration successful - email confirmation required",
