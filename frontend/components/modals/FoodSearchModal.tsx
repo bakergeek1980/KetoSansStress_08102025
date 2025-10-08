@@ -111,49 +111,7 @@ const mockFoods: Food[] = [
   },
 ];
 
-const mockFavorites: Food[] = [
-  {
-    id: '1',
-    name: 'Avocat',
-    calories_per_100g: 160,
-    proteins_per_100g: 2,
-    carbs_per_100g: 9,
-    fats_per_100g: 15,
-    fiber_per_100g: 7,
-    is_favorite: true,
-  },
-  {
-    id: '2',
-    name: 'Saumon',
-    calories_per_100g: 208,
-    proteins_per_100g: 25,
-    carbs_per_100g: 0,
-    fats_per_100g: 12,
-    fiber_per_100g: 0,
-    is_favorite: true,
-  },
-];
-
-const mockRecent: Food[] = [
-  {
-    id: '3',
-    name: 'Œufs',
-    calories_per_100g: 155,
-    proteins_per_100g: 13,
-    carbs_per_100g: 1,
-    fats_per_100g: 11,
-    fiber_per_100g: 0,
-  },
-  {
-    id: '4',
-    name: 'Épinards',
-    calories_per_100g: 23,
-    proteins_per_100g: 3,
-    carbs_per_100g: 4,
-    fats_per_100g: 0,
-    fiber_per_100g: 2,
-  },
-];
+// ✅ Remplacer les mock data par de vraies données (sera géré par les fonctions fetch ci-dessous)
 
 export default function FoodSearchModal({ 
   visible, 
