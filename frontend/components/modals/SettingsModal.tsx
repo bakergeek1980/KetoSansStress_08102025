@@ -60,6 +60,7 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ visible, onClose }: SettingsModalProps) {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const { 
     isConnected: healthAppConnected, 
     permissions, 
