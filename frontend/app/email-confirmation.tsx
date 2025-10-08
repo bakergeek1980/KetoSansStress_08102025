@@ -261,6 +261,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    paddingBottom: 120, // ✅ Espace pour éviter le chevauchement avec les boutons
   },
   header: {
     paddingHorizontal: 24,
