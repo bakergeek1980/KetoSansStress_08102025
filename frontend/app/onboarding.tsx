@@ -619,12 +619,17 @@ export default function OnboardingScreen() {
 
   const renderSlide7 = () => (
     <View style={styles.slideContainer}>
-      <View style={styles.slideContent}>
+      <View style={styles.slideContentWithScroll}>
         <Text style={styles.avocadoEmoji}>🚫</Text>
         <Text style={styles.slideTitle}>Lequel de ces aliments ne mangez-vous pas ?</Text>
         <Text style={styles.slideSubtitle}>(sélection multiple possible)</Text>
         
-        <View style={styles.restrictionsContainer}>
+        {/* ✅ ScrollView pour éviter les problèmes de dimensionnement */}
+        <ScrollView 
+          style={styles.restrictionsScrollView}
+          contentContainerStyle={styles.restrictionsContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {FOOD_RESTRICTION_OPTIONS.map((option) => {
             const isSelected = onboardingData.food_restrictions?.includes(option.id) || false;
             
@@ -666,7 +671,7 @@ export default function OnboardingScreen() {
               </TouchableOpacity>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
     </View>
   );
