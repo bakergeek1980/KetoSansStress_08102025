@@ -73,9 +73,7 @@ export default function OnboardingScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
-  // Animation
-  const slideAnimation = useRef(new Animated.Value(0)).current;
-  // ✅ Plus besoin de scrollViewRef avec le système de pages
+  // ✅ Plus besoin d'animation ni de scrollViewRef avec le système de pages
 
   // Initialisation avec les données utilisateur
   useEffect(() => {
