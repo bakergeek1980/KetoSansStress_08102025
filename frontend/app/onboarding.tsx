@@ -1157,6 +1157,60 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  // ✅ Nouveaux styles pour le Donut Chart
+  donutChartContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  donutChart: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: COLORS.surface,
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  donutSegment: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+  },
+  donutSegmentFats: {
+    backgroundColor: 'transparent',
+    borderWidth: 30,
+    borderColor: COLORS.accent, // Orange/rouge pour lipides 75%
+    transform: [{ rotate: '0deg' }],
+  },
+  donutSegmentProteins: {
+    backgroundColor: 'transparent',
+    borderWidth: 12,
+    borderColor: COLORS.primary, // Vert pour protéines 20%
+    transform: [{ rotate: '270deg' }],
+  },
+  donutSegmentCarbs: {
+    backgroundColor: 'transparent',
+    borderWidth: 6,
+    borderColor: '#9C27B0', // Violet pour glucides 5%
+    transform: [{ rotate: '342deg' }],
+  },
+  donutCenter: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: 30,
+    left: 30,
+  },
   caloriesText: {
     fontSize: 32,
     fontWeight: 'bold',
