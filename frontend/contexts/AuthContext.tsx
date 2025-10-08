@@ -65,6 +65,9 @@ interface AuthContextType {
   
   // ✅ Nouvelle fonction pour finaliser le profil onboarding
   completeProfile: (onboardingData: OnboardingData, nutritionTargets: NutritionTargets) => Promise<boolean>;
+  
+  // ✅ Fonction pour sauvegarder la progression de l'onboarding
+  saveOnboardingProgress: (step: number, data: any) => Promise<boolean>;
 }
 
 interface RegisterData {
