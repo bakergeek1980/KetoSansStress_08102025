@@ -665,7 +665,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Secure Account Deletion with Email Confirmation"
+    - "Complete Onboarding Backend API"
+    - "Onboarding Progress Tracking API"
+    - "Email Confirmation HTML Pages"
   stuck_tasks:
     - "Secure Account Deletion with Email Confirmation"
   test_all: false
