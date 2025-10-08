@@ -114,18 +114,11 @@ export default function AuthScreen() {
         return;
       }
       
-      // Préparer les données pour l'API
+      // ✅ Préparer les données simplifiées pour l'API - Phase 1
       const apiData = {
         email: registerData.email,
         password: registerData.password,
-        full_name: registerData.full_name,
-        age: parseInt(registerData.age) || 0,
-        birth_date: registerData.birth_date ? registerData.birth_date.toISOString().split('T')[0] : null,
-        gender: registerData.gender,
-        height: parseInt(registerData.height) || 0,
-        weight: parseFloat(registerData.weight) || 0,
-        activity_level: registerData.activity_level,
-        goal: registerData.goal,
+        first_name: registerData.first_name, // ✅ Utilise first_name au lieu de full_name
       };
       
       const result = await register(apiData);
