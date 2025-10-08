@@ -898,3 +898,179 @@ async def confirm_email(
         logger.error(f"Email confirmation error: {e}")
         error_html = render_error_page(f"Erreur lors de la confirmation: {str(e)}")
         return HTMLResponse(content=error_html, status_code=500)
+
+def calculate_nutrition_targets(onboarding_data: OnboardingData) -> NutritionTargets:
+    """Calculer les objectifs nutritionnels basés sur les données d'onboarding"""
+    
+    # Calculer l'âge à partir de la date de naissance
+    today = datetime.now().date()
+    age = today.year - onboarding_data.birth_date.year - (
+        (today.month, today.day) < (onboarding_data.birth_date.month, onboarding_data.birth_date.day)
+    )
+    
+    # Facteurs d'activité
+    activity_factors = {
+        "sedentary": 1.2,
+        "lightly_active": 1.375,
+        "moderately_active": 1.55,
+        "very_active": 1.725,
+        "extremely_active": 1.9
+    }
+    
+    # Calcul du BMR (Basal Metabolic Rate) avec l'équation de Mifflin-St Jeor
+    if onboarding_data.sex == "male":
+        bmr = 10 * onboarding_data.current_weight + 6.25 * onboarding_data.height - 5 * age + 5
+    else:  # female
+        bmr = 10 * onboarding_data.current_weight + 6.25 * onboarding_data.height - 5 * age - 161
+    
+    # Calcul des calories totales (TDEE)
+    tdee = bmr * activity_factors.get(onboarding_data.activity_level, 1.55)
+    
+    # Ajustement selon l'objectif
+    goal_adjustments = {
+        "weight_loss": -500,  # Déficit de 500 cal/jour = ~0.5kg/semaine
+        "weight_gain": +500,  # Surplus de 500 cal/jour = ~0.5kg/semaine
+        "maintenance": 0,
+        "muscle_gain": +300,
+        "fat_loss": -300
+    }
+    
+    target_calories = int(tdee + goal_adjustments.get(onboarding_data.goal, -500))
+    
+    # Macros pour régime cétogène (5% glucides, 25% protéines, 70% lipides)
+    target_carbs = int((target_calories * 0.05) / 4)  # 4 cal/g
+    target_proteins = int((target_calories * 0.25) / 4)  # 4 cal/g  
+    target_fats = int((target_calories * 0.70) / 9)  # 9 cal/g
+    
+    # Limites de sécurité
+    target_calories = max(800, min(5000, target_calories))
+    target_carbs = max(5, min(100, target_carbs))
+    target_proteins = max(20, min(300, target_proteins))
+    target_fats = max(30, min(400, target_fats))
+    
+    return NutritionTargets(
+        calories=target_calories,
+        proteins=target_proteins,
+        carbs=target_carbs,
+        fats=target_fats
+    )
+
+@router.post("/complete-onboarding", status_code=status.HTTP_200_OK)
+async def complete_onboarding(
+    request: CompleteOnboardingRequest,
+    current_user: User = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase_client)
+) -> Dict[str, Any]:
+    """Finaliser le processus d'onboarding avec toutes les données collectées"""
+    try:
+        onboarding_data = request.onboarding_data
+        
+        # Calculer les objectifs nutritionnels si pas fournis
+        nutrition_targets = request.nutrition_targets
+        if not nutrition_targets:
+            nutrition_targets = calculate_nutrition_targets(onboarding_data)
+        
+        # Préparer les données pour la mise à jour
+        user_update_data = {
+            "first_name": onboarding_data.first_name,
+            "full_name": onboarding_data.first_name,  # Utiliser first_name comme full_name pour l'instant
+            "sex": onboarding_data.sex,
+            "gender": onboarding_data.sex,  # Compatibilité
+            "current_weight": float(onboarding_data.current_weight),
+            "weight": float(onboarding_data.current_weight),  # Compatibilité
+            "target_weight": float(onboarding_data.target_weight) if onboarding_data.target_weight else None,
+            "height": float(onboarding_data.height),
+            "activity_level": onboarding_data.activity_level,
+            "goal": onboarding_data.goal,
+            "birth_date": onboarding_data.birth_date.isoformat(),
+            "food_restrictions": onboarding_data.food_restrictions or [],
+            "onboarding_completed": True,
+            "onboarding_step": 9,
+            "target_calories": nutrition_targets.calories,
+            "target_protein": nutrition_targets.proteins,
+            "target_carbs": nutrition_targets.carbs,
+            "target_fat": nutrition_targets.fats,
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        # Calculer l'âge à partir de la date de naissance
+        today = datetime.now().date()
+        age = today.year - onboarding_data.birth_date.year - (
+            (today.month, today.day) < (onboarding_data.birth_date.month, onboarding_data.birth_date.day)
+        )
+        user_update_data["age"] = age
+        
+        # Mettre à jour le profil utilisateur dans Supabase
+        result = supabase.table("users").update(user_update_data).eq("id", current_user.id).execute()
+        
+        if result.data:
+            logger.info(f"Onboarding completed successfully for user: {current_user.id}")
+            
+            return {
+                "success": True,
+                "message": "Onboarding complété avec succès !",
+                "user": {
+                    "id": current_user.id,
+                    "onboarding_completed": True,
+                    "nutrition_targets": {
+                        "calories": nutrition_targets.calories,
+                        "proteins": nutrition_targets.proteins,
+                        "carbs": nutrition_targets.carbs,
+                        "fats": nutrition_targets.fats
+                    }
+                }
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Impossible de sauvegarder les données d'onboarding"
+            )
+        
+    except Exception as e:
+        logger.error(f"Complete onboarding error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la finalisation de l'onboarding: {str(e)}"
+        )
+
+@router.patch("/save-onboarding-progress", status_code=status.HTTP_200_OK)
+async def save_onboarding_progress(
+    progress: OnboardingProgressData,
+    current_user: User = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase_client)
+) -> Dict[str, Any]:
+    """Sauvegarder la progression de l'onboarding"""
+    try:
+        # Mettre à jour l'étape d'onboarding
+        update_data = {
+            "onboarding_step": progress.onboarding_step,
+            "onboarding_started_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        # Si des données partielles sont fournies, les sauvegarder aussi
+        if progress.data:
+            for key, value in progress.data.items():
+                if key in ["first_name", "sex", "current_weight", "target_weight", "height", "activity_level", "goal", "birth_date"]:
+                    update_data[key] = value
+        
+        result = supabase.table("users").update(update_data).eq("id", current_user.id).execute()
+        
+        if result.data:
+            return {
+                "success": True,
+                "message": "Progression sauvegardée",
+                "onboarding_step": progress.onboarding_step
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Impossible de sauvegarder la progression"
+            )
+            
+    except Exception as e:
+        logger.error(f"Save onboarding progress error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la sauvegarde"
+        )
