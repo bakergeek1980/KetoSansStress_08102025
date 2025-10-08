@@ -27,6 +27,7 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.meals import router as meals_router
 from app.api.v1.preferences import router as preferences_router
 from app.api.v1.foods import router as foods_router
+from app.api.v1.vision import router as vision_router  # ✅ Nouveau router vision
 
 # Legacy imports for meal analysis (will be migrated)
 from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
