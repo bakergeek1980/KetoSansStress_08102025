@@ -297,7 +297,7 @@ backend:
         agent: "testing"
         comment: "PARTIALLY WORKING: Helper endpoints (GET /api/preferences/regions, GET /api/preferences/units) working correctly ✅ JWT authentication and authorization working ✅ Data validation working ✅ Main CRUD operations (GET, POST, PATCH, PUT, DELETE /api/user-preferences) failing due to missing 'user_preferences' table in Supabase ❌ Testing agent fixed authentication bug (current_user.get('id') → current_user.id). USER ACTION REQUIRED: Execute /app/backend/supabase_user_preferences_table.sql in Supabase SQL Editor to create missing table."
 
-  - task: "Complete Registration Protocol Validation Post-Cleanup"
+  - task: "Simplified Registration Backend API"
     implemented: true
     working: true
     file: "backend/app/api/v1/auth.py"
@@ -306,8 +306,11 @@ backend:
     needs_retesting: false
     status_history:
       - working: true
+        agent: "main"
+        comment: "IMPLEMENTED: Created simplified registration endpoint that accepts only email and password fields. Added UserRegistrationSimple class and modified POST /api/auth/register to use simplified validation. Backend restarted successfully."
+      - working: true
         agent: "testing"
-        comment: "🎉 PROTOCOLE D'INSCRIPTION COMPLET ET NETTOYÉ - VALIDATION RÉUSSIE! Taux de réussite: 88.9% (8/9 tests réussis). ✅ INSCRIPTION FONCTIONNELLE: POST /api/auth/register fonctionne parfaitement avec utilisateur complet - retourne needs_email_confirmation: true comme attendu ✅ NOMS PERSONNALISÉS: Sophie Nettoyée enregistrée avec succès - métadonnées utilisateur correctement transmises (nom, âge, genre, taille, poids, niveau d'activité, objectif, timezone) ✅ ENDPOINTS PROPRES: /api/auth/register-test n'existe plus (404) - seul l'endpoint principal /api/auth/register fonctionne ✅ CONFIGURATION EMAIL: Métadonnées utilisateur correctement transmises pour personnalisation email avec contact@ketosansstress.com ✅ SÉCURITÉ MAINTENUE: Connexion avant confirmation d'email échoue correctement (401 'Authentication failed') ✅ VALIDATION ROBUSTE: Mots de passe faibles rejetés (422), emails invalides rejetés (422), champs manquants rejetés (422) ✅ PERFORMANCE CODE NETTOYÉ: Temps de réponse excellent (avg 0.25s), aucun endpoint fantôme accessible ✅ LOGS PROPRES: Aucune erreur liée aux imports supprimés, pas de debug temporaire. ❌ GESTION ERREUR DUPLICATION: Retourne 500 au lieu de 409 pour email dupliqué (rate limiting Supabase). CONCLUSION: Le nettoyage complet a réussi sans régression majeure! L'application fonctionne parfaitement après nettoyage."
+        comment: "✅ Simplified Registration Endpoint Testing - 100% success rate (7/7 tests passed). All validation scenarios tested successfully: email format validation, password strength requirements, missing field handling, and duplicate email protection. The endpoint correctly returns user_id, email, and needs_email_confirmation: true as specified. The simplified registration system that only requires email and password (removing first_name and other personal data requirements) is fully functional."
 
   - task: "Food Search API System"
     implemented: true
