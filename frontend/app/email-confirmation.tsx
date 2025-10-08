@@ -32,7 +32,7 @@ const COLORS = {
 export default function EmailConfirmationScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { resendConfirmationEmail, loading } = useAuth();
+  const { resendConfirmationEmail, loading, user } = useAuth();
 
   // Get email and name from params if coming from registration
   const initialEmail = params.email as string || '';
