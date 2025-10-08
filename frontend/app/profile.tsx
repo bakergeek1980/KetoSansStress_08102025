@@ -287,27 +287,6 @@ export default function ProfileScreen() {
       Alert.alert('Erreur', 'Impossible de supprimer le compte');
     }
   };
-        Alert.alert(
-          '✅ Compte supprimé',
-          'Votre compte a été supprimé avec succès. Un email de confirmation a été envoyé.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                logout();
-                router.replace('/auth');
-              }
-            }
-          ]
-        );
-      }
-    } catch (error) {
-      Alert.alert(
-        'Erreur',
-        'Impossible de supprimer le compte. Veuillez réessayer.'
-      );
-    }
-  };
 
   // ✅ Fonction supprimée - maintenant on utilise deleteAccount du contexte
 
