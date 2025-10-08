@@ -802,7 +802,7 @@ export default function OnboardingScreen() {
           </TouchableOpacity>
           
           <LoadingButton
-            title="✅ COMMENCER"
+            title={isEditMode ? "✅ METTRE À JOUR MES OBJECTIFS" : "✅ COMMENCER"}
             onPress={handleCompleteProfile}
             loading={isLoading}
             style={styles.startButton}
