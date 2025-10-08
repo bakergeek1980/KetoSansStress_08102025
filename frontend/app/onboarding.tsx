@@ -79,16 +79,33 @@ export default function OnboardingScreen() {
 
   // Initialisation avec les données utilisateur
   useEffect(() => {
-    if (user?.first_name) {
+    if (isEditMode && user) {
+      // ✅ Mode édition : pré-remplir avec les données existantes de l'utilisateur
+      console.log('🎯 Edit mode: pre-filling with user data:', user);
+      setOnboardingData({
+        first_name: user.first_name || user.full_name || '',
+        sex: user.sex || user.gender || '',
+        goal: user.goal || '',
+        current_weight: user.current_weight || user.weight || 0,
+        target_weight: user.target_weight || 0,
+        height: user.height || 0,
+        activity_level: user.activity_level || '',
+        birth_date: user.birth_date ? new Date(user.birth_date) : new Date(),
+        food_restrictions: user.food_restrictions || []
+      });
+    } else if (user?.first_name) {
+      // ✅ Mode première fois : utiliser seulement le first_name si disponible
       setOnboardingData(prev => ({
         ...prev,
         first_name: user.first_name
       }));
     }
     
-    // Restaurer les données sauvegardées si disponibles
-    restoreProgress();
-  }, [user]);
+    // Restaurer les données sauvegardées seulement si pas en mode édition
+    if (!isEditMode) {
+      restoreProgress();
+    }
+  }, [user, isEditMode]);
 
   // Sauvegarde automatique à chaque changement
   useEffect(() => {
