@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import Constants from 'expo-constants';
+import { OnboardingData, NutritionTargets } from '../types/onboarding';
 
 // Configuration de l'API
 const getApiBaseUrl = () => {
