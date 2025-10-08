@@ -34,7 +34,7 @@ class UserBase(BaseModel):
     email: EmailStr
     full_name: str = Field(..., min_length=1, max_length=255)
     age: Optional[int] = Field(None, gt=0, lt=150)  # Calculated from birth_date
-    birth_date: date = Field(..., description="Date de naissance de l'utilisateur")
+    birth_date: Optional[date] = Field(None, description="Date de naissance de l'utilisateur")  # ✅ Rendu optionnel
     gender: GenderEnum
     height: Decimal = Field(..., gt=0, decimal_places=2)  # cm
     weight: Decimal = Field(..., gt=0, decimal_places=2)  # kg
