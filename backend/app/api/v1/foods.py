@@ -249,8 +249,26 @@ async def scan_barcode(
     Scanner un code-barres et récupérer les informations produit
     """
     try:
-        # Rechercher dans OpenFoodFacts par code-barres
-        food_data = await get_product_by_barcode(request.barcode)
+        # ✅ Utiliser le service OpenFoodFacts amélioré
+        off_result = food_search_service.get_food_by_barcode(request.barcode)
+        
+        # Convertir le format si trouvé
+        food_data = None
+        if off_result:
+            food_data = FoodSearchResult(
+                id=off_result.get("openfoodfacts_id", f"off_{request.barcode}"),
+                name=off_result.get("product_name", "Produit scanné"),
+                brand=off_result.get("brand"),
+                category=off_result.get("categories", ["produit scanné"])[0] if off_result.get("categories") else "produit scanné",
+                calories_per_100g=off_result.get("calories_per_100g", 0),
+                proteins_per_100g=off_result.get("protein_per_100g", 0),
+                carbs_per_100g=off_result.get("carbohydrates_per_100g", 0),
+                fats_per_100g=off_result.get("fat_per_100g", 0),
+                fiber_per_100g=off_result.get("fiber_per_100g", 0),
+                image_url=off_result.get("image_url"),
+                barcode=request.barcode,
+                source="openfoodfacts"
+            )
         
         return BarcodeScanResult(
             barcode=request.barcode,
