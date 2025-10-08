@@ -37,7 +37,7 @@ const COLORS = {
 // Interfaces supprimées - maintenant utilisation d'état local
 
 export default function AuthScreen() {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true); // ✅ Par défaut en mode connexion
   const { login, register, loginLoading, registerLoading } = useAuth();
   const router = useRouter();
 
