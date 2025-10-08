@@ -1,34 +1,20 @@
 #!/usr/bin/env python3
 """
-Tests complets pour les nouvelles fonctionnalités de l'API KetoSansStress
-Test des endpoints Foods API et Vision API après corrections
+Backend API Testing for KetoSansStress
+Testing the simplified registration endpoint POST /api/auth/register
 """
 
 import requests
 import json
-import base64
-import time
-import os
+import sys
 from datetime import datetime
-from typing import Dict, Any, Optional
 
-# Configuration de l'API
-API_BASE_URL = "https://keto-onboard.preview.emergentagent.com/api"
-
-# Données de test - utiliser un utilisateur existant confirmé
-TEST_USER_EMAIL = "contact@ketosansstress.com"
-TEST_USER_PASSWORD = "SecurePass123!"
-
-# Code-barres de test (produits réels OpenFoodFacts)
-TEST_BARCODES = {
-    "nutella": "3017620425035",  # Nutella
-    "ferrero_rocher": "8000500037454",  # Ferrero Rocher
-    "camembert": "3228021170015",  # President Camembert
-    "invalid": "0000000000000"  # Code-barres invalide
+# Configuration
+BASE_URL = "https://keto-onboard.preview.emergentagent.com/api"
+HEADERS = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
 }
-
-# Image de test en base64 (petite image 1x1 pixel)
-TEST_IMAGE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
 class KetoAPITester:
     def __init__(self):
