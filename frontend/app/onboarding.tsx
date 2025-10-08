@@ -898,8 +898,13 @@ const styles = StyleSheet.create({
   slidesContainer: {
     flex: 1,
   },
+  // ✅ Nouveau container pour le système de pages
+  slidePageContainer: {
+    flex: 1,
+    width: '100%',
+  },
   slideContainer: {
-    width: SCREEN_WIDTH,
+    width: '100%',
     flex: 1,
     paddingHorizontal: 20,
   },
