@@ -281,6 +281,7 @@ export default function ProfileScreen() {
         // Déconnexion et redirection
         await logout();
         router.replace('/auth');
+      }
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
       Alert.alert('Erreur', 'Impossible de supprimer le compte');
