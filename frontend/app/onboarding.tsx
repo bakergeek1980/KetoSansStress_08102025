@@ -1080,9 +1080,14 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginLeft: 32,
   },
-  // Restrictions
+  // ✅ Restrictions avec ScrollView
+  restrictionsScrollView: {
+    flex: 1,
+    width: '100%',
+  },
   restrictionsContainer: {
     width: '100%',
+    paddingBottom: 20,
   },
   restrictionCard: {
     flexDirection: 'row',
