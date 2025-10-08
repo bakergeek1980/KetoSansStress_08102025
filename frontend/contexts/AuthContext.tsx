@@ -21,6 +21,7 @@ interface User {
   id: string;
   email: string;
   full_name?: string;
+  first_name?: string; // ✅ Nouveau champ pour onboarding
   age?: number;
   gender?: string;
   height?: number;
@@ -31,6 +32,16 @@ interface User {
   target_protein?: number;
   target_carbs?: number;
   target_fat?: number;
+  
+  // ✅ Nouveaux champs pour onboarding
+  profile_completed?: boolean;
+  onboarding_step?: number;
+  sex?: string;
+  current_weight?: number;
+  target_weight?: number;
+  food_restrictions?: string[];
+  
+  token?: string;
 }
 
 interface AuthContextType {
