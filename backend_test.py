@@ -30,11 +30,10 @@ TEST_BARCODES = {
 # Image de test en base64 (petite image 1x1 pixel)
 TEST_IMAGE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
-class BackendTester:
+class KetoAPITester:
     def __init__(self):
-        self.base_url = BACKEND_URL
-        self.access_token = None
-        self.test_user_email = None
+        self.session = requests.Session()
+        self.auth_token = None
         self.test_results = []
         
     def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
