@@ -11,6 +11,38 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+class UserRegistrationSimple(BaseModel):
+    """Simplified registration with only email and password"""
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+    
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        """Validate password strength"""
+        import re
+        
+        if len(v) < 8:
+            raise ValueError('Le mot de passe doit contenir au moins 8 caractères')
+        
+        # Check for lowercase
+        if not re.search(r'[a-z]', v):
+            raise ValueError('Le mot de passe doit contenir au moins une lettre minuscule')
+            
+        # Check for uppercase  
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Le mot de passe doit contenir au moins une lettre majuscule')
+            
+        # Check for digit
+        if not re.search(r'\d', v):
+            raise ValueError('Le mot de passe doit contenir au moins un chiffre')
+            
+        # Check for special character
+        if not re.search(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]', v):
+            raise ValueError('Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*)')
+            
+        return v
+
 class UserRegistration(UserCreate):
     password: str = Field(..., min_length=8)
     
