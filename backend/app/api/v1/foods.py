@@ -173,11 +173,28 @@ async def search_foods(
         # Limiter les résultats
         results = results[:limit]
         
-        # Si pas assez de résultats locaux, essayer OpenFoodFacts
+        # ✅ Utiliser le service OpenFoodFacts amélioré si pas assez de résultats locaux
         if len(results) < limit:
             try:
-                openfoodfacts_results = await search_openfoodfacts(query_lower, limit - len(results))
-                results.extend(openfoodfacts_results)
+                openfoodfacts_results = food_search_service.search_foods(q, limit - len(results))
+                
+                # Convertir le format du service vers FoodSearchResult
+                for off_result in openfoodfacts_results:
+                    converted = {
+                        "id": off_result.get("openfoodfacts_id", f"off_{off_result.get('barcode', 'unknown')}"),
+                        "name": off_result.get("product_name", "Produit inconnu"),
+                        "brand": off_result.get("brand"),
+                        "category": off_result.get("categories", ["autre"])[0] if off_result.get("categories") else "autre",
+                        "calories_per_100g": off_result.get("calories_per_100g", 0),
+                        "proteins_per_100g": off_result.get("protein_per_100g", 0),
+                        "carbs_per_100g": off_result.get("carbohydrates_per_100g", 0),
+                        "fats_per_100g": off_result.get("fat_per_100g", 0),
+                        "fiber_per_100g": off_result.get("fiber_per_100g", 0),
+                        "image_url": off_result.get("image_url"),
+                        "barcode": off_result.get("barcode"),
+                        "source": "openfoodfacts"
+                    }
+                    results.append(converted)
             except Exception as e:
                 logger.warning(f"OpenFoodFacts search failed: {e}")
         
