@@ -250,6 +250,10 @@ export const useApi = () => {
     searchFoods,
     getKetoFriendlyFoods,
     analyzeFoodImage,
+    // ✅ Nouvelles fonctions API
+    scanBarcode,
+    analyzeImage,
+    toggleFavorite,
     // User functions
     getUserProfile,
     createUserProfile,
