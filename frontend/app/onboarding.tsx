@@ -343,14 +343,14 @@ export default function OnboardingScreen() {
             ]
           );
         } else {
-          // Mode édition : retourner aux paramètres avec notification
+          // ✅ Mode édition : retourner à l'accueil avec notification
           Alert.alert(
             '✅ Objectifs mis à jour !',
             'Vos nouveaux objectifs nutritionnels ont été calculés et sauvegardés.',
             [
               {
-                text: 'Retour aux paramètres',
-                onPress: () => router.back()
+                text: 'Retour à l\'accueil',
+                onPress: () => router.replace('/(tabs)')
               }
             ]
           );
