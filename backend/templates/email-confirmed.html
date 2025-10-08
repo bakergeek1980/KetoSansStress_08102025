@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Email confirmé - Keto Sans Stress">
+    <meta property="og:title" content="✅ Email confirmé - Keto Sans Stress">
+    <meta property="og:description" content="Votre adresse email a été confirmée avec succès !">
+    <meta property="og:image" content="https://ketosansstress.app/images/keto-success.png">
+    <title>✅ Email Confirmé - Keto Sans Stress</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4CAF50, #81C784, #4CAF50);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: bounceIn 0.8s ease-out;
+            position: relative;
+        }
+        
+        .success-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        
+        .avocado {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            color: #4CAF50;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        h2 {
+            color: #212121;
+            font-size: 24px;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        .subtitle {
+            color: #757575;
+            font-size: 16px;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+            color: white;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+        }
+        
+        .cta-button:active {
+            transform: translateY(0px);
+        }
+        
+        .qr-container {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: #F8F9FA;
+            border-radius: 12px;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+        
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 16px;
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .fallback-message {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: #E8F5E8;
+            border-radius: 8px;
+            color: #2E7D32;
+            font-size: 14px;
+            animation: fadeInUp 0.8s ease-out 1s both;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #E0E0E0;
+            color: #9E9E9E;
+            font-size: 12px;
+            animation: fadeInUp 0.8s ease-out 1.2s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 24px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            .cta-button {
+                padding: 14px 28px;
+                font-size: 16px;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Desktop detection */
+        @media (min-width: 768px) {
+            .qr-container.desktop {
+                display: block !important;
+            }
+            
+            .fallback-message.desktop {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon"></div>
+        
+        <div class="avocado">🥑</div>
+        
+        <h1>Keto Sans Stress</h1>
+        
+        <h2>✅ Adresse email confirmée !</h2>
+        
+        <p class="subtitle">
+            Merci {{first_name}} ! 🎉<br><br>
+            Votre adresse email a été confirmée avec succès.<br>
+            Vous pouvez maintenant vous connecter à l'application Keto Sans Stress.
+        </p>
+        
+        <button class="cta-button" onclick="openApp()">
+            <span>Ouvrir l'application</span>
+            <span>📱</span>
+        </button>
+        
+        <div class="qr-container" id="qrContainer">
+            <p style="color: #757575; margin-bottom: 16px; font-size: 14px;">
+                📱 Scannez ce QR code avec votre téléphone :
+            </p>
+            <div class="qr-code" id="qrCode">
+                QR Code sera généré ici
+            </div>
+            <p style="color: #9E9E9E; font-size: 12px;">
+                Pointez la caméra de votre téléphone vers ce QR code
+            </p>
+        </div>
+        
+        <div class="fallback-message" id="fallbackMessage">
+            📱 Ouvrez l'application <strong>Keto Sans Stress</strong> sur votre téléphone pour vous connecter.
+        </div>
+        
+        <div class="footer">
+            <p>Vous n'avez pas demandé cette confirmation ?</p>
+            <p>Ignorez cet email en toute sécurité.</p>
+            <p style="margin-top: 8px;">© 2025 Keto Sans Stress - Votre compagnon cétogène</p>
+        </div>
+    </div>
+
+    <script>
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        
+        function isDesktop() {
+            return !isMobile() && window.innerWidth >= 768;
+        }
+        
+        function generateQRCode(text) {
+            // Simple QR code generation using QR Server API
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}&bgcolor=FFFFFF&color=4CAF50`;
+            const qrCode = document.getElementById('qrCode');
+            qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;">`;
+        }
+        
+        function openApp() {
+            const deepLink = 'ketosansstress://login';
+            const fallbackUrl = 'https://ketosansstress.app/download'; // Page de téléchargement de l'app
+            
+            if (isMobile()) {
+                // Sur mobile, essayer d'ouvrir l'app via deep link
+                window.location.href = deepLink;
+                
+                // Fallback après 2 secondes si l'app ne s'ouvre pas
+                setTimeout(() => {
+                    if (confirm('L\'application ne s\'est pas ouverte automatiquement. Voulez-vous télécharger l\'application ?')) {
+                        window.location.href = fallbackUrl;
+                    }
+                }, 2000);
+                
+            } else {
+                // Sur desktop, afficher le QR code
+                document.getElementById('qrContainer').style.display = 'block';
+                document.getElementById('qrContainer').classList.add('desktop');
+                generateQRCode(deepLink);
+                
+                // Afficher aussi le message fallback
+                document.getElementById('fallbackMessage').style.display = 'block';
+                document.getElementById('fallbackMessage').classList.add('desktop');
+            }
+        }
+        
+        // Auto-détection au chargement de la page
+        window.addEventListener('load', function() {
+            if (isDesktop()) {
+                // Sur desktop, afficher directement le QR code
+                setTimeout(() => {
+                    document.getElementById('qrContainer').style.display = 'block';
+                    document.getElementById('qrContainer').classList.add('desktop');
+                    generateQRCode('ketosansstress://login');
+                    
+                    document.getElementById('fallbackMessage').style.display = 'block';
+                    document.getElementById('fallbackMessage').classList.add('desktop');
+                }, 1000);
+            }
+        });
+        
+        // Gestion des erreurs d'images
+        document.addEventListener('error', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #757575; font-size: 12px;">QR Code indisponible</div>';
+            }
+        }, true);
+    </script>
+</body>
+</html>
