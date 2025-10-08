@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  Animated,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
