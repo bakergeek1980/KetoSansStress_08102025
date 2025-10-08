@@ -443,8 +443,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteAccount = async (): Promise<boolean> => {
-    // This function now initiates the email confirmation process
-    return await requestAccountDeletion();
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/account`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        await logout();
+        Alert.alert('Compte supprimé', 'Votre compte a été définitivement supprimé.');
+        return true;
+      } else {
+        const data = await response.json();
+        Alert.alert('Erreur', data.detail || 'Impossible de supprimer le compte');
+        return false;
+      }
+    } catch (error) {
+      console.error('Delete account error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    }
   };
 
   const requestPasswordReset = async (email: string): Promise<boolean> => {
