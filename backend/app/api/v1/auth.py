@@ -1,12 +1,16 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Dict, Any, Optional
-from datetime import date
+from datetime import date, datetime, timedelta
 from supabase import Client
 from app.database.connection import get_supabase_client
 from app.auth.dependencies import get_current_user, get_current_user_token
 from app.database.schemas import User, UserCreate
+from app.services.email_service import generate_confirmation_token, render_confirmed_page, render_error_page
 import logging
+import secrets
+import jwt
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
