@@ -17,7 +17,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ketosansstress.app"
+      "bundleIdentifier": "com.ketosansstress.app",
+      "associatedDomains": ["applinks:ketosansstress.app"]
     },
     "android": {
       "adaptiveIcon": {
