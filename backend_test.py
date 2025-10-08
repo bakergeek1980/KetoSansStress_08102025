@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 # Test configuration
 BASE_URL = "https://keto-onboard.preview.emergentagent.com/api"
-TEST_EMAIL = "onboarding.test@ketosansstress.com"
-TEST_PASSWORD = "OnboardingTest123!"
+TEST_EMAIL = "test.onboard.user@ketosansstress.com"
+TEST_PASSWORD = "TestOnboard123!"
 
 class OnboardingTester:
     def __init__(self):
