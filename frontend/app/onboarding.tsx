@@ -63,7 +63,9 @@ const STORAGE_KEY = 'onboarding_progress';
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { user, completeProfile } = useAuth();
+  const searchParams = useLocalSearchParams<{ mode?: 'edit' }>();
+  const isEditMode = searchParams.mode === 'edit';
+  const { user, completeProfile, saveOnboardingProgress } = useAuth();
   
   // États principaux
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1);
