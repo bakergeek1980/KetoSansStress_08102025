@@ -190,7 +190,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: email 
           };
         } else {
-          Alert.alert('Erreur de connexion', data.detail || 'Identifiants invalides');
+          // ✅ Message générique pour toutes les erreurs de connexion
+          Alert.alert('Erreur de connexion', 'Email ou mot de passe incorrect');
           return { success: false };
         }
       }
