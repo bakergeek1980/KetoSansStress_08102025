@@ -29,6 +29,27 @@ export default function Index() {
   useEffect(() => {
     if (isInitialized && !loading) {
       if (user) {
+        // ✅ Vérifier si l'utilisateur doit passer par l'onboarding
+        console.log('🎯 User data for onboarding check:', {
+          onboarding_completed: user.onboarding_completed,
+          profile_completed: user.profile_completed,
+          email_confirmed_at: user.email_confirmed_at
+        });
+        
+        // Si l'email n'est pas confirmé, rediriger vers la page de confirmation
+        if (!user.email_confirmed_at) {
+          router.replace(`/email-confirmation?email=${encodeURIComponent(user.email || '')}`);
+          return;
+        }
+        
+        // Si l'onboarding n'est pas complété, rediriger vers le questionnaire
+        if (!user.onboarding_completed && !user.profile_completed) {
+          console.log('🎯 Redirecting to onboarding - first time user');
+          router.replace('/onboarding');
+          return;
+        }
+        
+        // Sinon, rediriger vers le dashboard
         router.replace('/(tabs)');
       } else {
         router.replace('/auth');
