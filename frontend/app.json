@@ -24,7 +24,22 @@
         "foregroundImage": "./assets/images/app-icon.png",
         "backgroundColor": "#2D4A22"
       },
-      "package": "com.ketosansstress.app"
+      "package": "com.ketosansstress.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "ketosansstress"
+            },
+            {
+              "scheme": "https",
+              "host": "ketosansstress.app"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
