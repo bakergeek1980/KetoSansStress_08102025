@@ -475,6 +475,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // ✅ Nouvelle fonction pour finaliser le profil onboarding
+  const completeProfile = async (onboardingData: OnboardingData, nutritionTargets: NutritionTargets): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/complete-profile`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          onboarding_data: onboardingData,
+          nutrition_targets: nutritionTargets,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Mettre à jour l'utilisateur local avec les nouvelles données
+        await updateUser(data.user);
+        Alert.alert('Succès', 'Profil complété avec succès!');
+        return true;
+      } else {
+        Alert.alert('Erreur', data.detail || 'Impossible de compléter le profil');
+        return false;
+      }
+    } catch (error) {
+      console.error('Complete profile error:', error);
+      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
