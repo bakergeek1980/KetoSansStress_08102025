@@ -723,11 +723,26 @@ export default function OnboardingScreen() {
               {onboardingData.first_name}, voici ton plan personnalisé 🎯
             </Text>
             
-            {/* Cercle nutritionnel */}
+            {/* ✅ Donut Chart avec proportions visuelles */}
             <View style={styles.nutritionCircleContainer}>
-              <View style={styles.nutritionCircle}>
-                <Text style={styles.caloriesText}>{nutritionTargets.calories}</Text>
-                <Text style={styles.caloriesLabel}>kcal</Text>
+              <View style={styles.donutChartContainer}>
+                {/* Donut Chart avec segments proportionnels */}
+                <View style={styles.donutChart}>
+                  {/* Segment Lipides 75% */}
+                  <View style={[styles.donutSegment, styles.donutSegmentFats]} />
+                  
+                  {/* Segment Protéines 20% */}
+                  <View style={[styles.donutSegment, styles.donutSegmentProteins]} />
+                  
+                  {/* Segment Glucides 5% */}
+                  <View style={[styles.donutSegment, styles.donutSegmentCarbs]} />
+                </View>
+                
+                {/* Centre avec calories */}
+                <View style={styles.donutCenter}>
+                  <Text style={styles.caloriesText}>{nutritionTargets.calories}</Text>
+                  <Text style={styles.caloriesLabel}>kcal/jour</Text>
+                </View>
               </View>
               
               <View style={styles.macrosLegend}>
