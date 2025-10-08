@@ -250,17 +250,6 @@ export default function AuthScreen() {
         placeholder="••••••••"
       />
 
-      <SimpleInput
-        label="Prénom"
-        value={registerData.first_name}
-        onChangeText={(text) => {
-          console.log('🎯 Register First Name changé:', text);
-          setRegisterData(prev => ({ ...prev, first_name: text }));
-        }}
-        leftIcon="person"
-        placeholder="Votre prénom"
-      />
-
       {/* ✅ Champs supplémentaires supprimés - Phase 1 simplifiée */}
 
       <LoadingButton
