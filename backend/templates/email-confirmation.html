@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Confirmez votre email - Keto Sans Stress</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAFAFA; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    
+    <!-- Logo/Mascotte -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <div style="font-size: 80px; margin-bottom: 16px;">🥑</div>
+      <h1 style="color: #4CAF50; font-size: 28px; margin: 0; font-weight: bold;">Keto Sans Stress</h1>
+      <p style="color: #757575; font-size: 14px; margin-top: 8px; font-style: italic;">Votre compagnon cétogène au quotidien</p>
+    </div>
+    
+    <!-- Contenu -->
+    <div style="text-align: center;">
+      <h2 style="color: #212121; font-size: 24px; margin-bottom: 16px; font-weight: bold;">
+        Bienvenue {{first_name}} ! 👋
+      </h2>
+      <p style="color: #757575; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+        Merci de vous être inscrit à Keto Sans Stress.<br>
+        Veuillez confirmer votre adresse email pour activer votre compte et commencer votre voyage cétogène.
+      </p>
+      
+      <!-- Bouton CTA -->
+      <div style="margin: 32px 0;">
+        <a href="{{confirmation_link}}" style="display: inline-block; background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%); color: white; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); transition: transform 0.2s ease;">
+          Confirmer mon email ✅
+        </a>
+      </div>
+      
+      <!-- Informations supplémentaires -->
+      <div style="background: #E8F5E8; border-radius: 12px; padding: 20px; margin: 24px 0; text-align: left;">
+        <p style="color: #2E7D32; font-size: 14px; margin: 0; font-weight: 500;">🎯 Après confirmation, vous pourrez :</p>
+        <ul style="color: #2E7D32; font-size: 14px; margin: 8px 0 0 20px; padding: 0;">
+          <li>Accéder à votre tableau de bord personnalisé</li>
+          <li>Suivre vos macros quotidiennes</li>
+          <li>Scanner vos aliments avec l'IA</li>
+          <li>Recevoir des conseils adaptés</li>
+        </ul>
+      </div>
+      
+      <!-- Lien alternatif -->
+      <p style="color: #9E9E9E; font-size: 14px; margin-top: 24px;">
+        Le bouton ne fonctionne pas ? Copiez ce lien dans votre navigateur :<br>
+        <a href="{{confirmation_link}}" style="color: #4CAF50; word-break: break-all; text-decoration: underline;">{{confirmation_link}}</a>
+      </p>
+    </div>
+    
+    <!-- Footer -->
+    <div style="border-top: 1px solid #E0E0E0; margin-top: 40px; padding-top: 24px; text-align: center;">
+      <p style="color: #9E9E9E; font-size: 12px; margin: 0;">
+        Vous n'avez pas créé de compte ? Ignorez cet email en toute sécurité.
+      </p>
+      <p style="color: #9E9E9E; font-size: 12px; margin-top: 8px;">
+        © 2025 Keto Sans Stress - Votre compagnion cétogène
+      </p>
+      <p style="color: #9E9E9E; font-size: 12px; margin-top: 16px;">
+        📧 <a href="mailto:contact@ketosansstress.com" style="color: #4CAF50; text-decoration: none;">contact@ketosansstress.com</a>
+      </p>
+    </div>
+  </div>
+  
+  <!-- Styles pour certains clients email -->
+  <style>
+    @media only screen and (max-width: 600px) {
+      .container {
+        width: 100% !important;
+        padding: 20px !important;
+      }
+      
+      .cta-button {
+        padding: 14px 32px !important;
+        font-size: 16px !important;
+      }
+    }
+  </style>
+</body>
+</html>
