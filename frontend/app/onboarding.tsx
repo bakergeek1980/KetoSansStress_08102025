@@ -460,16 +460,19 @@ export default function OnboardingScreen() {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.numberInput}
-            value={onboardingData.current_weight?.toString() || ''}
+            value={onboardingData.current_weight?.toString().replace('.', ',') || ''}
             onChangeText={(text) => {
-              const weight = parseFloat(text.replace(',', '.'));
-              if (!isNaN(weight)) {
+              // ✅ Permettre édition directe avec point ou virgule  
+              const cleaned = text.replace(',', '.');
+              const weight = parseFloat(cleaned);
+              
+              if (!isNaN(weight) && weight >= 30 && weight <= 300) {
                 setOnboardingData(prev => ({ ...prev, current_weight: weight }));
-              } else if (text === '') {
+              } else if (text === '' || text === '0') {
                 setOnboardingData(prev => ({ ...prev, current_weight: undefined }));
               }
             }}
-            placeholder="0.0"
+            placeholder="75,5"
             keyboardType="decimal-pad"
             placeholderTextColor={COLORS.textLight}
           />
