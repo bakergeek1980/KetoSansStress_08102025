@@ -97,17 +97,12 @@ export default function AuthScreen() {
     console.log('🎯 Register submit avec état local:', registerData);
     
     try {
-      // Validation
-      const requiredFields = ['email', 'password', 'confirmPassword', 'full_name', 'gender', 'height', 'weight'];
+      // ✅ Validation simplifiée - Phase 1 seulement
+      const requiredFields = ['email', 'password', 'confirmPassword', 'first_name'];
       const missingFields = requiredFields.filter(field => {
         const value = registerData[field as keyof typeof registerData];
         return !value || value === '';
       });
-      
-      // Vérification spéciale pour birth_date
-      if (!registerData.birth_date) {
-        missingFields.push('birth_date');
-      }
       
       if (missingFields.length > 0) {
         Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
