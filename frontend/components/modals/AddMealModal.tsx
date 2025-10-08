@@ -562,7 +562,7 @@ export default function AddMealModal({ visible, mealType, onClose, onMealAdded }
 
       <View style={styles.submitButtonContainer}>
         <LoadingButton
-          onPress={handleManualSubmit}
+          onPress={handleSubmit(onSubmit)}
           loading={apiLoading}
           style={styles.submitButton}
           textStyle={styles.submitButtonText}
