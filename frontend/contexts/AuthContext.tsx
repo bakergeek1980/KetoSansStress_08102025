@@ -60,6 +60,9 @@ interface AuthContextType {
   requestPasswordReset: (email: string) => Promise<boolean>;
   confirmEmail: (token: string) => Promise<boolean>;
   resendConfirmationEmail: (email: string) => Promise<boolean>;
+  
+  // ✅ Nouvelle fonction pour finaliser le profil onboarding
+  completeProfile: (onboardingData: OnboardingData, nutritionTargets: NutritionTargets) => Promise<boolean>;
 }
 
 interface RegisterData {
